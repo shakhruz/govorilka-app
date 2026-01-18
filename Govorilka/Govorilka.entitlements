@@ -13,8 +13,5 @@
     <!-- Network access for Deepgram API -->
     <key>com.apple.security.network.client</key>
     <true/>
-
-    <!-- Accessibility for auto-paste (keyboard simulation) -->
-    <!-- Note: User must manually grant in System Preferences > Privacy > Accessibility -->
 </dict>
 </plist>

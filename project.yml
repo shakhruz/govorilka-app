@@ -1,0 +1,40 @@
+name: Govorilka
+options:
+  bundleIdPrefix: com.skylineyoga
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+packages:
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: "2.0.0"
+
+targets:
+  Govorilka:
+    type: application
+    platform: macOS
+    sources:
+      - Govorilka
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.skylineyoga.govorilka
+        PRODUCT_NAME: Govorilka
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_FILE: Govorilka/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Govorilka/Govorilka.entitlements
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+    dependencies:
+      - package: KeyboardShortcuts
+    entitlements:
+      path: Govorilka/Govorilka.entitlements
+    info:
+      path: Govorilka/Info.plist

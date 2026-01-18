@@ -1,0 +1,164 @@
+import AVFoundation
+import Foundation
+
+/// Protocol for receiving audio data chunks
+protocol AudioServiceDelegate: AnyObject {
+    func audioService(_ service: AudioService, didReceiveAudioData data: Data)
+    func audioService(_ service: AudioService, didFailWithError error: Error)
+}
+
+/// Error types for AudioService
+enum AudioServiceError: LocalizedError {
+    case microphonePermissionDenied
+    case engineStartFailed
+    case formatConversionFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .microphonePermissionDenied:
+            return "Доступ к микрофону запрещён. Разрешите доступ в Системных настройках."
+        case .engineStartFailed:
+            return "Не удалось запустить аудио-движок."
+        case .formatConversionFailed:
+            return "Ошибка конвертации аудио формата."
+        }
+    }
+}
+
+/// Service for capturing audio from microphone using AVAudioEngine
+final class AudioService {
+    weak var delegate: AudioServiceDelegate?
+
+    private let audioEngine = AVAudioEngine()
+    private var isRecording = false
+    private var recordingStartTime: Date?
+
+    // Target format for Deepgram: PCM 16-bit, 16kHz, mono
+    private let targetSampleRate: Double = 16000
+    private let targetChannels: AVAudioChannelCount = 1
+
+    // MARK: - Public Methods
+
+    /// Check and request microphone permission
+    func requestPermission() async -> Bool {
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+
+        switch status {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .audio)
+        case .denied, .restricted:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
+    /// Start recording audio
+    func startRecording() throws {
+        guard !isRecording else { return }
+
+        let inputNode = audioEngine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+
+        // Create converter to target format
+        guard let targetFormat = AVAudioFormat(
+            commonFormat: .pcmFormatInt16,
+            sampleRate: targetSampleRate,
+            channels: targetChannels,
+            interleaved: true
+        ) else {
+            throw AudioServiceError.formatConversionFailed
+        }
+
+        guard let converter = AVAudioConverter(from: inputFormat, to: targetFormat) else {
+            throw AudioServiceError.formatConversionFailed
+        }
+
+        // Install tap on input node
+        let bufferSize: AVAudioFrameCount = 1024
+
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: inputFormat) { [weak self] buffer, _ in
+            self?.processAudioBuffer(buffer, converter: converter, targetFormat: targetFormat)
+        }
+
+        // Prepare and start engine
+        audioEngine.prepare()
+
+        do {
+            try audioEngine.start()
+            isRecording = true
+            recordingStartTime = Date()
+        } catch {
+            inputNode.removeTap(onBus: 0)
+            throw AudioServiceError.engineStartFailed
+        }
+    }
+
+    /// Stop recording and return duration
+    @discardableResult
+    func stopRecording() -> TimeInterval {
+        guard isRecording else { return 0 }
+
+        audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
+        isRecording = false
+
+        let duration = recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
+        recordingStartTime = nil
+
+        return duration
+    }
+
+    /// Current recording status
+    var recording: Bool {
+        isRecording
+    }
+
+    /// Current recording duration
+    var currentDuration: TimeInterval {
+        recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
+    }
+
+    // MARK: - Private Methods
+
+    private func processAudioBuffer(
+        _ buffer: AVAudioPCMBuffer,
+        converter: AVAudioConverter,
+        targetFormat: AVAudioFormat
+    ) {
+        // Calculate output buffer size
+        let ratio = targetFormat.sampleRate / buffer.format.sampleRate
+        let outputFrameCapacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio)
+
+        guard let outputBuffer = AVAudioPCMBuffer(
+            pcmFormat: targetFormat,
+            frameCapacity: outputFrameCapacity
+        ) else {
+            return
+        }
+
+        // Convert buffer
+        var error: NSError?
+        let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+            outStatus.pointee = .haveData
+            return buffer
+        }
+
+        converter.convert(to: outputBuffer, error: &error, withInputFrom: inputBlock)
+
+        if let error = error {
+            delegate?.audioService(self, didFailWithError: error)
+            return
+        }
+
+        // Extract PCM data
+        guard let channelData = outputBuffer.int16ChannelData else { return }
+
+        let frameLength = Int(outputBuffer.frameLength)
+        let data = Data(bytes: channelData[0], count: frameLength * MemoryLayout<Int16>.size)
+
+        delegate?.audioService(self, didReceiveAudioData: data)
+    }
+}

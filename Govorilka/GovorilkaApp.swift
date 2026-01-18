@@ -12,9 +12,9 @@ struct GovorilkaApp: App {
             Label {
                 Text("Говорилка")
             } icon: {
-                Image(systemName: appState.isRecording ? "mic.fill" : "mic")
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(appState.isRecording ? .red : .primary)
+                // Custom icon from Assets
+                Image(appState.isRecording ? "MenuBarIconRecording" : "MenuBarIcon")
+                    .renderingMode(.template)
             }
         }
         .menuBarExtraStyle(.window)

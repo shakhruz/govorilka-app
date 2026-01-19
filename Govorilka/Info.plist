@@ -18,5 +18,11 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>Говорилка использует Универсальный доступ для автоматической вставки текста в активное приложение после записи</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Говорилка использует микрофон для записи голоса и преобразования в текст через Deepgram API</string>
 </dict>
 </plist>

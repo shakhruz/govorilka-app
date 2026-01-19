@@ -12,8 +12,11 @@ final class StorageService {
         static let apiKey = "deepgram_api_key"
         static let history = "transcript_history"
         static let autoPasteEnabled = "auto_paste_enabled"
+        static let showFloatingWindow = "show_floating_window"
+        static let hotkeyMode = "hotkey_mode"
         static let maxHistoryCount = "max_history_count"
         static let onboardingCompleted = "onboarding_completed"
+        static let accessibilityOnboardingSkipped = "accessibility_onboarding_skipped"
     }
 
     // MARK: - API Key
@@ -35,6 +38,22 @@ final class StorageService {
         set { defaults.set(newValue, forKey: Keys.autoPasteEnabled) }
     }
 
+    var showFloatingWindow: Bool {
+        get { defaults.object(forKey: Keys.showFloatingWindow) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Keys.showFloatingWindow) }
+    }
+
+    var hotkeyMode: HotkeyMode {
+        get {
+            guard let rawValue = defaults.string(forKey: Keys.hotkeyMode),
+                  let mode = HotkeyMode(rawValue: rawValue) else {
+                return .optionSpace
+            }
+            return mode
+        }
+        set { defaults.set(newValue.rawValue, forKey: Keys.hotkeyMode) }
+    }
+
     var maxHistoryCount: Int {
         get { defaults.object(forKey: Keys.maxHistoryCount) as? Int ?? 50 }
         set { defaults.set(newValue, forKey: Keys.maxHistoryCount) }
@@ -43,6 +62,11 @@ final class StorageService {
     var onboardingCompleted: Bool {
         get { defaults.bool(forKey: Keys.onboardingCompleted) }
         set { defaults.set(newValue, forKey: Keys.onboardingCompleted) }
+    }
+
+    var accessibilityOnboardingSkipped: Bool {
+        get { defaults.bool(forKey: Keys.accessibilityOnboardingSkipped) }
+        set { defaults.set(newValue, forKey: Keys.accessibilityOnboardingSkipped) }
     }
 
     // MARK: - History
@@ -95,7 +119,10 @@ final class StorageService {
         defaults.removeObject(forKey: Keys.apiKey)
         defaults.removeObject(forKey: Keys.history)
         defaults.removeObject(forKey: Keys.autoPasteEnabled)
+        defaults.removeObject(forKey: Keys.showFloatingWindow)
+        defaults.removeObject(forKey: Keys.hotkeyMode)
         defaults.removeObject(forKey: Keys.maxHistoryCount)
         defaults.removeObject(forKey: Keys.onboardingCompleted)
+        defaults.removeObject(forKey: Keys.accessibilityOnboardingSkipped)
     }
 }

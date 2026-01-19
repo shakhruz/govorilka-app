@@ -39,9 +39,10 @@ final class DeepgramService: NSObject {
     // Deepgram API configuration
     private let baseURL = "wss://api.deepgram.com/v1/listen"
     private let queryParams = [
-        "language": "multi",  // Auto-detect Russian/English
+        "language": "ru",  // Russian language
         "model": "nova-2",
         "punctuate": "true",
+        "smart_format": "true",
         "interim_results": "true",
         "encoding": "linear16",
         "sample_rate": "16000",

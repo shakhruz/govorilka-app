@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import Foundation
 import KeyboardShortcuts
+import SwiftUI
 
 // Define keyboard shortcut name
 extension KeyboardShortcuts.Name {
@@ -24,10 +25,24 @@ final class AppState: ObservableObject {
     @Published var apiKey: String = ""
     @Published var autoPasteEnabled: Bool = true
     @Published var hasAccessibilityPermission = false
+    @Published var hotkeyMode: HotkeyMode = .optionSpace
 
     // Connection status
     @Published var isConnecting = false
     @Published var isConnected = false
+
+    // Audio level for waveform visualization
+    @Published var currentAudioLevel: Float = 0.0
+
+    // Floating window
+    @Published var showFloatingWindow = true // User preference
+    let floatingWindowController = FloatingWindowController()
+
+    // Accessibility onboarding
+    let onboardingWindowController = OnboardingWindowController()
+
+    // Flag to suppress errors during intentional disconnect
+    private var isDisconnecting = false
 
     // MARK: - Services
 
@@ -35,6 +50,7 @@ final class AppState: ObservableObject {
     private let deepgramService = DeepgramService()
     private let pasteService = PasteService.shared
     private let storage = StorageService.shared
+    private let hotkeyService = HotkeyService.shared
 
     // Recording state
     private var recordingStartTime: Date?
@@ -45,6 +61,8 @@ final class AppState: ObservableObject {
         // Load saved settings
         apiKey = storage.apiKey ?? ""
         autoPasteEnabled = storage.autoPasteEnabled
+        showFloatingWindow = storage.showFloatingWindow
+        hotkeyMode = storage.hotkeyMode
         history = storage.loadHistory()
         hasAccessibilityPermission = pasteService.hasAccessibilityPermission()
 
@@ -52,12 +70,40 @@ final class AppState: ObservableObject {
         audioService.delegate = self
         deepgramService.delegate = self
 
-        // Set up keyboard shortcut
+        // Set up keyboard shortcut for standard modes
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
+            Task { @MainActor in
+                guard let self = self else { return }
+                // Only trigger if using optionSpace or custom mode
+                if self.hotkeyMode == .optionSpace || self.hotkeyMode == .custom {
+                    self.toggleRecording()
+                }
+            }
+        }
+
+        // Set up hotkey service for special modes
+        hotkeyService.onHotkeyTriggered = { [weak self] in
             Task { @MainActor in
                 self?.toggleRecording()
             }
         }
+        hotkeyService.currentMode = hotkeyMode
+        hotkeyService.startMonitoring()
+
+        // Show accessibility onboarding if needed
+        if !hasAccessibilityPermission && !storage.accessibilityOnboardingSkipped {
+            // Delay slightly to let the app finish launching
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.showAccessibilityOnboarding()
+            }
+        }
+    }
+
+    // MARK: - Accessibility Onboarding
+
+    /// Show the accessibility onboarding window
+    func showAccessibilityOnboarding() {
+        onboardingWindowController.show()
     }
 
     // MARK: - Public Methods
@@ -106,15 +152,30 @@ final class AppState: ObservableObject {
     func stopRecording() {
         guard isRecording else { return }
 
+        // Set flag to suppress disconnect errors
+        isDisconnecting = true
+
+        // Hide floating window
+        floatingWindowController.hide()
+
         // Stop audio capture
         let duration = audioService.stopRecording()
-
-        // Signal end of stream
-        deepgramService.finishStream()
 
         // Save final transcript if we have one
         let finalText = currentTranscript.isEmpty ? interimTranscript : currentTranscript
 
+        // Disconnect first (this will close the WebSocket)
+        deepgramService.disconnect()
+
+        // Reset state
+        isRecording = false
+        isConnected = false
+        currentTranscript = ""
+        interimTranscript = ""
+        currentAudioLevel = 0.0
+        recordingStartTime = nil
+
+        // Process the transcript after a small delay to let UI update
         if !finalText.isEmpty {
             let entry = TranscriptEntry(
                 text: finalText,
@@ -128,21 +189,61 @@ final class AppState: ObservableObject {
             // Copy to clipboard
             pasteService.copyToClipboard(finalText)
 
-            // Auto-paste if enabled and have permission
-            if autoPasteEnabled && hasAccessibilityPermission {
-                pasteService.copyAndPaste(finalText)
+            // Auto-paste if enabled (with delay to let previous app regain focus)
+            if autoPasteEnabled {
+                // Refresh permission status
+                let canPaste = pasteService.hasAccessibilityPermission()
+                hasAccessibilityPermission = canPaste
+
+                print("[AppState] Auto-paste enabled: \(autoPasteEnabled), has permission: \(canPaste)")
+
+                if canPaste {
+                    // Give time for the floating window animation to complete
+                    // and for the target app to regain focus
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                        print("[AppState] Triggering auto-paste now")
+                        self?.pasteService.simulatePaste()
+                    }
+                } else {
+                    print("[AppState] Auto-paste disabled: no accessibility permission")
+                }
             }
         }
+
+        // Reset disconnect flag after a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.isDisconnecting = false
+        }
+    }
+
+    /// Cancel recording without saving/pasting
+    func cancelRecording() {
+        guard isRecording else { return }
+
+        // Set flag to suppress disconnect errors
+        isDisconnecting = true
+
+        // Hide floating window
+        floatingWindowController.hide()
+
+        // Stop audio capture (ignore duration)
+        _ = audioService.stopRecording()
 
         // Disconnect
         deepgramService.disconnect()
 
-        // Reset state
+        // Reset state without saving
         isRecording = false
         isConnected = false
         currentTranscript = ""
         interimTranscript = ""
+        currentAudioLevel = 0.0
         recordingStartTime = nil
+
+        // Reset disconnect flag after a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.isDisconnecting = false
+        }
     }
 
     /// Copy specific entry to clipboard
@@ -172,6 +273,20 @@ final class AppState: ObservableObject {
     func saveAutoPaste(_ enabled: Bool) {
         autoPasteEnabled = enabled
         storage.autoPasteEnabled = enabled
+    }
+
+    /// Save floating window setting
+    func saveShowFloatingWindow(_ enabled: Bool) {
+        showFloatingWindow = enabled
+        storage.showFloatingWindow = enabled
+    }
+
+    /// Save hotkey mode
+    func saveHotkeyMode(_ mode: HotkeyMode) {
+        hotkeyMode = mode
+        storage.hotkeyMode = mode
+        hotkeyService.currentMode = mode
+        hotkeyService.startMonitoring()
     }
 
     /// Request accessibility permission
@@ -215,6 +330,12 @@ extension AppState: AudioServiceDelegate {
             stopRecording()
         }
     }
+
+    nonisolated func audioService(_ service: AudioService, didUpdateAudioLevel level: Float) {
+        Task { @MainActor in
+            currentAudioLevel = level
+        }
+    }
 }
 
 // MARK: - DeepgramServiceDelegate
@@ -238,6 +359,8 @@ extension AppState: DeepgramServiceDelegate {
 
     nonisolated func deepgramService(_ service: DeepgramService, didFailWithError error: Error) {
         Task { @MainActor in
+            // Ignore errors during intentional disconnect
+            guard !isDisconnecting else { return }
             showError(message: error.localizedDescription)
             stopRecording()
         }
@@ -250,6 +373,17 @@ extension AppState: DeepgramServiceDelegate {
             isRecording = true
             recordingStartTime = Date()
 
+            // Show floating window if enabled
+            if showFloatingWindow {
+                floatingWindowController.show(
+                    appState: self,
+                    audioLevel: Binding(
+                        get: { self.currentAudioLevel },
+                        set: { self.currentAudioLevel = $0 }
+                    )
+                )
+            }
+
             // Start audio recording
             do {
                 try audioService.startRecording()
@@ -258,6 +392,7 @@ extension AppState: DeepgramServiceDelegate {
                 service.disconnect()
                 isRecording = false
                 isConnected = false
+                floatingWindowController.hide()
             }
         }
     }

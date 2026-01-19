@@ -1,10 +1,12 @@
 import AVFoundation
+import Combine
 import Foundation
 
 /// Protocol for receiving audio data chunks
 protocol AudioServiceDelegate: AnyObject {
     func audioService(_ service: AudioService, didReceiveAudioData data: Data)
     func audioService(_ service: AudioService, didFailWithError error: Error)
+    func audioService(_ service: AudioService, didUpdateAudioLevel level: Float)
 }
 
 /// Error types for AudioService
@@ -36,6 +38,10 @@ final class AudioService {
     // Target format for Deepgram: PCM 16-bit, 16kHz, mono
     private let targetSampleRate: Double = 16000
     private let targetChannels: AVAudioChannelCount = 1
+
+    // Audio level tracking
+    private var audioLevelSmoother: Float = 0.0
+    private let smoothingFactor: Float = 0.3
 
     // MARK: - Public Methods
 
@@ -128,6 +134,15 @@ final class AudioService {
         converter: AVAudioConverter,
         targetFormat: AVAudioFormat
     ) {
+        // Calculate audio level from input buffer
+        let audioLevel = calculateAudioLevel(buffer)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            // Apply smoothing
+            self.audioLevelSmoother = self.audioLevelSmoother * (1 - self.smoothingFactor) + audioLevel * self.smoothingFactor
+            self.delegate?.audioService(self, didUpdateAudioLevel: self.audioLevelSmoother)
+        }
+
         // Calculate output buffer size
         let ratio = targetFormat.sampleRate / buffer.format.sampleRate
         let outputFrameCapacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio)
@@ -160,5 +175,29 @@ final class AudioService {
         let data = Data(bytes: channelData[0], count: frameLength * MemoryLayout<Int16>.size)
 
         delegate?.audioService(self, didReceiveAudioData: data)
+    }
+
+    /// Calculate RMS audio level from buffer (0.0 to 1.0)
+    private func calculateAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData else { return 0 }
+
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0 else { return 0 }
+
+        var sum: Float = 0
+        let data = channelData[0]
+
+        for i in 0..<frameLength {
+            let sample = data[i]
+            sum += sample * sample
+        }
+
+        let rms = sqrt(sum / Float(frameLength))
+
+        // Convert to 0-1 range with some scaling for better visualization
+        // Typical speech is around -20dB to -6dB
+        let db = 20 * log10(max(rms, 0.000001))
+        let normalizedDb = (db + 50) / 50 // Normalize -50dB to 0dB range
+        return max(0, min(1, normalizedDb))
     }
 }

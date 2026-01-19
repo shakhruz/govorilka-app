@@ -36,5 +36,11 @@ targets:
       - package: KeyboardShortcuts
     entitlements:
       path: Govorilka/Govorilka.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
     info:
       path: Govorilka/Info.plist
+      properties:
+        LSUIElement: false
+        NSMicrophoneUsageDescription: "Говорилка использует микрофон для записи голоса и преобразования в текст через Deepgram API"
+        NSAccessibilityUsageDescription: "Говорилка использует Универсальный доступ для автоматической вставки текста в активное приложение после записи"

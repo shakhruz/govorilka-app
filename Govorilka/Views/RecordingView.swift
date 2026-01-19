@@ -1,96 +1,139 @@
-import KeyboardShortcuts
 import SwiftUI
 
-/// Recording indicator and current transcript display
+/// Beautiful recording section with pink theme
 struct RecordingView: View {
     @ObservedObject var appState: AppState
 
     @State private var animationPhase = 0.0
+    @State private var isButtonHovered = false
+
+    // Theme colors
+    private let pinkColor = Color(hex: "FF69B4")
+    private let lightPink = Color(hex: "FFB6C1")
+    private let textColor = Color(hex: "5D4E6D")
+    private let recordingRed = Color(hex: "FF6B6B")
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Status indicator
-            HStack(spacing: 8) {
+        VStack(spacing: 14) {
+            // Status with cute indicator
+            HStack(spacing: 10) {
                 // Recording indicator
-                Circle()
-                    .fill(indicatorColor)
-                    .frame(width: 12, height: 12)
-                    .overlay {
-                        if appState.isRecording {
-                            Circle()
-                                .stroke(Color.red.opacity(0.5), lineWidth: 2)
-                                .scaleEffect(1 + animationPhase * 0.5)
-                                .opacity(1 - animationPhase)
-                        }
-                    }
-                    .animation(.easeInOut(duration: 1).repeatForever(autoreverses: false), value: animationPhase)
+                ZStack {
+                    Circle()
+                        .fill(indicatorColor.opacity(0.2))
+                        .frame(width: 24, height: 24)
 
-                Text(statusText)
-                    .font(.headline)
-                    .foregroundColor(appState.isRecording ? .primary : .secondary)
+                    Circle()
+                        .fill(indicatorColor)
+                        .frame(width: 12, height: 12)
+
+                    if appState.isRecording {
+                        Circle()
+                            .stroke(recordingRed.opacity(0.5), lineWidth: 2)
+                            .frame(width: 20, height: 20)
+                            .scaleEffect(1 + animationPhase * 0.5)
+                            .opacity(1 - animationPhase)
+                    }
+                }
+                .animation(.easeInOut(duration: 1).repeatForever(autoreverses: false), value: animationPhase)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(statusText)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(textColor)
+
+                    if appState.isRecording {
+                        Text(formattedDuration)
+                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .foregroundColor(textColor.opacity(0.6))
+                    } else {
+                        Text("Нажми правый ⌥ Option")
+                            .font(.system(size: 12))
+                            .foregroundColor(textColor.opacity(0.5))
+                    }
+                }
 
                 Spacer()
-
-                if appState.isRecording {
-                    Text(formattedDuration)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .monospacedDigit()
-                }
             }
             .onAppear {
                 animationPhase = 1.0
             }
 
-            // Record button
+            // Big beautiful record button
             Button(action: {
                 appState.toggleRecording()
             }) {
-                HStack {
+                HStack(spacing: 10) {
                     if appState.isConnecting {
                         ProgressView()
                             .controlSize(.small)
-                            .padding(.trailing, 4)
+                            .tint(.white)
                     } else {
                         Image(systemName: appState.isRecording ? "stop.fill" : "mic.fill")
+                            .font(.system(size: 16, weight: .semibold))
                     }
 
                     Text(buttonText)
+                        .font(.system(size: 15, weight: .semibold))
                 }
+                .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(
+                            LinearGradient(
+                                colors: appState.isRecording
+                                    ? [recordingRed, recordingRed.opacity(0.8)]
+                                    : [pinkColor, lightPink],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(
+                            color: (appState.isRecording ? recordingRed : pinkColor).opacity(isButtonHovered ? 0.5 : 0.3),
+                            radius: isButtonHovered ? 12 : 8,
+                            x: 0,
+                            y: isButtonHovered ? 5 : 3
+                        )
+                )
+                .scaleEffect(isButtonHovered ? 1.02 : 1.0)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(appState.isRecording ? .red : .accentColor)
+            .buttonStyle(.plain)
             .disabled(appState.isConnecting)
-
-            // Hotkey hint
-            HStack {
-                Text("Хоткей:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                KeyboardShortcuts.Recorder(for: .toggleRecording)
-                    .controlSize(.small)
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isButtonHovered = hovering
+                }
             }
 
-            // Current transcript
+            // Current transcript (collapsible)
             if appState.isRecording || !appState.currentTranscript.isEmpty || !appState.interimTranscript.isEmpty {
-                Divider()
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Транскрипция:")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "text.quote")
+                            .font(.system(size: 11))
+                            .foregroundColor(pinkColor)
+                        Text("Транскрипция")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(textColor.opacity(0.7))
+                    }
 
                     ScrollView {
                         Text(displayTranscript)
-                            .font(.body)
+                            .font(.system(size: 13))
+                            .foregroundColor(textColor)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .textSelection(.enabled)
                     }
-                    .frame(maxHeight: 80)
+                    .frame(maxHeight: 60)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(hex: "FFF5F8"))
+                    )
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
     }
@@ -99,21 +142,21 @@ struct RecordingView: View {
 
     private var indicatorColor: Color {
         if appState.isRecording {
-            return .red
+            return recordingRed
         } else if appState.isConnecting {
             return .orange
         } else {
-            return .gray
+            return pinkColor
         }
     }
 
     private var statusText: String {
         if appState.isRecording {
-            return "Запись..."
+            return "Слушаю..."
         } else if appState.isConnecting {
-            return "Подключение..."
+            return "Подключаюсь..."
         } else {
-            return "Готово к записи"
+            return "Готова к записи"
         }
     }
 
@@ -149,5 +192,6 @@ struct RecordingView: View {
 #Preview("Idle") {
     RecordingView(appState: AppState())
         .padding()
-        .frame(width: 300)
+        .frame(width: 320)
+        .background(Color(hex: "FFF0F5"))
 }

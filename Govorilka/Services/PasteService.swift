@@ -109,7 +109,6 @@ final class PasteService {
 
     /// Simulate Cmd+V key press
     func simulatePaste() {
-        print("[PasteService] 🔵 simulatePaste() called")
         guard hasAccessibilityPermission() else {
             print("[PasteService] Cannot paste: no accessibility permission")
             return
@@ -140,7 +139,6 @@ final class PasteService {
 
     /// CGEvent paste - Maccy style with combinedSessionState and cgSessionEventTap
     private func simulatePasteWithCGEvent() -> Bool {
-        print("[PasteService] ⚡ simulatePasteWithCGEvent called")
         // Use combinedSessionState (как Maccy) - объединяет состояние от всех источников
         let source = CGEventSource(stateID: .combinedSessionState)
 

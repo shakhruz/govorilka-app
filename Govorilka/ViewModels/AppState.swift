@@ -76,8 +76,6 @@ final class AppState: ObservableObject {
                 guard let self = self else { return }
                 // Only trigger if using optionSpace or custom mode
                 if self.hotkeyMode == .optionSpace || self.hotkeyMode == .custom {
-                    // Уведомляем HotkeyService чтобы избежать двойного срабатывания
-                    self.hotkeyService.notifyHotkeyTriggeredExternally()
                     self.toggleRecording()
                 }
             }

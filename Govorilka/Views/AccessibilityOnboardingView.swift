@@ -138,7 +138,7 @@ struct AccessibilityOnboardingView: View {
 
             instructionRow(
                 icon: "1️⃣",
-                title: "Правый ⌥ + Пробел",
+                title: "⌥ + Пробел",
                 subtitle: "Начнётся запись голоса"
             )
 

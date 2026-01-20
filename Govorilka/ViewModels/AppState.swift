@@ -43,6 +43,7 @@ final class AppState: ObservableObject {
     let proReviewController = ProReviewWindowController()
     private var pendingScreenshot: NSImage?
     private var pendingDuration: TimeInterval = 0
+    private var isProRecording = false  // Flag: current recording is Pro (with screenshot)
     private let screenshotService = ScreenshotService.shared
 
     // Accessibility onboarding
@@ -78,13 +79,15 @@ final class AppState: ObservableObject {
         audioService.delegate = self
         deepgramService.delegate = self
 
-        // Set up keyboard shortcut for optionSpace mode only
+        // Set up keyboard shortcut (Option + Space)
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
                 guard let self = self else { return }
-                // Only trigger if using optionSpace mode
-                // Other modes (rightCommand, doubleTapRightOption) are handled by HotkeyService
-                if self.hotkeyMode == .optionSpace {
+                if self.proModeEnabled {
+                    // Pro mode: Option+Space = screenshot + feedback
+                    self.toggleProRecording()
+                } else if self.hotkeyMode == .optionSpace {
+                    // Normal mode: Option+Space = voice input
                     self.toggleRecording()
                 }
             }
@@ -93,6 +96,7 @@ final class AppState: ObservableObject {
         // Set up hotkey service for special modes
         hotkeyService.onHotkeyTriggered = { [weak self] in
             Task { @MainActor in
+                // This is triggered by Right Command in Pro mode, or selected hotkey in normal mode
                 self?.toggleRecording()
             }
         }
@@ -107,6 +111,7 @@ final class AppState: ObservableObject {
         }
 
         hotkeyService.currentMode = hotkeyMode
+        hotkeyService.proModeEnabled = proModeEnabled
         hotkeyService.startMonitoring()
 
         // Show accessibility onboarding if needed
@@ -127,17 +132,29 @@ final class AppState: ObservableObject {
 
     // MARK: - Public Methods
 
-    /// Toggle recording on/off
+    /// Toggle recording on/off (normal voice input, no screenshot)
     func toggleRecording() {
         if isRecording {
             stopRecording()
         } else {
-            startRecording()
+            isProRecording = false
+            startRecording(withScreenshot: false)
+        }
+    }
+
+    /// Toggle Pro recording (screenshot + feedback)
+    func toggleProRecording() {
+        if isRecording {
+            stopRecording()
+        } else {
+            isProRecording = true
+            startRecording(withScreenshot: true)
         }
     }
 
     /// Start recording
-    func startRecording() {
+    /// - Parameter withScreenshot: If true, captures screenshot before recording (Pro mode)
+    func startRecording(withScreenshot: Bool = false) {
         guard !isRecording else { return }
 
         // Check for API key
@@ -155,10 +172,10 @@ final class AppState: ObservableObject {
                 return
             }
 
-            // Capture screenshot BEFORE recording if Pro mode enabled
-            if proModeEnabled {
+            // Capture screenshot BEFORE recording if Pro mode
+            if withScreenshot {
                 pendingScreenshot = await screenshotService.captureScreen()
-                print("[AppState] Pro mode: screenshot captured")
+                print("[AppState] Pro recording: screenshot captured")
             }
 
             // Connect to Deepgram
@@ -169,6 +186,7 @@ final class AppState: ObservableObject {
             } catch {
                 isConnecting = false
                 pendingScreenshot = nil
+                isProRecording = false
                 showError(message: error.localizedDescription)
             }
         }
@@ -202,20 +220,21 @@ final class AppState: ObservableObject {
         recordingStartTime = nil
 
         // Pro mode: show review dialog
-        if proModeEnabled, let screenshot = pendingScreenshot, !finalText.isEmpty {
+        if isProRecording, let screenshot = pendingScreenshot, !finalText.isEmpty {
             pendingDuration = duration
             proReviewController.show(
                 screenshot: screenshot,
                 transcript: finalText,
                 duration: duration,
-                onSave: { [weak self] data, exportToFolder in
-                    self?.handleProSave(data: data, exportToFolder: exportToFolder)
+                onSave: { [weak self] data in
+                    self?.handleProSave(data: data)
                 },
                 onCancel: { [weak self] in
                     self?.handleProCancel()
                 }
             )
             pendingScreenshot = nil
+            isProRecording = false
 
             // Reset disconnect flag after a delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -226,6 +245,7 @@ final class AppState: ObservableObject {
 
         // Clear pending screenshot if any
         pendingScreenshot = nil
+        isProRecording = false
 
         // Process the transcript (standard flow)
         if !finalText.isEmpty {
@@ -277,7 +297,7 @@ final class AppState: ObservableObject {
     // MARK: - Pro Mode Handlers
 
     /// Handle save from Pro review dialog
-    private func handleProSave(data: ProReviewData, exportToFolder: Bool) {
+    private func handleProSave(data: ProReviewData) {
         // Save screenshot to app storage
         guard let filename = screenshotService.saveScreenshot(data.screenshot) else {
             print("[AppState] Failed to save screenshot")
@@ -297,33 +317,55 @@ final class AppState: ObservableObject {
         history.insert(entry, at: 0)
         storage.addToHistory(entry)
 
-        // Export to folder if requested
-        if exportToFolder {
-            if let folderURL = storage.resolveExportFolder() {
-                let baseFilename = screenshotService.generateExportFilename(
-                    timestamp: data.timestamp,
-                    text: data.transcript
-                )
-                screenshotService.exportToFolder(
-                    screenshot: data.screenshot,
-                    text: data.transcript,
-                    folderURL: folderURL,
-                    baseFilename: baseFilename
-                )
-                storage.stopAccessingExportFolder(folderURL)
-            }
+        // Always export to folder
+        var exportedFolderName: String?
+        if let folderURL = storage.resolveExportFolder() {
+            let baseFilename = screenshotService.generateExportFilename(
+                timestamp: data.timestamp,
+                text: data.transcript
+            )
+            screenshotService.exportToFolder(
+                screenshot: data.screenshot,
+                text: data.transcript,
+                folderURL: folderURL,
+                baseFilename: baseFilename
+            )
+            exportedFolderName = folderURL.lastPathComponent
+            storage.stopAccessingExportFolder(folderURL)
         }
 
         // Copy text to clipboard (don't auto-paste in Pro mode)
         pasteService.copyToClipboard(data.transcript)
 
         print("[AppState] Pro save completed: \(filename)")
+
+        // Show confirmation alert
+        showSaveConfirmation(folderName: exportedFolderName)
     }
 
     /// Handle cancel from Pro review dialog
     private func handleProCancel() {
         print("[AppState] Pro review cancelled")
         // Don't save anything
+    }
+
+    /// Show confirmation alert after saving
+    private func showSaveConfirmation(folderName: String?) {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = "Сохранено"
+
+        if let folder = folderName {
+            alert.informativeText = "Файлы сохранены в папку «\(folder)»"
+        } else {
+            alert.informativeText = "Запись сохранена в историю"
+        }
+
+        alert.addButton(withTitle: "OK")
+
+        // Show alert in front
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     /// Cancel recording without saving/pasting
@@ -350,6 +392,7 @@ final class AppState: ObservableObject {
         currentAudioLevel = 0.0
         recordingStartTime = nil
         pendingScreenshot = nil
+        isProRecording = false
 
         // Reset disconnect flag after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -408,6 +451,8 @@ final class AppState: ObservableObject {
     func saveProModeEnabled(_ enabled: Bool) {
         proModeEnabled = enabled
         storage.proModeEnabled = enabled
+        hotkeyService.proModeEnabled = enabled
+        hotkeyService.startMonitoring()
     }
 
     /// Save export folder

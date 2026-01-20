@@ -3,11 +3,12 @@ import SwiftUI
 /// Pro mode review dialog view
 struct ProReviewView: View {
     let data: ProReviewData
-    let onSave: (Bool) -> Void
+    let onSave: () -> Void
     let onCancel: () -> Void
 
-    @State private var exportToFolder = false
-    @State private var hasExportFolder = false
+    @State private var copiedScreenshot = false
+    @State private var copiedText = false
+    @State private var exportFolderName: String = ""
 
     // Theme colors
     private let pinkColor = Color(hex: "FF69B4")
@@ -19,9 +20,9 @@ struct ProReviewView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Image(systemName: "star.fill")
+                Image(systemName: "bubble.left.and.bubble.right.fill")
                     .foregroundColor(pinkColor)
-                Text("Pro режим")
+                Text("Обратная связь для агента")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(textColor)
                 Spacer()
@@ -35,7 +36,7 @@ struct ProReviewView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    // Screenshot preview
+                    // Screenshot preview with copy button
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: "camera.fill")
@@ -44,6 +45,24 @@ struct ProReviewView: View {
                             Text("Скриншот")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(textColor)
+
+                            Spacer()
+
+                            // Copy screenshot button
+                            Button(action: copyScreenshot) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: copiedScreenshot ? "checkmark" : "doc.on.doc")
+                                        .font(.system(size: 10))
+                                    Text(copiedScreenshot ? "Скопировано" : "Копировать")
+                                        .font(.system(size: 10, weight: .medium))
+                                }
+                                .foregroundColor(copiedScreenshot ? .white : pinkColor)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(copiedScreenshot ? pinkColor : pinkColor.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                            .buttonStyle(.plain)
                         }
 
                         Image(nsImage: data.screenshot)
@@ -63,7 +82,7 @@ struct ProReviewView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
 
-                    // Transcript preview
+                    // Transcript preview with copy button
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: "text.alignleft")
@@ -72,6 +91,24 @@ struct ProReviewView: View {
                             Text("Транскрипция")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(textColor)
+
+                            Spacer()
+
+                            // Copy text button
+                            Button(action: copyText) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: copiedText ? "checkmark" : "doc.on.doc")
+                                        .font(.system(size: 10))
+                                    Text(copiedText ? "Скопировано" : "Копировать")
+                                        .font(.system(size: 10, weight: .medium))
+                                }
+                                .foregroundColor(copiedText ? .white : pinkColor)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(copiedText ? pinkColor : pinkColor.opacity(0.1))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                            .buttonStyle(.plain)
                         }
 
                         ScrollView {
@@ -79,6 +116,7 @@ struct ProReviewView: View {
                                 .font(.system(size: 13))
                                 .foregroundColor(textColor)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .textSelection(.enabled)
                         }
                         .frame(height: 80)
                     }
@@ -88,33 +126,20 @@ struct ProReviewView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
 
-                    // Export toggle
-                    if hasExportFolder {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Toggle(isOn: $exportToFolder) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "folder.fill")
-                                        .foregroundColor(pinkColor)
-                                        .font(.system(size: 11))
-                                    Text("Экспортировать в папку")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(textColor)
-                                }
-                            }
-                            .toggleStyle(.switch)
-                            .tint(pinkColor)
-
-                            if exportToFolder {
-                                Text("PNG и MD файлы будут сохранены в выбранную папку")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(textColor.opacity(0.5))
-                            }
+                    // Export folder info
+                    if !exportFolderName.isEmpty {
+                        HStack(spacing: 8) {
+                            Image(systemName: "folder.fill")
+                                .foregroundColor(pinkColor)
+                                .font(.system(size: 12))
+                            Text("Сохранится в: \(exportFolderName)")
+                                .font(.system(size: 12))
+                                .foregroundColor(textColor.opacity(0.7))
+                            Spacer()
                         }
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
+                        .padding(12)
+                        .background(softPink)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
                 .padding(16)
@@ -136,7 +161,7 @@ struct ProReviewView: View {
 
                 Spacer()
 
-                Button(action: { onSave(exportToFolder) }) {
+                Button(action: { onSave() }) {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark")
                             .font(.system(size: 11, weight: .bold))
@@ -182,10 +207,38 @@ struct ProReviewView: View {
 
     private func checkExportFolder() {
         if let url = StorageService.shared.resolveExportFolder() {
-            hasExportFolder = true
+            exportFolderName = url.lastPathComponent
             StorageService.shared.stopAccessingExportFolder(url)
         } else {
-            hasExportFolder = false
+            exportFolderName = ""
+        }
+    }
+
+    private func copyScreenshot() {
+        PasteService.shared.copyImageToClipboard(data.screenshot)
+
+        withAnimation(.easeInOut(duration: 0.2)) {
+            copiedScreenshot = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                copiedScreenshot = false
+            }
+        }
+    }
+
+    private func copyText() {
+        PasteService.shared.copyToClipboard(data.transcript)
+
+        withAnimation(.easeInOut(duration: 0.2)) {
+            copiedText = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                copiedText = false
+            }
         }
     }
 }
@@ -198,7 +251,7 @@ struct ProReviewView: View {
             duration: 15.5,
             timestamp: Date()
         ),
-        onSave: { _ in },
+        onSave: {},
         onCancel: {}
     )
 }

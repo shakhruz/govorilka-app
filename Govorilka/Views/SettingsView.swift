@@ -191,12 +191,12 @@ struct SettingsView: View {
                     }
                 }
 
-                // Pro mode section
+                // Pro mode section (Agent Feedback)
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
                         SettingsCardHeader(
-                            icon: "star.fill",
-                            title: "Pro режим",
+                            icon: "bubble.left.and.bubble.right.fill",
+                            title: "Обратная связь для агента",
                             color: pinkColor
                         )
 
@@ -204,14 +204,14 @@ struct SettingsView: View {
                             get: { appState.proModeEnabled },
                             set: { appState.saveProModeEnabled($0) }
                         )) {
-                            Text("Включить Pro режим")
+                            Text("Включить режим агента")
                                 .font(.system(size: 13))
                                 .foregroundColor(textColor)
                         }
                         .toggleStyle(.switch)
                         .tint(pinkColor)
 
-                        Text("Скриншот перед записью + диалог сохранения")
+                        Text("Скриншот + голосовой комментарий для агента")
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
 
@@ -219,6 +219,46 @@ struct SettingsView: View {
                             Divider()
                                 .padding(.vertical, 2)
 
+                            // Fixed hotkeys info
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Горячие клавиши:")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(textColor)
+
+                                HStack(spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack(spacing: 6) {
+                                            Text("Right ⌘")
+                                                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                                .foregroundColor(pinkColor)
+                                            Text("→")
+                                                .foregroundColor(textColor.opacity(0.4))
+                                            Text("Голос")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(textColor.opacity(0.7))
+                                        }
+                                        HStack(spacing: 6) {
+                                            Text("⌥ Space")
+                                                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                                .foregroundColor(pinkColor)
+                                            Text("→")
+                                                .foregroundColor(textColor.opacity(0.4))
+                                            Text("Скриншот + голос")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(textColor.opacity(0.7))
+                                        }
+                                    }
+                                    Spacer()
+                                }
+                                .padding(10)
+                                .background(softPink)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+
+                            Divider()
+                                .padding(.vertical, 2)
+
+                            // Export folder
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Папка для экспорта")
                                     .font(.system(size: 12, weight: .medium))
@@ -253,7 +293,7 @@ struct SettingsView: View {
                                     .buttonStyle(.plain)
                                 }
 
-                                Text("Файлы PNG и MD будут сохраняться в эту папку")
+                                Text("PNG и MD файлы для агента")
                                     .font(.system(size: 10))
                                     .foregroundColor(textColor.opacity(0.4))
                             }
@@ -261,64 +301,66 @@ struct SettingsView: View {
                     }
                 }
 
-                // Hotkey section
-                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        SettingsCardHeader(
-                            icon: "keyboard",
-                            title: "Горячая клавиша",
-                            color: pinkColor
-                        )
+                // Hotkey section (hidden when Pro mode is enabled)
+                if !appState.proModeEnabled {
+                    SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            SettingsCardHeader(
+                                icon: "keyboard",
+                                title: "Горячая клавиша",
+                                color: pinkColor
+                            )
 
-                        // Hotkey mode picker
-                        VStack(alignment: .leading, spacing: 8) {
-                            ForEach(HotkeyMode.allCases, id: \.self) { mode in
-                                HotkeyModeRow(
-                                    mode: mode,
-                                    isSelected: appState.hotkeyMode == mode,
-                                    pinkColor: pinkColor,
-                                    softPink: softPink,
-                                    textColor: textColor
-                                ) {
-                                    appState.saveHotkeyMode(mode)
+                            // Hotkey mode picker
+                            VStack(alignment: .leading, spacing: 8) {
+                                ForEach(HotkeyMode.allCases, id: \.self) { mode in
+                                    HotkeyModeRow(
+                                        mode: mode,
+                                        isSelected: appState.hotkeyMode == mode,
+                                        pinkColor: pinkColor,
+                                        softPink: softPink,
+                                        textColor: textColor
+                                    ) {
+                                        appState.saveHotkeyMode(mode)
+                                    }
                                 }
                             }
-                        }
 
-                        // Show accessibility status for modes that need it
-                        if appState.hotkeyMode.needsEventMonitoring {
-                            Divider()
-                                .padding(.vertical, 2)
+                            // Show accessibility status for modes that need it
+                            if appState.hotkeyMode.needsEventMonitoring {
+                                Divider()
+                                    .padding(.vertical, 2)
 
-                            HStack {
-                                if appState.hasAccessibilityPermission {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "checkmark.circle.fill")
+                                HStack {
+                                    if appState.hasAccessibilityPermission {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(pinkColor)
+                                            Text("Доступ разрешён")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(textColor.opacity(0.6))
+                                        }
+                                    } else {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "exclamationmark.triangle.fill")
+                                                .foregroundColor(.orange)
+                                            Text("Нужен Универсальный доступ")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(textColor.opacity(0.6))
+                                        }
+                                    }
+
+                                    Spacer()
+
+                                    Button(action: {
+                                        appState.requestAccessibility()
+                                    }) {
+                                        Text("Настроить")
+                                            .font(.system(size: 11, weight: .medium))
                                             .foregroundColor(pinkColor)
-                                        Text("Доступ разрешён")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
                                     }
-                                } else {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .foregroundColor(.orange)
-                                        Text("Нужен Универсальный доступ")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
-                                    }
+                                    .buttonStyle(.plain)
                                 }
-
-                                Spacer()
-
-                                Button(action: {
-                                    appState.requestAccessibility()
-                                }) {
-                                    Text("Настроить")
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(pinkColor)
-                                }
-                                .buttonStyle(.plain)
                             }
                         }
                     }

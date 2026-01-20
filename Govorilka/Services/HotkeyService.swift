@@ -46,11 +46,28 @@ enum HotkeyMode: String, CaseIterable, Codable {
 final class HotkeyService {
     static let shared = HotkeyService()
 
+    /// Callback for normal voice input
     var onHotkeyTriggered: (() -> Void)?
+
+    /// Callback for Pro mode screenshot + feedback (Option+Space in Pro mode)
+    var onProHotkeyTriggered: (() -> Void)?
+
+    /// Callback for ESC to cancel
     var onEscapePressed: (() -> Void)?
+
+    /// Current hotkey mode (used when Pro mode is disabled)
     var currentMode: HotkeyMode = .optionSpace {
         didSet {
             if oldValue != currentMode {
+                restartMonitoring()
+            }
+        }
+    }
+
+    /// Pro mode: Right ⌘ = voice, Option+Space = screenshot
+    var proModeEnabled: Bool = false {
+        didSet {
+            if oldValue != proModeEnabled {
                 restartMonitoring()
             }
         }
@@ -81,6 +98,12 @@ final class HotkeyService {
 
     /// Start monitoring for the current hotkey mode
     func startMonitoring() {
+        if proModeEnabled {
+            // Pro mode: always monitor Right Command for voice input
+            setupEventMonitors()
+            return
+        }
+
         guard currentMode.needsEventMonitoring else {
             // optionSpace mode is handled by KeyboardShortcuts only
             stopMonitoring()
@@ -139,14 +162,46 @@ final class HotkeyService {
         // Only process flags changed events for modifier keys
         guard event.type == .flagsChanged else { return }
 
-        switch currentMode {
-        case .rightCommand:
-            handleRightCommandMode(event)
-        case .doubleTapRightOption:
-            handleDoubleTapRightOptionMode(event)
-        case .optionSpace:
-            // This mode doesn't use event monitoring
-            break
+        if proModeEnabled {
+            // Pro mode: Right ⌘ for voice, Option+Space handled by KeyboardShortcuts
+            handleRightCommandForVoice(event)
+        } else {
+            // Normal mode: use selected hotkey
+            switch currentMode {
+            case .rightCommand:
+                handleRightCommandMode(event)
+            case .doubleTapRightOption:
+                handleDoubleTapRightOptionMode(event)
+            case .optionSpace:
+                // This mode doesn't use event monitoring
+                break
+            }
+        }
+    }
+
+    // MARK: - Pro Mode: Right Command for Voice Input
+
+    private func handleRightCommandForVoice(_ event: NSEvent) {
+        guard event.keyCode == rightCommandKeyCode else { return }
+
+        let currentKeyState = event.modifierFlags.contains(.command)
+
+        // State guard: only process actual state changes
+        guard isKeyPressed != currentKeyState else { return }
+
+        if currentKeyState {
+            // Key pressed
+            isKeyPressed = true
+            lastKeyPressTimestamp = event.timestamp
+        } else {
+            // Key released
+            isKeyPressed = false
+
+            // Check if it was a quick tap (not held down)
+            let pressDuration = event.timestamp - lastKeyPressTimestamp
+            if pressDuration < 0.3 {
+                triggerNormalHotkey()
+            }
         }
     }
 
@@ -171,7 +226,7 @@ final class HotkeyService {
             // Check if it was a quick tap (not held down)
             let pressDuration = event.timestamp - lastKeyPressTimestamp
             if pressDuration < 0.3 {
-                triggerHotkey()
+                triggerNormalHotkey()
             }
         }
     }
@@ -200,18 +255,24 @@ final class HotkeyService {
                (now - lastKeyReleaseTimestamp) < doubleTapInterval {
                 // Double-tap detected
                 lastKeyReleaseTimestamp = 0
-                triggerHotkey()
+                triggerNormalHotkey()
             } else {
                 lastKeyReleaseTimestamp = now
             }
         }
     }
 
-    // MARK: - Trigger
+    // MARK: - Triggers
 
-    private func triggerHotkey() {
+    private func triggerNormalHotkey() {
         DispatchQueue.main.async { [weak self] in
             self?.onHotkeyTriggered?()
+        }
+    }
+
+    private func triggerProHotkey() {
+        DispatchQueue.main.async { [weak self] in
+            self?.onProHotkeyTriggered?()
         }
     }
 }

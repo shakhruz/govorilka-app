@@ -18,7 +18,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
     @Published var isVisible = false
 
     // Callbacks
-    var onSave: ((ProReviewData, Bool) -> Void)?
+    var onSave: ((ProReviewData) -> Void)?
     var onCancel: (() -> Void)?
 
     /// Show the review window with screenshot and transcript
@@ -26,7 +26,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
         screenshot: NSImage,
         transcript: String,
         duration: TimeInterval,
-        onSave: @escaping (ProReviewData, Bool) -> Void,
+        onSave: @escaping (ProReviewData) -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.onSave = onSave
@@ -48,8 +48,8 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] exportToFolder in
-                self?.handleSave(data: data, exportToFolder: exportToFolder)
+            onSave: { [weak self] in
+                self?.handleSave(data: data)
             },
             onCancel: { [weak self] in
                 self?.handleCancel()
@@ -68,7 +68,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
         )
 
         window.contentView = hostingView
-        window.title = "Pro режим — Просмотр записи"
+        window.title = "Обратная связь для агента"
         window.isReleasedWhenClosed = false
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces]
@@ -123,8 +123,8 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] exportToFolder in
-                self?.handleSave(data: data, exportToFolder: exportToFolder)
+            onSave: { [weak self] in
+                self?.handleSave(data: data)
             },
             onCancel: { [weak self] in
                 self?.handleCancel()
@@ -134,8 +134,8 @@ final class ProReviewWindowController: NSObject, ObservableObject {
         hostingView.rootView = AnyView(contentView)
     }
 
-    private func handleSave(data: ProReviewData, exportToFolder: Bool) {
-        onSave?(data, exportToFolder)
+    private func handleSave(data: ProReviewData) {
+        onSave?(data)
         hide()
     }
 

@@ -7,115 +7,169 @@ final class PasteService {
 
     private let pasteboard = NSPasteboard.general
 
+    /// Transient pasteboard type - tells clipboard managers this is temporary data
+    private let transientType = NSPasteboard.PasteboardType("org.nspasteboard.TransientType")
+
+    /// Source identifier type
+    private let sourceType = NSPasteboard.PasteboardType("org.nspasteboard.source")
+
     // MARK: - Public Methods
 
-    /// Copy text to clipboard
+    /// Copy text to clipboard (permanent)
     func copyToClipboard(_ text: String) {
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        setClipboard(text, transient: false)
     }
 
-    /// Copy text and simulate Cmd+V paste
-    func copyAndPaste(_ text: String) {
-        copyToClipboard(text)
+    /// Set clipboard content with optional transient flag
+    /// - Parameters:
+    ///   - text: Text to copy
+    ///   - transient: If true, marks as temporary (for clipboard managers)
+    @discardableResult
+    func setClipboard(_ text: String, transient: Bool = false) -> Bool {
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
 
-        // Small delay to ensure clipboard is updated
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.simulatePaste()
+        // Add source identifier
+        if let bundleId = Bundle.main.bundleIdentifier {
+            pasteboard.setString(bundleId, forType: sourceType)
+        }
+
+        // Mark as transient if requested (tells clipboard managers to ignore)
+        if transient {
+            pasteboard.setData(Data(), forType: transientType)
+        }
+
+        return true
+    }
+
+    /// Paste text at cursor with optional clipboard restoration
+    /// - Parameters:
+    ///   - text: Text to paste
+    ///   - restoreClipboard: If true, restores previous clipboard content after paste
+    func pasteAtCursor(_ text: String, restoreClipboard: Bool = true) {
+        // Save current clipboard contents if we need to restore
+        var savedContents: [(NSPasteboard.PasteboardType, Data)] = []
+
+        if restoreClipboard {
+            let currentItems = pasteboard.pasteboardItems ?? []
+            for item in currentItems {
+                for type in item.types {
+                    if let data = item.data(forType: type) {
+                        savedContents.append((type, data))
+                    }
+                }
+            }
+        }
+
+        // Set clipboard with transient flag
+        setClipboard(text, transient: restoreClipboard)
+
+        // Paste after small delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            self?.simulatePaste()
+        }
+
+        // Restore clipboard after 1 second
+        if restoreClipboard && !savedContents.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                self.pasteboard.clearContents()
+                for (type, data) in savedContents {
+                    self.pasteboard.setData(data, forType: type)
+                }
+                print("[PasteService] Clipboard restored")
+            }
         }
     }
 
     /// Check if we have accessibility permissions
     func hasAccessibilityPermission() -> Bool {
-        // Check if the process is trusted for accessibility
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false]
+        return AXIsProcessTrusted()
+    }
+
+    /// Check with optional prompt
+    func checkAccessibilityPermission(prompt: Bool) -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt]
         return AXIsProcessTrustedWithOptions(options as CFDictionary)
     }
 
     /// Request accessibility permission (shows system dialog)
     func requestAccessibilityPermission() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-        _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
+        _ = checkAccessibilityPermission(prompt: true)
     }
 
     /// Open System Settings at Privacy & Security > Accessibility
     func openAccessibilitySettings() {
-        // macOS 13+ uses new System Settings URL scheme
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)
         }
     }
 
-    // MARK: - Public Methods (continued)
+    // MARK: - Paste Methods
 
-    /// Simulate Cmd+V key press using CGEvent
+    /// Simulate Cmd+V key press
     func simulatePaste() {
-        // Double-check we have permission
         guard hasAccessibilityPermission() else {
             print("[PasteService] Cannot paste: no accessibility permission")
             return
         }
 
-        // Get the frontmost app (should be the target app, not us)
         let frontApp = NSWorkspace.shared.frontmostApplication
         print("[PasteService] Pasting to app: \(frontApp?.localizedName ?? "unknown")")
 
-        // Skip if somehow we're the frontmost app
-        if frontApp?.bundleIdentifier == Bundle.main.bundleIdentifier {
-            print("[PasteService] Skipping paste - we are the frontmost app")
-            return
-        }
+        // Note: Removed frontmost app check - the floating window uses .nonactivating
+        // so focus should already be on the target app. If we're still frontmost,
+        // CGEvent will send the paste to wherever the keyboard focus actually is.
 
-        // Try CGEvent first
+        // Try CGEvent first (VoiceInk style with 4 separate events)
         if simulatePasteWithCGEvent() {
-            print("[PasteService] Paste command sent via CGEvent")
+            print("[PasteService] Paste sent via CGEvent")
             return
         }
 
-        // Fallback to AppleScript if CGEvent fails
-        print("[PasteService] CGEvent failed, trying AppleScript fallback")
+        // Fallback to AppleScript
+        print("[PasteService] CGEvent failed, trying AppleScript")
         if simulatePasteWithAppleScript() {
-            print("[PasteService] Paste command sent via AppleScript")
+            print("[PasteService] Paste sent via AppleScript")
             return
         }
 
         print("[PasteService] All paste methods failed")
     }
 
-    /// Try to paste using CGEvent (primary method)
+    /// CGEvent paste - Maccy style with combinedSessionState and cgSessionEventTap
     private func simulatePasteWithCGEvent() -> Bool {
-        // Cmd key
-        let cmdKey = CGEventFlags.maskCommand
+        // Use combinedSessionState (как Maccy) - объединяет состояние от всех источников
+        let source = CGEventSource(stateID: .combinedSessionState)
 
-        // 'v' key code
-        let vKeyCode: CGKeyCode = 0x09
+        // Фильтруем локальные события во время симуляции вставки
+        source?.setLocalEventsFilterDuringSuppressionState(
+            [.permitLocalMouseEvents, .permitSystemDefinedEvents],
+            state: .eventSuppressionStateSuppressionInterval
+        )
 
-        // Create key down event
-        guard let keyDownEvent = CGEvent(keyboardEventSource: nil, virtualKey: vKeyCode, keyDown: true) else {
-            print("[PasteService] Failed to create key down event")
+        let vKeyCode: CGKeyCode = 0x09  // V key
+
+        // Создаём события V down и V up
+        guard let keyVDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true),
+              let keyVUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false) else {
+            print("[PasteService] Failed to create CGEvents")
             return false
         }
-        keyDownEvent.flags = cmdKey
 
-        // Create key up event
-        guard let keyUpEvent = CGEvent(keyboardEventSource: nil, virtualKey: vKeyCode, keyDown: false) else {
-            print("[PasteService] Failed to create key up event")
-            return false
-        }
-        keyUpEvent.flags = cmdKey
+        // Флаг Command + 0x000008 (как в Maccy для NX_DEVICELCMDKEYMASK)
+        let cmdFlag = CGEventFlags(rawValue: CGEventFlags.maskCommand.rawValue | 0x000008)
+        keyVDown.flags = cmdFlag
+        keyVUp.flags = cmdFlag
 
-        // Post events to the system
-        keyDownEvent.post(tap: .cghidEventTap)
-
-        // Small delay between key down and up for reliability
-        usleep(10000) // 10ms
-
-        keyUpEvent.post(tap: .cghidEventTap)
+        // Постим в cgSessionEventTap (как Maccy, не cgAnnotatedSessionEventTap!)
+        keyVDown.post(tap: .cgSessionEventTap)
+        keyVUp.post(tap: .cgSessionEventTap)
 
         return true
     }
 
-    /// Fallback: paste using AppleScript
+    /// AppleScript fallback
     private func simulatePasteWithAppleScript() -> Bool {
         let script = """
         tell application "System Events"
@@ -137,5 +191,39 @@ final class PasteService {
         }
 
         return true
+    }
+
+    // MARK: - Additional Key Simulation
+
+    /// Simulate pressing Enter/Return key
+    func pressEnter() {
+        guard hasAccessibilityPermission() else { return }
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        let enterKeyCode: CGKeyCode = 0x24  // Return key
+
+        guard let enterDown = CGEvent(keyboardEventSource: source, virtualKey: enterKeyCode, keyDown: true),
+              let enterUp = CGEvent(keyboardEventSource: source, virtualKey: enterKeyCode, keyDown: false) else {
+            return
+        }
+
+        enterDown.post(tap: .cghidEventTap)
+        enterUp.post(tap: .cghidEventTap)
+    }
+
+    /// Simulate pressing Tab key
+    func pressTab() {
+        guard hasAccessibilityPermission() else { return }
+
+        let source = CGEventSource(stateID: .hidSystemState)
+        let tabKeyCode: CGKeyCode = 0x30  // Tab key
+
+        guard let tabDown = CGEvent(keyboardEventSource: source, virtualKey: tabKeyCode, keyDown: true),
+              let tabUp = CGEvent(keyboardEventSource: source, virtualKey: tabKeyCode, keyDown: false) else {
+            return
+        }
+
+        tabDown.post(tap: .cghidEventTap)
+        tabUp.post(tap: .cghidEventTap)
     }
 }

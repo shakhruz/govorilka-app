@@ -38,6 +38,7 @@ targets:
       path: Govorilka/Govorilka.entitlements
       properties:
         com.apple.security.app-sandbox: false
+        com.apple.security.automation.apple-events: true
     info:
       path: Govorilka/Info.plist
       properties:

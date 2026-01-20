@@ -1,0 +1,28 @@
+{
+  "name": "@govorilka/image-generator-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for generating images via OpenRouter API (Nano Banana Pro)",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "image-generation",
+    "openrouter"
+  ],
+  "author": "Govorilka",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

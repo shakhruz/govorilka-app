@@ -12,9 +12,8 @@ struct GovorilkaApp: App {
             Label {
                 Text("Говорилка")
             } icon: {
-                // Custom icon from Assets
+                // Custom colored icon from Assets (not template - shows green/red dot)
                 Image(appState.isRecording ? "MenuBarIconRecording" : "MenuBarIcon")
-                    .renderingMode(.template)
             }
         }
         .menuBarExtraStyle(.window)

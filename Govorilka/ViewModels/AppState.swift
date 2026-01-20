@@ -186,27 +186,28 @@ final class AppState: ObservableObject {
             history.insert(entry, at: 0)
             storage.addToHistory(entry)
 
-            // Copy to clipboard
-            pasteService.copyToClipboard(finalText)
-
-            // Auto-paste if enabled (with delay to let previous app regain focus)
+            // Auto-paste if enabled, otherwise just copy to clipboard
             if autoPasteEnabled {
-                // Refresh permission status
                 let canPaste = pasteService.hasAccessibilityPermission()
                 hasAccessibilityPermission = canPaste
 
-                print("[AppState] Auto-paste enabled: \(autoPasteEnabled), has permission: \(canPaste)")
+                print("[AppState] Auto-paste enabled, has permission: \(canPaste)")
 
                 if canPaste {
-                    // Give time for the floating window animation to complete
-                    // and for the target app to regain focus
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        print("[AppState] Triggering auto-paste now")
-                        self?.pasteService.simulatePaste()
+                    // Use pasteAtCursor - it handles clipboard, paste, and restoration
+                    // Longer delay to ensure floating window is fully hidden and target app regains focus
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                        print("[AppState] Triggering pasteAtCursor")
+                        self?.pasteService.pasteAtCursor(finalText, restoreClipboard: true)
                     }
                 } else {
-                    print("[AppState] Auto-paste disabled: no accessibility permission")
+                    // No permission - just copy to clipboard
+                    print("[AppState] No accessibility permission, copying to clipboard only")
+                    pasteService.copyToClipboard(finalText)
                 }
+            } else {
+                // Auto-paste disabled - just copy to clipboard
+                pasteService.copyToClipboard(finalText)
             }
         }
 

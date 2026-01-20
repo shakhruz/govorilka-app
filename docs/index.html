@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Говорилка — голосовой ввод для macOS</title>
+    <meta name="description" content="Бесплатное open-source приложение для macOS. Превращает речь в текст с помощью Deepgram AI. Минималистичное, быстрое, приватное.">
+    <meta name="keywords" content="голосовой ввод, speech to text, macOS, Deepgram, транскрибация, диктовка">
+    <meta property="og:title" content="Говорилка — голосовой ввод для macOS">
+    <meta property="og:description" content="Бесплатное open-source приложение для транскрибации речи в текст">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://говорилка.app">
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        :root {
+            --pink: #FF69B4;
+            --pink-light: #FFB6C1;
+            --pink-soft: #FFF5F8;
+            --text: #5D4E6D;
+            --text-light: #8B7A9E;
+            --white: #FFFFFF;
+            --gray: #F8F9FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            background: linear-gradient(135deg, var(--pink-soft) 0%, var(--white) 50%, var(--gray) 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 8px 24px rgba(255, 105, 180, 0.3));
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--pink) 0%, var(--text) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: var(--text-light);
+            margin-bottom: 32px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 105, 180, 0.5);
+        }
+
+        .cta-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .secondary-link {
+            display: block;
+            margin-top: 16px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .secondary-link:hover {
+            color: var(--pink);
+        }
+
+        /* Features */
+        .features {
+            padding: 60px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .how-it-works h2 {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--text);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0 auto 16px;
+        }
+
+        .step h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Hotkeys */
+        .hotkeys {
+            padding: 40px 0;
+        }
+
+        .hotkeys-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .hotkeys-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+        }
+
+        .hotkey-options {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hotkey {
+            background: var(--pink-soft);
+            padding: 16px 24px;
+            border-radius: 12px;
+            min-width: 140px;
+        }
+
+        .hotkey-key {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--pink);
+            margin-bottom: 4px;
+        }
+
+        .hotkey-desc {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .hotkey-recommended {
+            border: 2px solid var(--pink);
+        }
+
+        .hotkey-badge {
+            background: var(--pink);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .pricing h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .pricing-subtitle {
+            color: var(--text-light);
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        .price-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .price-amount {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--pink);
+        }
+
+        .price-amount span {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .price-note {
+            color: var(--text-light);
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+
+        .price-details {
+            margin-top: 24px;
+            text-align: left;
+            background: var(--pink-soft);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .price-details p {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .price-details p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        footer a {
+            color: var(--pink);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            margin-bottom: 16px;
+        }
+
+        .footer-links a {
+            margin: 0 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .steps {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hotkey-options {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <img src="icon.png" alt="Говорилка" class="logo">
+            <h1>Говорилка</h1>
+            <p class="tagline">Голосовой ввод для macOS</p>
+            <a href="https://github.com/shakhruz/govorilka-app/releases/latest" class="cta-button">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Скачать бесплатно
+            </a>
+            <a href="https://github.com/shakhruz/govorilka-app" class="secondary-link">
+                Исходный код на GitHub
+            </a>
+        </header>
+
+        <!-- Features -->
+        <section class="features">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎤</div>
+                    <h3>Мгновенная транскрибация</h3>
+                    <p>Текст появляется в реальном времени благодаря Deepgram Nova-2 AI</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⌨️</div>
+                    <h3>Автовставка</h3>
+                    <p>Текст сразу вставляется туда, где стоит курсор</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Приватность</h3>
+                    <p>Open-source код, данные не сохраняются, ключи хранятся локально</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🇷🇺</div>
+                    <h3>Отличный русский</h3>
+                    <p>Deepgram отлично понимает русскую речь и терминологию</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Минимализм</h3>
+                    <p>Живёт в menu bar, не мешает работе, делает одно дело хорошо</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Бесплатно</h3>
+                    <p>$200 кредитов от Deepgram хватит на 775 часов диктовки</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="how-it-works">
+            <h2>Как это работает</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Нажмите хоткей</h4>
+                    <p>⌥ Space или правый Command</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Говорите</h4>
+                    <p>Текст появляется в реальном времени</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Готово</h4>
+                    <p>Текст автоматически вставлен</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hotkeys -->
+        <section class="hotkeys">
+            <div class="hotkeys-card">
+                <h2>Горячие клавиши</h2>
+                <div class="hotkey-options">
+                    <div class="hotkey">
+                        <div class="hotkey-key">⌥ Space</div>
+                        <div class="hotkey-desc">Option + Пробел</div>
+                    </div>
+                    <div class="hotkey hotkey-recommended">
+                        <div class="hotkey-key">Right ⌘</div>
+                        <div class="hotkey-desc">Правый Command</div>
+                        <div class="hotkey-badge">рекомендуется</div>
+                    </div>
+                    <div class="hotkey">
+                        <div class="hotkey-key">2× ⌥</div>
+                        <div class="hotkey-desc">Двойной правый Option</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section class="pricing">
+            <h2>Сколько стоит</h2>
+            <p class="pricing-subtitle">Говорилка бесплатна. Вы платите только за API.</p>
+            <div class="price-card">
+                <div class="price-amount">$0 <span>за приложение</span></div>
+                <p class="price-note">+ $200 бесплатных кредитов Deepgram</p>
+                <div class="price-details">
+                    <p>✓ Регистрация без карты</p>
+                    <p>✓ ~775 часов диктовки бесплатно</p>
+                    <p>✓ Потом $0.0043/мин (~26 коп)</p>
+                    <p>✓ Никаких подписок</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-links">
+                <a href="https://github.com/shakhruz/govorilka-app">GitHub</a>
+                <a href="https://github.com/shakhruz/govorilka-app/releases">Releases</a>
+                <a href="https://github.com/shakhruz/govorilka-app/issues">Поддержка</a>
+            </div>
+            <p>MIT License · Сделано с ❤️ для русскоязычного сообщества</p>
+        </footer>
+    </div>
+</body>
+</html>

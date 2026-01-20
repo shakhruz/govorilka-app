@@ -1,177 +1,220 @@
-# Говорилка
+<p align="center">
+  <img src="docs/icon.png" alt="Говорилка" width="128" height="128">
+</p>
 
-Бесплатная минималистичная утилита для macOS, позволяющая наговаривать тексты голосом и получать транскрипцию через Deepgram API.
+<h1 align="center">Говорилка</h1>
 
-## Возможности
+<p align="center">
+  <strong>Голосовой ввод для macOS</strong><br>
+  Минималистичное приложение для транскрибации речи в текст
+</p>
 
-- **Глобальный хоткей** (⌥+Space по умолчанию) — старт/стоп записи из любого приложения
-- **Real-time транскрибация** через Deepgram Nova-2
-- **Автокопирование** в буфер обмена
-- **Автовставка** в активное окно (опционально)
-- **История записей** (последние 50)
-- **Поддержка русского и английского** языков (автоопределение)
+<p align="center">
+  <a href="https://github.com/shakhruz/govorilka-app/releases/latest">
+    <img src="https://img.shields.io/github/v/release/shakhruz/govorilka-app?style=flat-square&label=Версия" alt="Version">
+  </a>
+  <a href="https://github.com/shakhruz/govorilka-app/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/shakhruz/govorilka-app?style=flat-square&label=Лицензия" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/macOS-13.0+-blue?style=flat-square" alt="macOS">
+  <img src="https://img.shields.io/badge/Swift-5.9-orange?style=flat-square" alt="Swift">
+</p>
 
-## Системные требования
+<p align="center">
+  <a href="#установка">Установка</a> •
+  <a href="#использование">Использование</a> •
+  <a href="#горячие-клавиши">Горячие клавиши</a> •
+  <a href="#настройка">Настройка</a>
+</p>
 
-- macOS 13.0 (Ventura) или новее
-- Интернет-соединение
-- Аккаунт Deepgram (бесплатная регистрация)
+---
+
+## Что это?
+
+**Говорилка** — бесплатное open-source приложение для macOS, которое превращает вашу речь в текст. Живёт в menu bar, не мешает работе, вставляет текст туда, где стоит курсор.
+
+### Для кого?
+
+- Для тех, кто много пишет и хочет диктовать
+- Для параноиков, которые не доверяют закрытым решениям
+- Для минималистов, которым не нужны 100 функций
+- Для разработчиков, работающих с AI-ассистентами
+
+### Почему Говорилка?
+
+| | Говорилка | Платные аналоги |
+|---|---|---|
+| **Цена** | Бесплатно | $30-50 |
+| **Исходный код** | Открыт | Закрыт |
+| **Качество распознавания** | Deepgram Nova-2 | Разное |
+| **Русский язык** | Отлично | Часто плохо |
+| **Сложность** | Минимальная | Перегружены |
+
+---
 
 ## Установка
 
-### Через Xcode
+### Скачать готовое приложение
 
-1. Клонируйте репозиторий:
-```bash
-git clone https://github.com/skylineyoga/govorilka.git
-cd govorilka
-```
+1. Перейдите в [Releases](https://github.com/shakhruz/govorilka-app/releases/latest)
+2. Скачайте `Govorilka-v1.0.0.zip`
+3. Распакуйте и перетащите в `/Applications`
+4. При первом запуске: правый клик → Открыть
 
-2. Установите xcodegen (если не установлен):
+### Собрать из исходников
+
 ```bash
+# Клонировать репозиторий
+git clone https://github.com/shakhruz/govorilka-app.git
+cd govorilka-app
+
+# Установить xcodegen (если нет)
 brew install xcodegen
-```
 
-3. Сгенерируйте Xcode проект:
-```bash
+# Сгенерировать проект и открыть
 xcodegen generate
-```
-
-4. Откройте проект:
-```bash
 open Govorilka.xcodeproj
+
+# Собрать: ⌘R в Xcode
 ```
 
-5. Соберите и запустите (⌘R)
-
-### Ручная настройка (без xcodegen)
-
-1. Создайте новый macOS App проект в Xcode
-2. Выберите SwiftUI и macOS 13.0+
-3. Скопируйте содержимое папки `Govorilka/` в проект
-4. Добавьте Swift Package: `https://github.com/sindresorhus/KeyboardShortcuts`
-5. Настройте Info.plist и Entitlements согласно файлам в репозитории
-
-## Настройка
-
-### 1. Получите API ключ Deepgram
-
-1. Зарегистрируйтесь на [console.deepgram.com](https://console.deepgram.com/signup)
-2. Получите **$200 бесплатных кредитов** (без привязки карты)
-3. Создайте API ключ в разделе Settings → API Keys
-
-### 2. Введите ключ в приложении
-
-1. Запустите Говорилку
-2. Кликните на иконку микрофона в menu bar
-3. Перейдите на вкладку "Настройки"
-4. Введите API ключ и нажмите "Сохранить"
-
-### 3. Настройте автовставку (опционально)
-
-Для автоматической вставки текста нужен доступ Accessibility:
-
-1. Включите "Автоматически вставлять текст" в настройках
-2. Нажмите "Настроить"
-3. В System Settings → Privacy & Security → Accessibility добавьте Говорилку
+---
 
 ## Использование
 
-1. **Нажмите хоткей** (⌥+Space) или кнопку в menu bar
+<p align="center">
+  <img src="docs/demo.gif" alt="Демо" width="400">
+</p>
+
+1. **Нажмите горячую клавишу** — появится индикатор записи
 2. **Говорите** — текст появляется в реальном времени
-3. **Нажмите хоткей снова** для остановки
-4. **Текст автоматически** скопирован в буфер (и вставлен, если включено)
+3. **Нажмите ещё раз** — текст вставится в активное окно
+4. **ESC** — отменить запись без сохранения
+
+---
+
+## Горячие клавиши
+
+В настройках можно выбрать один из режимов:
+
+| Режим | Клавиша | Описание |
+|-------|---------|----------|
+| **⌥ Space** | Option + Пробел | Классическая комбинация |
+| **Right ⌘** | Правый Command | Рекомендуется — одно нажатие |
+| **2× Right ⌥** | Правый Option×2 | Двойное нажатие |
+
+**Дополнительно:**
+- **ESC** — отменить запись
+
+---
+
+## Настройка
+
+### 1. API ключ Deepgram
+
+Говорилка использует [Deepgram](https://deepgram.com) для распознавания речи.
+
+1. Зарегистрируйтесь на [console.deepgram.com](https://console.deepgram.com/signup)
+2. Получите **$200 бесплатных кредитов** (без карты!)
+3. Создайте API ключ: Settings → API Keys
+4. Вставьте ключ в настройках Говорилки
+
+> **$200 хватит на ~775 часов** диктовки. Это много.
+
+### 2. Разрешения macOS
+
+| Разрешение | Зачем | Как включить |
+|------------|-------|--------------|
+| **Микрофон** | Запись голоса | Автоматический запрос |
+| **Accessibility** | Автовставка текста | System Settings → Privacy → Accessibility |
+
+---
 
 ## Стоимость
 
-Говорилка бесплатна. Вы платите только за использование Deepgram API:
+**Говорилка бесплатна.** Вы платите только за API Deepgram:
 
-| Тариф | Стоимость | Примечание |
-|-------|-----------|------------|
-| Бесплатно | $200 кредитов | При регистрации |
-| Nova-2 | $0.0043/минута | ~775 часов на $200 |
-| Pay-as-you-go | От $0.0043/мин | После исчерпания кредитов |
+- **$200 бесплатно** при регистрации
+- **$0.0043/минута** после исчерпания (≈26 копеек)
+- Никаких подписок, платите только за использование
+
+---
 
 ## Архитектура
 
 ```
 Govorilka/
-├── GovorilkaApp.swift          # Entry point + MenuBarExtra
-├── Info.plist                   # Permissions
-├── Govorilka.entitlements       # Sandbox config
-│
-├── Views/
-│   ├── MenuBarView.swift        # Main popover
-│   ├── RecordingView.swift      # Recording indicator
-│   ├── HistoryView.swift        # History list
-│   └── SettingsView.swift       # Settings
-│
+├── GovorilkaApp.swift           # Точка входа + MenuBarExtra
+├── Views/                       # SwiftUI интерфейс
+│   ├── MenuBarView.swift        # Главное меню
+│   ├── RecordingView.swift      # Индикатор записи
+│   ├── SettingsView.swift       # Настройки
+│   └── FloatingRecorderWindow.swift  # Плавающее окно
 ├── ViewModels/
-│   └── AppState.swift           # State management
-│
+│   └── AppState.swift           # Состояние приложения
 ├── Services/
-│   ├── AudioService.swift       # AVAudioEngine
-│   ├── DeepgramService.swift    # WebSocket API
-│   ├── PasteService.swift       # Clipboard + ⌘V
-│   └── StorageService.swift     # UserDefaults
-│
-├── Models/
-│   └── TranscriptEntry.swift    # History entry
-│
-└── Resources/
-    └── Assets.xcassets          # Icons
+│   ├── AudioService.swift       # Захват звука (AVAudioEngine)
+│   ├── DeepgramService.swift    # WebSocket к Deepgram
+│   ├── HotkeyService.swift      # Горячие клавиши
+│   └── PasteService.swift       # Вставка текста
+└── Models/
+    └── TranscriptEntry.swift    # Запись в истории
 ```
-
-## Зависимости
-
-- [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) — глобальные хоткеи
-
-## Privacy
-
-- **Микрофон**: Аудио отправляется напрямую в Deepgram API
-- **Данные**: История хранится локально в UserDefaults
-- **API ключ**: Хранится локально, не передаётся третьим лицам
-
-## Troubleshooting
-
-### "Доступ к микрофону запрещён"
-
-System Settings → Privacy & Security → Microphone → Включите Говорилку
-
-### "API ключ Deepgram не настроен"
-
-Добавьте ключ в Настройках приложения
-
-### Автовставка не работает
-
-1. Убедитесь что функция включена в настройках
-2. Добавьте Говорилку в System Settings → Privacy & Security → Accessibility
-
-### WebSocket ошибка
-
-- Проверьте интернет-соединение
-- Проверьте правильность API ключа
-- Проверьте баланс на console.deepgram.com
-
-## Сравнение с VoiceInk
-
-| Аспект | VoiceInk | Говорилка |
-|--------|----------|-----------|
-| Цена | $39.99 | Бесплатно |
-| Транскрипция | Локальная | Cloud (Deepgram) |
-| Offline | Да | Нет |
-| Языки | 100+ | Русский + English |
-| Функционал | Расширенный | Минимальный |
-
-## License
-
-MIT License
-
-## Credits
-
-- [Deepgram](https://deepgram.com) — Speech-to-Text API
-- [Sindre Sorhus](https://github.com/sindresorhus) — KeyboardShortcuts
 
 ---
 
-Made with ❤️ by [Skyline Yoga](https://skylineyoga.online)
+## Приватность
+
+- **Аудио** отправляется напрямую в Deepgram, нигде не сохраняется
+- **История** хранится только локально на вашем Mac
+- **API ключ** хранится в UserDefaults, не передаётся третьим лицам
+- **Исходный код** открыт — можете проверить сами
+
+---
+
+## Разработка
+
+### Требования
+
+- macOS 13.0+
+- Xcode 15.0+
+- Swift 5.9
+
+### Зависимости
+
+- [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) — глобальные хоткеи
+
+### Сборка
+
+```bash
+xcodegen generate
+xcodebuild -scheme Govorilka -configuration Release build
+```
+
+---
+
+## Roadmap
+
+- [ ] Выбор языка распознавания
+- [ ] Кастомные промпты для постобработки
+- [ ] Интеграция с локальными LLM
+- [ ] Экспорт истории
+
+---
+
+## Поддержка
+
+- [Issues](https://github.com/shakhruz/govorilka-app/issues) — баги и предложения
+- [Discussions](https://github.com/shakhruz/govorilka-app/discussions) — вопросы
+
+---
+
+## Лицензия
+
+MIT License — делайте что хотите, только не удаляйте копирайт.
+
+---
+
+<p align="center">
+  Сделано с ❤️ для русскоязычного сообщества
+</p>

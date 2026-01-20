@@ -54,3 +54,13 @@ fastlane/test_output
 # Environment
 .env
 .env.*
+
+# Temporary files
+*.png.tmp
+/tmp/
+
+# MCP Servers (development tools)
+mcp-servers/
+
+# Generated icons (keep originals in scripts/)
+AppIcon_*.png

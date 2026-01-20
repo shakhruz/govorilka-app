@@ -189,7 +189,7 @@ struct SettingsView: View {
                     }
                 }
 
-                // Hotkey info section
+                // Hotkey section
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
                         SettingsCardHeader(
@@ -198,40 +198,56 @@ struct SettingsView: View {
                             color: pinkColor
                         )
 
-                        Text("Правый ⌥ Option + Пробел")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(textColor)
+                        // Hotkey mode picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(HotkeyMode.allCases, id: \.self) { mode in
+                                HotkeyModeRow(
+                                    mode: mode,
+                                    isSelected: appState.hotkeyMode == mode,
+                                    pinkColor: pinkColor,
+                                    softPink: softPink,
+                                    textColor: textColor
+                                ) {
+                                    appState.saveHotkeyMode(mode)
+                                }
+                            }
+                        }
 
-                        // Show accessibility status
-                        HStack {
-                            if appState.hasAccessibilityPermission {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "checkmark.circle.fill")
+                        // Show accessibility status for modes that need it
+                        if appState.hotkeyMode.needsEventMonitoring {
+                            Divider()
+                                .padding(.vertical, 2)
+
+                            HStack {
+                                if appState.hasAccessibilityPermission {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(pinkColor)
+                                        Text("Доступ разрешён")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(textColor.opacity(0.6))
+                                    }
+                                } else {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(.orange)
+                                        Text("Нужен Универсальный доступ")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(textColor.opacity(0.6))
+                                    }
+                                }
+
+                                Spacer()
+
+                                Button(action: {
+                                    appState.requestAccessibility()
+                                }) {
+                                    Text("Настроить")
+                                        .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(pinkColor)
-                                    Text("Доступ разрешён")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(textColor.opacity(0.6))
                                 }
-                            } else {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.orange)
-                                    Text("Нужен Универсальный доступ")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(textColor.opacity(0.6))
-                                }
+                                .buttonStyle(.plain)
                             }
-
-                            Spacer()
-
-                            Button(action: {
-                                appState.requestAccessibility()
-                            }) {
-                                Text("Настроить")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(pinkColor)
-                            }
-                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -315,6 +331,65 @@ struct SettingsCardHeader: View {
                 .foregroundColor(Color(hex: "5D4E6D"))
         }
         .padding(.bottom, 2)
+    }
+}
+
+// MARK: - Hotkey Mode Row
+
+struct HotkeyModeRow: View {
+    let mode: HotkeyMode
+    let isSelected: Bool
+    let pinkColor: Color
+    let softPink: Color
+    let textColor: Color
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: 10) {
+                // Selection indicator
+                ZStack {
+                    Circle()
+                        .stroke(isSelected ? pinkColor : textColor.opacity(0.3), lineWidth: 2)
+                        .frame(width: 18, height: 18)
+
+                    if isSelected {
+                        Circle()
+                            .fill(pinkColor)
+                            .frame(width: 10, height: 10)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(mode.displayName)
+                            .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                            .foregroundColor(isSelected ? pinkColor : textColor)
+
+                        if mode == .rightCommand {
+                            Text("рекомендуется")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(pinkColor.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        }
+                    }
+
+                    Text(mode.description)
+                        .font(.system(size: 10))
+                        .foregroundColor(textColor.opacity(0.5))
+                }
+
+                Spacer()
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(isSelected ? softPink : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
     }
 }
 

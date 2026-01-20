@@ -12,7 +12,7 @@ final class FloatingWindowController: ObservableObject {
     /// Show the floating window at screen center
     func show(appState: AppState, audioLevel: Binding<Float>) {
         guard window == nil else {
-            window?.makeKeyAndOrderFront(nil)
+            window?.orderFrontRegardless()
             isVisible = true
             return
         }
@@ -56,9 +56,9 @@ final class FloatingWindowController: ObservableObject {
 
         self.window = window
 
-        // Show with animation
+        // Show with animation (use orderFront to avoid stealing focus)
         window.alphaValue = 0
-        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
 
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.2
@@ -106,7 +106,7 @@ final class FloatingWindowController: ObservableObject {
 /// A custom NSPanel that doesn't steal focus from other apps
 class FloatingPanel: NSPanel {
     override var canBecomeKey: Bool {
-        return true
+        return false  // Never steal keyboard focus
     }
 
     override var canBecomeMain: Bool {

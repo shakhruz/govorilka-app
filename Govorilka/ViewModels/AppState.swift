@@ -70,14 +70,13 @@ final class AppState: ObservableObject {
         audioService.delegate = self
         deepgramService.delegate = self
 
-        // Set up keyboard shortcut for standard modes
+        // Set up keyboard shortcut for optionSpace mode only
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
                 guard let self = self else { return }
-                // Only trigger if using optionSpace or custom mode
-                if self.hotkeyMode == .optionSpace || self.hotkeyMode == .custom {
-                    // Уведомляем HotkeyService чтобы избежать двойного срабатывания
-                    self.hotkeyService.notifyHotkeyTriggeredExternally()
+                // Only trigger if using optionSpace mode
+                // Other modes (rightCommand, doubleTapRightOption) are handled by HotkeyService
+                if self.hotkeyMode == .optionSpace {
                     self.toggleRecording()
                 }
             }
@@ -207,9 +206,14 @@ final class AppState: ObservableObject {
 
                 if canPaste {
                     // Use pasteAtCursor - it handles clipboard, paste, and restoration
-                    // Longer delay to ensure floating window is fully hidden and target app regains focus
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                        print("[AppState] Triggering pasteAtCursor")
+                    // Delay to ensure floating window is fully hidden and target app regains focus
+                    let frontAppBefore = NSWorkspace.shared.frontmostApplication
+                    print("[AppState] 📋 Before paste delay - frontmost app: \(frontAppBefore?.localizedName ?? "unknown")")
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                        let frontAppNow = NSWorkspace.shared.frontmostApplication
+                        print("[AppState] 📋 After delay - frontmost app: \(frontAppNow?.localizedName ?? "unknown")")
+                        print("[AppState] 📋 Triggering pasteAtCursor with text: \"\(finalText.prefix(50))...\"")
                         self?.pasteService.pasteAtCursor(finalText, restoreClipboard: true)
                     }
                 } else {

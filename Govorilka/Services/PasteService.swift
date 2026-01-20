@@ -110,13 +110,21 @@ final class PasteService {
     /// Simulate Cmd+V key press
     func simulatePaste() {
         print("[PasteService] 🔵 simulatePaste() called")
-        guard hasAccessibilityPermission() else {
-            print("[PasteService] Cannot paste: no accessibility permission")
+
+        // Detailed accessibility check
+        let trusted = AXIsProcessTrusted()
+        print("[PasteService] AXIsProcessTrusted() = \(trusted)")
+
+        guard trusted else {
+            print("[PasteService] ❌ Cannot paste: no accessibility permission")
+            print("[PasteService] Opening System Preferences...")
+            openAccessibilitySettings()
             return
         }
 
         let frontApp = NSWorkspace.shared.frontmostApplication
-        print("[PasteService] Pasting to app: \(frontApp?.localizedName ?? "unknown")")
+        let bundleId = frontApp?.bundleIdentifier ?? "unknown"
+        print("[PasteService] ✅ Pasting to app: \(frontApp?.localizedName ?? "unknown") (\(bundleId))")
 
         // Note: Removed frontmost app check - the floating window uses .nonactivating
         // so focus should already be on the target app. If we're still frontmost,

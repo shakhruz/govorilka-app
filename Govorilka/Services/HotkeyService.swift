@@ -66,9 +66,9 @@ final class HotkeyService {
     private var rightOptionPressTime: Date?
     private let singleTapMaxDuration: TimeInterval = 0.3
 
-    // Флаг: была ли нажата другая клавиша пока Option зажат
-    // Если да - это комбинация (Option+что-то), а не single-tap Option
-    private var otherKeyPressedDuringOption = false
+    // Cooldown после срабатывания hotkey (чтобы не было двойного срабатывания)
+    private var lastHotkeyTriggerTime: Date?
+    private let hotkeyCooldown: TimeInterval = 0.5
 
     // Track which modifier we're monitoring
     private var monitoredModifier: CGEventFlags = []
@@ -77,6 +77,12 @@ final class HotkeyService {
 
     deinit {
         stopMonitoring()
+    }
+
+    /// Вызывается когда hotkey сработал из внешнего источника (KeyboardShortcuts)
+    /// Устанавливает cooldown чтобы избежать двойного срабатывания
+    func notifyHotkeyTriggeredExternally() {
+        lastHotkeyTriggerTime = Date()
     }
 
     /// Start monitoring for the current hotkey mode
@@ -158,20 +164,13 @@ final class HotkeyService {
     }
 
     private func handleEvent(type: CGEventType, event: CGEvent) {
-        // Обработка keyDown событий
+        // ESC для отмены записи (keyCode 53)
         if type == .keyDown {
             let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-
-            // ESC для отмены записи (keyCode 53)
-            if keyCode == 53 {
+            if keyCode == 53 {  // ESC
                 DispatchQueue.main.async { [weak self] in
                     self?.onEscapePressed?()
                 }
-            }
-
-            // Если правый Option зажат и нажата другая клавиша — это комбинация, не single-tap
-            if rightOptionPressTime != nil {
-                otherKeyPressedDuringOption = true
             }
             return
         }
@@ -189,26 +188,20 @@ final class HotkeyService {
             let isPressed = flags.contains(.maskAlternate)
 
             if isPressed {
-                // Начало нажатия правого Option
                 rightOptionPressTime = Date()
-                otherKeyPressedDuringOption = false
             } else if let pressTime = rightOptionPressTime {
-                // Отпускание правого Option
                 let duration = Date().timeIntervalSince(pressTime)
-                let wasOtherKeyPressed = otherKeyPressedDuringOption
-
-                // Сбрасываем состояние
                 rightOptionPressTime = nil
-                otherKeyPressedDuringOption = false
 
-                // Не срабатывать если была нажата другая клавиша (например, Space)
-                // В этом случае это Option+Space, который обрабатывает KeyboardShortcuts
-                if wasOtherKeyPressed {
+                // Проверяем cooldown — не срабатывать если недавно уже было срабатывание
+                // (например, от Option+Space через KeyboardShortcuts)
+                if let lastTrigger = lastHotkeyTriggerTime,
+                   Date().timeIntervalSince(lastTrigger) < hotkeyCooldown {
                     return
                 }
 
-                // Срабатывать только если это было короткое нажатие (< 0.3 сек)
                 if duration < singleTapMaxDuration {
+                    lastHotkeyTriggerTime = Date()
                     DispatchQueue.main.async { [weak self] in
                         self?.onHotkeyTriggered?()
                     }

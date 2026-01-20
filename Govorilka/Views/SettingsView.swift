@@ -9,11 +9,11 @@ struct SettingsView: View {
     @State private var showApiKey = false
     @State private var exportFolderName: String = "Не выбрана"
 
-    // Theme colors
-    private let pinkColor = Color(hex: "FF69B4")
-    private let lightPink = Color(hex: "FFB6C1")
-    private let softPink = Color(hex: "FFF5F8")
-    private let textColor = Color(hex: "5D4E6D")
+    // Theme colors (use centralized Theme constants)
+    private let pinkColor = Theme.pink
+    private let lightPink = Theme.lightPink
+    private let softPink = Theme.softPink
+    private let textColor = Theme.text
 
     var body: some View {
         ScrollView {

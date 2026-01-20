@@ -6,13 +6,13 @@ struct MenuBarView: View {
 
     @State private var selectedTab = 0
 
-    // Theme colors
-    private let pinkColor = Color(hex: "FF69B4")
-    private let lightPink = Color(hex: "FFB6C1")
-    private let softPink = Color(hex: "FFF0F5")
-    private let textColor = Color(hex: "5D4E6D")
-    private let purpleAccent = Color(hex: "9B6BFF")
-    private let coralAccent = Color(hex: "FF7B7B")
+    // Theme colors (use centralized Theme constants)
+    private let pinkColor = Theme.pink
+    private let lightPink = Theme.lightPink
+    private let softPink = Theme.softPinkBackground
+    private let textColor = Theme.text
+    private let purpleAccent = Theme.purpleAccent
+    private let coralAccent = Theme.coralAccent
 
     var body: some View {
         VStack(spacing: 0) {

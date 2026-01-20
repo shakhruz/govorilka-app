@@ -7,11 +7,11 @@ struct RecordingView: View {
     @State private var animationPhase = 0.0
     @State private var isButtonHovered = false
 
-    // Theme colors
-    private let pinkColor = Color(hex: "FF69B4")
-    private let lightPink = Color(hex: "FFB6C1")
-    private let textColor = Color(hex: "5D4E6D")
-    private let recordingRed = Color(hex: "FF6B6B")
+    // Theme colors (use centralized Theme constants)
+    private let pinkColor = Theme.pink
+    private let lightPink = Theme.lightPink
+    private let textColor = Theme.text
+    private let recordingRed = Theme.recordingRed
 
     var body: some View {
         VStack(spacing: 14) {

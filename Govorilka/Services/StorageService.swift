@@ -24,16 +24,65 @@ final class StorageService {
         static let textCleaningEnabled = "text_cleaning_enabled"
     }
 
-    // MARK: - API Key
+    // MARK: - API Key (stored in Keychain for security)
+
+    private let keychain = KeychainService.shared
 
     var apiKey: String? {
-        get { defaults.string(forKey: Keys.apiKey) }
-        set { defaults.set(newValue, forKey: Keys.apiKey) }
+        get {
+            // First check Keychain
+            if let key = keychain.loadApiKey() {
+                return key
+            }
+            // Fallback: check UserDefaults for migration
+            return defaults.string(forKey: Keys.apiKey)
+        }
+        set {
+            if let key = newValue, !key.isEmpty {
+                do {
+                    try keychain.saveApiKey(key)
+                    // Remove from UserDefaults after successful Keychain save
+                    defaults.removeObject(forKey: Keys.apiKey)
+                } catch {
+                    print("[StorageService] Failed to save API key to Keychain: \(error)")
+                    // Fallback to UserDefaults (not recommended but prevents data loss)
+                    defaults.set(newValue, forKey: Keys.apiKey)
+                }
+            } else {
+                keychain.deleteApiKey()
+                defaults.removeObject(forKey: Keys.apiKey)
+            }
+        }
     }
 
     var hasApiKey: Bool {
         guard let key = apiKey else { return false }
         return !key.isEmpty
+    }
+
+    /// Migrate API key from UserDefaults to Keychain (call on app launch)
+    func migrateApiKeyToKeychain() {
+        // Check if there's a key in UserDefaults that needs migration
+        guard let oldKey = defaults.string(forKey: Keys.apiKey), !oldKey.isEmpty else {
+            return
+        }
+
+        // Check if already in Keychain
+        if keychain.loadApiKey() != nil {
+            // Already migrated, just clean up UserDefaults
+            defaults.removeObject(forKey: Keys.apiKey)
+            print("[StorageService] API key already in Keychain, cleaned UserDefaults")
+            return
+        }
+
+        // Migrate to Keychain
+        do {
+            try keychain.saveApiKey(oldKey)
+            defaults.removeObject(forKey: Keys.apiKey)
+            print("[StorageService] API key migrated to Keychain successfully")
+        } catch {
+            print("[StorageService] Failed to migrate API key to Keychain: \(error)")
+        }
     }
 
     // MARK: - Settings

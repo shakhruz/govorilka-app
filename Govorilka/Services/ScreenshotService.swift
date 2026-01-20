@@ -6,13 +6,22 @@ final class ScreenshotService {
     static let shared = ScreenshotService()
 
     /// Screenshots directory in Application Support
-    private var screenshotsDirectory: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    private var screenshotsDirectory: URL? {
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            print("[ScreenshotService] Failed to get Application Support directory")
+            return nil
+        }
+
         let govorilkaDir = appSupport.appendingPathComponent("Govorilka", isDirectory: true)
         let screenshotsDir = govorilkaDir.appendingPathComponent("Screenshots", isDirectory: true)
 
         // Create directory if needed
-        try? FileManager.default.createDirectory(at: screenshotsDir, withIntermediateDirectories: true)
+        do {
+            try FileManager.default.createDirectory(at: screenshotsDir, withIntermediateDirectories: true)
+        } catch {
+            print("[ScreenshotService] Failed to create screenshots directory: \(error)")
+            return nil
+        }
 
         return screenshotsDir
     }
@@ -42,8 +51,13 @@ final class ScreenshotService {
     /// - Parameter image: The image to save
     /// - Returns: Filename (not full path) or nil if save failed
     func saveScreenshot(_ image: NSImage) -> String? {
+        guard let directory = screenshotsDirectory else {
+            print("[ScreenshotService] Screenshots directory unavailable")
+            return nil
+        }
+
         let filename = generateFilename()
-        let fileURL = screenshotsDirectory.appendingPathComponent(filename)
+        let fileURL = directory.appendingPathComponent(filename)
 
         guard let tiffData = image.tiffRepresentation,
               let bitmapRep = NSBitmapImageRep(data: tiffData),
@@ -66,7 +80,12 @@ final class ScreenshotService {
     /// - Parameter filename: The filename (not full path)
     /// - Returns: NSImage or nil if load failed
     func loadScreenshot(filename: String) -> NSImage? {
-        let fileURL = screenshotsDirectory.appendingPathComponent(filename)
+        guard let directory = screenshotsDirectory else {
+            print("[ScreenshotService] Screenshots directory unavailable")
+            return nil
+        }
+
+        let fileURL = directory.appendingPathComponent(filename)
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             print("[ScreenshotService] Screenshot not found: \(filename)")
@@ -84,7 +103,12 @@ final class ScreenshotService {
     /// Delete screenshot from the screenshots directory
     /// - Parameter filename: The filename (not full path)
     func deleteScreenshot(filename: String) {
-        let fileURL = screenshotsDirectory.appendingPathComponent(filename)
+        guard let directory = screenshotsDirectory else {
+            print("[ScreenshotService] Screenshots directory unavailable")
+            return
+        }
+
+        let fileURL = directory.appendingPathComponent(filename)
 
         do {
             try FileManager.default.removeItem(at: fileURL)

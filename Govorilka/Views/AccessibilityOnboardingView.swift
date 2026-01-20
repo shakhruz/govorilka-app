@@ -10,15 +10,11 @@ struct AccessibilityOnboardingView: View {
     @State private var isButtonHovered = false
     @State private var isCloseHovered = false
 
-    private let backgroundColor = LinearGradient(
-        colors: [Color(hex: "FFF5F8"), Color.white],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-
-    private let pinkColor = Color(hex: "FF69B4")
-    private let lightPink = Color(hex: "FFB6C1")
-    private let textColor = Color(hex: "5D4E6D")
+    // Theme colors (use centralized Theme constants)
+    private let backgroundColor = Theme.backgroundGradient
+    private let pinkColor = Theme.pink
+    private let lightPink = Theme.lightPink
+    private let textColor = Theme.text
 
     var body: some View {
         ZStack {

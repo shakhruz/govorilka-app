@@ -4,6 +4,11 @@ import SwiftUI
 struct GovorilkaApp: App {
     @StateObject private var appState = AppState()
 
+    init() {
+        // Migrate API key from UserDefaults to Keychain (one-time migration)
+        StorageService.shared.migrateApiKeyToKeychain()
+    }
+
     var body: some Scene {
         // Menu bar app
         MenuBarExtra {

@@ -20,6 +20,13 @@ final class PasteService {
         setClipboard(text, transient: false)
     }
 
+    /// Copy image to clipboard
+    func copyImageToClipboard(_ image: NSImage) {
+        pasteboard.clearContents()
+        pasteboard.writeObjects([image])
+        print("[PasteService] Image copied to clipboard")
+    }
+
     /// Set clipboard content with optional transient flag
     /// - Parameters:
     ///   - text: Text to copy

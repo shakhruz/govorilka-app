@@ -38,6 +38,13 @@ final class AppState: ObservableObject {
     @Published var showFloatingWindow = true // User preference
     let floatingWindowController = FloatingWindowController()
 
+    // Pro mode
+    @Published var proModeEnabled = false
+    let proReviewController = ProReviewWindowController()
+    private var pendingScreenshot: NSImage?
+    private var pendingDuration: TimeInterval = 0
+    private let screenshotService = ScreenshotService.shared
+
     // Accessibility onboarding
     let onboardingWindowController = OnboardingWindowController()
 
@@ -63,6 +70,7 @@ final class AppState: ObservableObject {
         autoPasteEnabled = storage.autoPasteEnabled
         showFloatingWindow = storage.showFloatingWindow
         hotkeyMode = storage.hotkeyMode
+        proModeEnabled = storage.proModeEnabled
         history = storage.loadHistory()
         hasAccessibilityPermission = pasteService.hasAccessibilityPermission()
 
@@ -147,6 +155,12 @@ final class AppState: ObservableObject {
                 return
             }
 
+            // Capture screenshot BEFORE recording if Pro mode enabled
+            if proModeEnabled {
+                pendingScreenshot = await screenshotService.captureScreen()
+                print("[AppState] Pro mode: screenshot captured")
+            }
+
             // Connect to Deepgram
             isConnecting = true
 
@@ -154,6 +168,7 @@ final class AppState: ObservableObject {
                 try deepgramService.connect()
             } catch {
                 isConnecting = false
+                pendingScreenshot = nil
                 showError(message: error.localizedDescription)
             }
         }
@@ -186,7 +201,33 @@ final class AppState: ObservableObject {
         currentAudioLevel = 0.0
         recordingStartTime = nil
 
-        // Process the transcript after a small delay to let UI update
+        // Pro mode: show review dialog
+        if proModeEnabled, let screenshot = pendingScreenshot, !finalText.isEmpty {
+            pendingDuration = duration
+            proReviewController.show(
+                screenshot: screenshot,
+                transcript: finalText,
+                duration: duration,
+                onSave: { [weak self] data, exportToFolder in
+                    self?.handleProSave(data: data, exportToFolder: exportToFolder)
+                },
+                onCancel: { [weak self] in
+                    self?.handleProCancel()
+                }
+            )
+            pendingScreenshot = nil
+
+            // Reset disconnect flag after a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.isDisconnecting = false
+            }
+            return
+        }
+
+        // Clear pending screenshot if any
+        pendingScreenshot = nil
+
+        // Process the transcript (standard flow)
         if !finalText.isEmpty {
             let entry = TranscriptEntry(
                 text: finalText,
@@ -233,6 +274,58 @@ final class AppState: ObservableObject {
         }
     }
 
+    // MARK: - Pro Mode Handlers
+
+    /// Handle save from Pro review dialog
+    private func handleProSave(data: ProReviewData, exportToFolder: Bool) {
+        // Save screenshot to app storage
+        guard let filename = screenshotService.saveScreenshot(data.screenshot) else {
+            print("[AppState] Failed to save screenshot")
+            return
+        }
+
+        // Create entry with screenshot
+        let entry = TranscriptEntry(
+            text: data.transcript,
+            timestamp: data.timestamp,
+            duration: data.duration,
+            screenshotFilename: filename,
+            isProMode: true
+        )
+
+        // Add to history
+        history.insert(entry, at: 0)
+        storage.addToHistory(entry)
+
+        // Export to folder if requested
+        if exportToFolder {
+            if let folderURL = storage.resolveExportFolder() {
+                let baseFilename = screenshotService.generateExportFilename(
+                    timestamp: data.timestamp,
+                    text: data.transcript
+                )
+                screenshotService.exportToFolder(
+                    screenshot: data.screenshot,
+                    text: data.transcript,
+                    folderURL: folderURL,
+                    baseFilename: baseFilename
+                )
+                storage.stopAccessingExportFolder(folderURL)
+            }
+        }
+
+        // Copy text to clipboard (don't auto-paste in Pro mode)
+        pasteService.copyToClipboard(data.transcript)
+
+        print("[AppState] Pro save completed: \(filename)")
+    }
+
+    /// Handle cancel from Pro review dialog
+    private func handleProCancel() {
+        print("[AppState] Pro review cancelled")
+        // Don't save anything
+    }
+
     /// Cancel recording without saving/pasting
     func cancelRecording() {
         guard isRecording else { return }
@@ -256,6 +349,7 @@ final class AppState: ObservableObject {
         interimTranscript = ""
         currentAudioLevel = 0.0
         recordingStartTime = nil
+        pendingScreenshot = nil
 
         // Reset disconnect flag after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -270,6 +364,10 @@ final class AppState: ObservableObject {
 
     /// Delete entry from history
     func deleteEntry(_ entry: TranscriptEntry) {
+        // Delete screenshot if exists
+        if let filename = entry.screenshotFilename {
+            screenshotService.deleteScreenshot(filename: filename)
+        }
         history.removeAll { $0.id == entry.id }
         storage.removeFromHistory(entry)
     }
@@ -304,6 +402,17 @@ final class AppState: ObservableObject {
         storage.hotkeyMode = mode
         hotkeyService.currentMode = mode
         hotkeyService.startMonitoring()
+    }
+
+    /// Save Pro mode setting
+    func saveProModeEnabled(_ enabled: Bool) {
+        proModeEnabled = enabled
+        storage.proModeEnabled = enabled
+    }
+
+    /// Save export folder
+    func saveExportFolder(_ url: URL) {
+        storage.saveExportFolder(url)
     }
 
     /// Request accessibility permission

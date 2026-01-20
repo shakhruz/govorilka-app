@@ -17,6 +17,9 @@ final class StorageService {
         static let maxHistoryCount = "max_history_count"
         static let onboardingCompleted = "onboarding_completed"
         static let accessibilityOnboardingSkipped = "accessibility_onboarding_skipped"
+        // Pro mode
+        static let proModeEnabled = "pro_mode_enabled"
+        static let proExportFolderBookmark = "pro_export_folder_bookmark"
     }
 
     // MARK: - API Key
@@ -67,6 +70,69 @@ final class StorageService {
     var accessibilityOnboardingSkipped: Bool {
         get { defaults.bool(forKey: Keys.accessibilityOnboardingSkipped) }
         set { defaults.set(newValue, forKey: Keys.accessibilityOnboardingSkipped) }
+    }
+
+    // MARK: - Pro Mode
+
+    var proModeEnabled: Bool {
+        get { defaults.bool(forKey: Keys.proModeEnabled) }
+        set { defaults.set(newValue, forKey: Keys.proModeEnabled) }
+    }
+
+    var proExportFolderBookmark: Data? {
+        get { defaults.data(forKey: Keys.proExportFolderBookmark) }
+        set { defaults.set(newValue, forKey: Keys.proExportFolderBookmark) }
+    }
+
+    /// Save export folder as security-scoped bookmark
+    func saveExportFolder(_ url: URL) {
+        do {
+            let bookmark = try url.bookmarkData(
+                options: .withSecurityScope,
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            )
+            proExportFolderBookmark = bookmark
+            print("[StorageService] Export folder saved: \(url.path)")
+        } catch {
+            print("[StorageService] Failed to save export folder bookmark: \(error)")
+        }
+    }
+
+    /// Resolve export folder from security-scoped bookmark
+    func resolveExportFolder() -> URL? {
+        guard let bookmark = proExportFolderBookmark else { return nil }
+
+        do {
+            var isStale = false
+            let url = try URL(
+                resolvingBookmarkData: bookmark,
+                options: .withSecurityScope,
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            )
+
+            if isStale {
+                // Re-save the bookmark if it's stale
+                saveExportFolder(url)
+            }
+
+            // Start accessing the security-scoped resource
+            if url.startAccessingSecurityScopedResource() {
+                return url
+            } else {
+                print("[StorageService] Failed to access security-scoped resource")
+                return nil
+            }
+        } catch {
+            print("[StorageService] Failed to resolve export folder bookmark: \(error)")
+            return nil
+        }
+    }
+
+    /// Stop accessing security-scoped export folder
+    func stopAccessingExportFolder(_ url: URL) {
+        url.stopAccessingSecurityScopedResource()
     }
 
     // MARK: - History
@@ -124,5 +190,7 @@ final class StorageService {
         defaults.removeObject(forKey: Keys.maxHistoryCount)
         defaults.removeObject(forKey: Keys.onboardingCompleted)
         defaults.removeObject(forKey: Keys.accessibilityOnboardingSkipped)
+        defaults.removeObject(forKey: Keys.proModeEnabled)
+        defaults.removeObject(forKey: Keys.proExportFolderBookmark)
     }
 }

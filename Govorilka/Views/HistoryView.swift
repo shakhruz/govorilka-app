@@ -6,6 +6,7 @@ struct HistoryView: View {
 
     @State private var copiedEntryId: UUID?
     @State private var showClearConfirmation = false
+    @State private var selectedEntry: TranscriptEntry?
 
     // Theme colors
     private let pinkColor = Color(hex: "FF69B4")
@@ -54,13 +55,31 @@ struct HistoryView: View {
                             )
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                copyEntry(entry)
+                                if entry.hasScreenshot {
+                                    selectedEntry = entry
+                                } else {
+                                    copyEntry(entry)
+                                }
                             }
                             .contextMenu {
                                 Button {
                                     copyEntry(entry)
                                 } label: {
-                                    Label("Копировать", systemImage: "doc.on.doc")
+                                    Label("Копировать текст", systemImage: "doc.on.doc")
+                                }
+
+                                if entry.hasScreenshot {
+                                    Button {
+                                        selectedEntry = entry
+                                    } label: {
+                                        Label("Показать подробности", systemImage: "eye")
+                                    }
+
+                                    Button {
+                                        copyScreenshot(entry)
+                                    } label: {
+                                        Label("Копировать скриншот", systemImage: "photo.on.rectangle")
+                                    }
                                 }
 
                                 Divider()
@@ -116,6 +135,9 @@ struct HistoryView: View {
         } message: {
             Text("Все записи будут удалены")
         }
+        .sheet(item: $selectedEntry) { entry in
+            HistoryDetailView(entry: entry, onClose: { selectedEntry = nil })
+        }
     }
 
     private func copyEntry(_ entry: TranscriptEntry) {
@@ -133,22 +155,73 @@ struct HistoryView: View {
             }
         }
     }
+
+    private func copyScreenshot(_ entry: TranscriptEntry) {
+        guard let filename = entry.screenshotFilename,
+              let image = ScreenshotService.shared.loadScreenshot(filename: filename) else {
+            return
+        }
+        PasteService.shared.copyImageToClipboard(image)
+    }
 }
 
-/// Beautiful history row
+/// Beautiful history row with optional screenshot thumbnail
 struct HistoryRow: View {
     let entry: TranscriptEntry
     let isCopied: Bool
     let pinkColor: Color
     let textColor: Color
 
+    @State private var thumbnail: NSImage?
+
     var body: some View {
         HStack(spacing: 12) {
+            // Screenshot thumbnail (if Pro mode)
+            if entry.hasScreenshot {
+                Group {
+                    if let thumbnail = thumbnail {
+                        Image(nsImage: thumbnail)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 50, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(pinkColor.opacity(0.3), lineWidth: 1)
+                            )
+                    } else {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(pinkColor.opacity(0.1))
+                            .frame(width: 50, height: 40)
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .foregroundColor(pinkColor.opacity(0.5))
+                                    .font(.system(size: 14))
+                            )
+                    }
+                }
+                .onAppear {
+                    loadThumbnail()
+                }
+            }
+
             VStack(alignment: .leading, spacing: 6) {
-                Text(entry.preview)
-                    .font(.system(size: 13))
-                    .foregroundColor(textColor)
-                    .lineLimit(2)
+                HStack(spacing: 6) {
+                    Text(entry.preview)
+                        .font(.system(size: 13))
+                        .foregroundColor(textColor)
+                        .lineLimit(2)
+
+                    if entry.isProMode {
+                        Text("Pro")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(pinkColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
+                }
 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
@@ -197,6 +270,18 @@ struct HistoryRow: View {
                 .stroke(isCopied ? pinkColor.opacity(0.3) : Color.clear, lineWidth: 1)
         )
         .animation(.easeInOut(duration: 0.2), value: isCopied)
+    }
+
+    private func loadThumbnail() {
+        guard thumbnail == nil, let filename = entry.screenshotFilename else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let image = ScreenshotService.shared.loadScreenshot(filename: filename) {
+                DispatchQueue.main.async {
+                    self.thumbnail = image
+                }
+            }
+        }
     }
 }
 

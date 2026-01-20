@@ -7,11 +7,49 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
     let timestamp: Date
     let duration: TimeInterval // Recording duration in seconds
 
-    init(id: UUID = UUID(), text: String, timestamp: Date = Date(), duration: TimeInterval = 0) {
+    // Pro mode fields (optional for backward compatibility)
+    let screenshotFilename: String?
+    let isProMode: Bool
+
+    /// Check if entry has a screenshot
+    var hasScreenshot: Bool { screenshotFilename != nil }
+
+    // MARK: - Initializers
+
+    init(
+        id: UUID = UUID(),
+        text: String,
+        timestamp: Date = Date(),
+        duration: TimeInterval = 0,
+        screenshotFilename: String? = nil,
+        isProMode: Bool = false
+    ) {
         self.id = id
         self.text = text
         self.timestamp = timestamp
         self.duration = duration
+        self.screenshotFilename = screenshotFilename
+        self.isProMode = isProMode
+    }
+
+    // MARK: - Codable (backward compatibility)
+
+    enum CodingKeys: String, CodingKey {
+        case id, text, timestamp, duration
+        case screenshotFilename, isProMode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        text = try container.decode(String.self, forKey: .text)
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
+        duration = try container.decode(TimeInterval.self, forKey: .duration)
+
+        // Optional fields with defaults for backward compatibility
+        screenshotFilename = try container.decodeIfPresent(String.self, forKey: .screenshotFilename)
+        isProMode = try container.decodeIfPresent(Bool.self, forKey: .isProMode) ?? false
     }
 
     /// Formatted timestamp for display
@@ -59,6 +97,13 @@ extension TranscriptEntry {
     static let sample = TranscriptEntry(
         text: "Привет, это тестовая транскрипция для проверки работы приложения Говорилка.",
         duration: 15.5
+    )
+
+    static let samplePro = TranscriptEntry(
+        text: "Pro запись с скриншотом экрана для демонстрации функционала.",
+        duration: 20.0,
+        screenshotFilename: "screenshot_sample.png",
+        isProMode: true
     )
 
     static let samples: [TranscriptEntry] = [

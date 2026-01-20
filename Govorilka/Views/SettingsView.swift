@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Beautiful simplified settings view with pink theme
@@ -6,6 +7,7 @@ struct SettingsView: View {
 
     @State private var apiKeyInput = ""
     @State private var showApiKey = false
+    @State private var exportFolderName: String = "Не выбрана"
 
     // Theme colors
     private let pinkColor = Color(hex: "FF69B4")
@@ -189,6 +191,76 @@ struct SettingsView: View {
                     }
                 }
 
+                // Pro mode section
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SettingsCardHeader(
+                            icon: "star.fill",
+                            title: "Pro режим",
+                            color: pinkColor
+                        )
+
+                        Toggle(isOn: Binding(
+                            get: { appState.proModeEnabled },
+                            set: { appState.saveProModeEnabled($0) }
+                        )) {
+                            Text("Включить Pro режим")
+                                .font(.system(size: 13))
+                                .foregroundColor(textColor)
+                        }
+                        .toggleStyle(.switch)
+                        .tint(pinkColor)
+
+                        Text("Скриншот перед записью + диалог сохранения")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.5))
+
+                        if appState.proModeEnabled {
+                            Divider()
+                                .padding(.vertical, 2)
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Папка для экспорта")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(textColor)
+
+                                HStack(spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "folder.fill")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(pinkColor)
+                                        Text(exportFolderName)
+                                            .font(.system(size: 11))
+                                            .foregroundColor(textColor.opacity(0.7))
+                                            .lineLimit(1)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(softPink)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                    Spacer()
+
+                                    Button(action: selectExportFolder) {
+                                        Text("Выбрать")
+                                            .font(.system(size: 11, weight: .medium))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(pinkColor)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+
+                                Text("Файлы PNG и MD будут сохраняться в эту папку")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(textColor.opacity(0.4))
+                            }
+                        }
+                    }
+                }
+
                 // Hotkey section
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -293,6 +365,30 @@ struct SettingsView: View {
         .onAppear {
             apiKeyInput = appState.apiKey
             appState.refreshAccessibilityStatus()
+            updateExportFolderName()
+        }
+    }
+
+    private func selectExportFolder() {
+        let panel = NSOpenPanel()
+        panel.title = "Выберите папку для экспорта"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK, let url = panel.url {
+            appState.saveExportFolder(url)
+            updateExportFolderName()
+        }
+    }
+
+    private func updateExportFolderName() {
+        if let url = StorageService.shared.resolveExportFolder() {
+            exportFolderName = url.lastPathComponent
+            StorageService.shared.stopAccessingExportFolder(url)
+        } else {
+            exportFolderName = "Не выбрана"
         }
     }
 }

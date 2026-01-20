@@ -47,7 +47,7 @@ struct RecordingView: View {
                             .font(.system(size: 12, weight: .medium, design: .monospaced))
                             .foregroundColor(textColor.opacity(0.6))
                     } else {
-                        Text("Правый ⌥ + Пробел")
+                        Text("⌥ + Пробел")
                             .font(.system(size: 12))
                             .foregroundColor(textColor.opacity(0.5))
                     }

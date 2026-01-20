@@ -20,6 +20,8 @@ final class StorageService {
         // Pro mode
         static let proModeEnabled = "pro_mode_enabled"
         static let proExportFolderBookmark = "pro_export_folder_bookmark"
+        // Text cleaning
+        static let textCleaningEnabled = "text_cleaning_enabled"
     }
 
     // MARK: - API Key
@@ -82,6 +84,13 @@ final class StorageService {
     var proExportFolderBookmark: Data? {
         get { defaults.data(forKey: Keys.proExportFolderBookmark) }
         set { defaults.set(newValue, forKey: Keys.proExportFolderBookmark) }
+    }
+
+    // MARK: - Text Cleaning
+
+    var textCleaningEnabled: Bool {
+        get { defaults.object(forKey: Keys.textCleaningEnabled) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Keys.textCleaningEnabled) }
     }
 
     /// Save export folder as security-scoped bookmark
@@ -192,5 +201,6 @@ final class StorageService {
         defaults.removeObject(forKey: Keys.accessibilityOnboardingSkipped)
         defaults.removeObject(forKey: Keys.proModeEnabled)
         defaults.removeObject(forKey: Keys.proExportFolderBookmark)
+        defaults.removeObject(forKey: Keys.textCleaningEnabled)
     }
 }

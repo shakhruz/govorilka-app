@@ -40,6 +40,7 @@ final class AppState: ObservableObject {
 
     // Pro mode
     @Published var proModeEnabled = false
+    @Published var textCleaningEnabled = true
     let proReviewController = ProReviewWindowController()
     private var pendingScreenshot: NSImage?
     private var pendingDuration: TimeInterval = 0
@@ -59,6 +60,7 @@ final class AppState: ObservableObject {
     private let pasteService = PasteService.shared
     private let storage = StorageService.shared
     private let hotkeyService = HotkeyService.shared
+    private let textCleaner = TextCleanerService.shared
 
     // Recording state
     private var recordingStartTime: Date?
@@ -72,6 +74,7 @@ final class AppState: ObservableObject {
         showFloatingWindow = storage.showFloatingWindow
         hotkeyMode = storage.hotkeyMode
         proModeEnabled = storage.proModeEnabled
+        textCleaningEnabled = storage.textCleaningEnabled
         history = storage.loadHistory()
         hasAccessibilityPermission = pasteService.hasAccessibilityPermission()
 
@@ -206,7 +209,12 @@ final class AppState: ObservableObject {
         let duration = audioService.stopRecording()
 
         // Save final transcript if we have one
-        let finalText = currentTranscript.isEmpty ? interimTranscript : currentTranscript
+        var finalText = currentTranscript.isEmpty ? interimTranscript : currentTranscript
+
+        // Clean text from filler words if enabled
+        if textCleaningEnabled && !finalText.isEmpty {
+            finalText = textCleaner.clean(finalText)
+        }
 
         // Disconnect first (this will close the WebSocket)
         deepgramService.disconnect()
@@ -453,6 +461,12 @@ final class AppState: ObservableObject {
         storage.proModeEnabled = enabled
         hotkeyService.proModeEnabled = enabled
         hotkeyService.startMonitoring()
+    }
+
+    /// Save text cleaning setting
+    func saveTextCleaningEnabled(_ enabled: Bool) {
+        textCleaningEnabled = enabled
+        storage.textCleaningEnabled = enabled
     }
 
     /// Save export folder

@@ -130,38 +130,23 @@ struct SettingsView: View {
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
 
-                        if appState.autoPasteEnabled {
-                            HStack {
-                                if appState.hasAccessibilityPermission {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(pinkColor)
-                                        Text("Доступ разрешён")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
-                                    }
-                                } else {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .foregroundColor(.orange)
-                                        Text("Нужен доступ")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
-                                    }
-                                }
+                        Divider()
+                            .padding(.vertical, 2)
 
-                                Spacer()
-
-                                Button(action: {
-                                    appState.requestAccessibility()
-                                }) {
-                                    Text("Настроить")
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(pinkColor)
-                                }
-                                .buttonStyle(.plain)
-                            }
+                        Toggle(isOn: Binding(
+                            get: { appState.textCleaningEnabled },
+                            set: { appState.saveTextCleaningEnabled($0) }
+                        )) {
+                            Text("Очищать слова-паразиты")
+                                .font(.system(size: 13))
+                                .foregroundColor(textColor)
                         }
+                        .toggleStyle(.switch)
+                        .tint(pinkColor)
+
+                        Text("Удаляет «ну», «как бы», «типа» и др.")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.5))
                     }
                 }
 

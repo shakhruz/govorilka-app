@@ -87,6 +87,16 @@ final class AppState: ObservableObject {
                 self?.toggleRecording()
             }
         }
+
+        // ESC для отмены записи
+        hotkeyService.onEscapePressed = { [weak self] in
+            Task { @MainActor in
+                if self?.isRecording == true {
+                    self?.cancelRecording()
+                }
+            }
+        }
+
         hotkeyService.currentMode = hotkeyMode
         hotkeyService.startMonitoring()
 

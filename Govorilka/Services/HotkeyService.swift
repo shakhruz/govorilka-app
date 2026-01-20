@@ -28,7 +28,7 @@ enum HotkeyMode: String, CaseIterable, Codable {
     var description: String {
         switch self {
         case .optionSpace:
-            return "Option + Пробел"
+            return "⌥ Space или правый Option"
         case .doubleTapRightOption:
             return "Двойное нажатие правого Option"
         case .doubleTapRightCommand:
@@ -46,6 +46,7 @@ final class HotkeyService {
     static let shared = HotkeyService()
 
     var onHotkeyTriggered: (() -> Void)?
+    var onEscapePressed: (() -> Void)?
     var currentMode: HotkeyMode = .optionSpace {
         didSet {
             updateEventTap()
@@ -61,6 +62,10 @@ final class HotkeyService {
     private var isModifierPressed = false
     private let doubleTapInterval: TimeInterval = 0.4
 
+    // Single-tap right Option detection (for optionSpace mode)
+    private var rightOptionPressTime: Date?
+    private let singleTapMaxDuration: TimeInterval = 0.3
+
     // Track which modifier we're monitoring
     private var monitoredModifier: CGEventFlags = []
 
@@ -72,14 +77,17 @@ final class HotkeyService {
 
     /// Start monitoring for the current hotkey mode
     func startMonitoring() {
-        guard currentMode != .optionSpace && currentMode != .custom else {
-            // These modes are handled by KeyboardShortcuts
+        guard currentMode != .custom else {
+            // Custom mode is handled by KeyboardShortcuts only
             stopMonitoring()
             return
         }
 
         // Set the monitored modifier based on mode
         switch currentMode {
+        case .optionSpace:
+            // Also monitor for single-tap right Option
+            monitoredModifier = .maskAlternate
         case .doubleTapRightOption:
             monitoredModifier = .maskAlternate
         case .doubleTapRightCommand:
@@ -111,14 +119,14 @@ final class HotkeyService {
     }
 
     private func createEventTap() {
-        let eventMask = (1 << CGEventType.flagsChanged.rawValue)
+        let eventMask = (1 << CGEventType.flagsChanged.rawValue) | (1 << CGEventType.keyDown.rawValue)
 
         // Create callback as a C function pointer
         let callback: CGEventTapCallBack = { proxy, type, event, refcon in
-            guard let refcon = refcon else { return Unmanaged.passRetained(event) }
+            guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
             let service = Unmanaged<HotkeyService>.fromOpaque(refcon).takeUnretainedValue()
             service.handleEvent(type: type, event: event)
-            return Unmanaged.passRetained(event)
+            return Unmanaged.passUnretained(event)
         }
 
         let refcon = Unmanaged.passUnretained(self).toOpaque()
@@ -126,14 +134,14 @@ final class HotkeyService {
         eventTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
             place: .headInsertEventTap,
-            options: .defaultTap,
+            options: .listenOnly,
             eventsOfInterest: CGEventMask(eventMask),
             callback: callback,
             userInfo: refcon
         )
 
         guard let eventTap = eventTap else {
-            print("Failed to create event tap. Make sure Accessibility permissions are granted.")
+            print("[HotkeyService] Failed to create event tap. Check Accessibility permissions.")
             return
         }
 
@@ -146,12 +154,45 @@ final class HotkeyService {
     }
 
     private func handleEvent(type: CGEventType, event: CGEvent) {
+        // ESC для отмены записи (keyCode 53)
+        if type == .keyDown {
+            let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+            if keyCode == 53 {  // ESC
+                DispatchQueue.main.async { [weak self] in
+                    self?.onEscapePressed?()
+                }
+            }
+            return
+        }
+
         guard type == .flagsChanged else { return }
 
         let flags = event.flags
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
 
-        // Check if it's the right modifier key
+        // Handle single-tap right Option for optionSpace mode
+        if currentMode == .optionSpace {
+            // Right Option keycode is 61
+            guard keyCode == 61 else { return }
+
+            let isPressed = flags.contains(.maskAlternate)
+
+            if isPressed {
+                rightOptionPressTime = Date()
+            } else if let pressTime = rightOptionPressTime {
+                let duration = Date().timeIntervalSince(pressTime)
+                rightOptionPressTime = nil
+
+                if duration < singleTapMaxDuration {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.onHotkeyTriggered?()
+                    }
+                }
+            }
+            return
+        }
+
+        // Check if it's the right modifier key (for double-tap modes)
         let isRightKey: Bool
         switch currentMode {
         case .doubleTapRightOption:

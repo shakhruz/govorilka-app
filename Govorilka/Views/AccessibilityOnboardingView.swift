@@ -138,7 +138,7 @@ struct AccessibilityOnboardingView: View {
 
             instructionRow(
                 icon: "1️⃣",
-                title: "Нажми правый Option",
+                title: "Правый ⌥ + Пробел",
                 subtitle: "Начнётся запись голоса"
             )
 
@@ -150,7 +150,7 @@ struct AccessibilityOnboardingView: View {
 
             instructionRow(
                 icon: "3️⃣",
-                title: "Нажми Option ещё раз",
+                title: "Снова ⌥ + Пробел",
                 subtitle: "Текст появится там, где курсор"
             )
 

@@ -189,7 +189,7 @@ struct SettingsView: View {
                     }
                 }
 
-                // Hotkey section
+                // Hotkey info section
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
                         SettingsCardHeader(
@@ -198,44 +198,40 @@ struct SettingsView: View {
                             color: pinkColor
                         )
 
-                        HotkeySelector(
-                            selectedMode: appState.hotkeyMode,
-                            pinkColor: pinkColor,
-                            textColor: textColor,
-                            softPink: softPink
-                        ) { mode in
-                            appState.saveHotkeyMode(mode)
-                        }
+                        Text("Правый ⌥ Option + Пробел")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(textColor)
 
-                        Text(appState.hotkeyMode.description)
-                            .font(.system(size: 11))
-                            .foregroundColor(textColor.opacity(0.6))
-                            .frame(maxWidth: .infinity, alignment: .center)
-
-                        // Show warning for double-tap modes if no accessibility permission
-                        if appState.hotkeyMode != .optionSpace && appState.hotkeyMode != .custom {
-                            if !appState.hasAccessibilityPermission {
-                                HStack(spacing: 6) {
+                        // Show accessibility status
+                        HStack {
+                            if appState.hasAccessibilityPermission {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(pinkColor)
+                                    Text("Доступ разрешён")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(textColor.opacity(0.6))
+                                }
+                            } else {
+                                HStack(spacing: 4) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundColor(.orange)
+                                    Text("Нужен Универсальный доступ")
                                         .font(.system(size: 11))
-                                    Text("Требуется доступ к Универсальному доступу")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(textColor.opacity(0.7))
-
-                                    Spacer()
-
-                                    Button(action: {
-                                        appState.requestAccessibility()
-                                    }) {
-                                        Text("Настроить")
-                                            .font(.system(size: 10, weight: .medium))
-                                            .foregroundColor(pinkColor)
-                                    }
-                                    .buttonStyle(.plain)
+                                        .foregroundColor(textColor.opacity(0.6))
                                 }
-                                .padding(.top, 4)
                             }
+
+                            Spacer()
+
+                            Button(action: {
+                                appState.requestAccessibility()
+                            }) {
+                                Text("Настроить")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(pinkColor)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -319,75 +315,6 @@ struct SettingsCardHeader: View {
                 .foregroundColor(Color(hex: "5D4E6D"))
         }
         .padding(.bottom, 2)
-    }
-}
-
-// MARK: - Hotkey Selector
-
-struct HotkeySelector: View {
-    let selectedMode: HotkeyMode
-    let pinkColor: Color
-    let textColor: Color
-    let softPink: Color
-    let onSelect: (HotkeyMode) -> Void
-
-    private let modes: [HotkeyMode] = [.optionSpace, .doubleTapFn, .doubleTapRightOption]
-
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(modes, id: \.self) { mode in
-                HotkeySelectorButton(
-                    mode: mode,
-                    isSelected: selectedMode == mode,
-                    pinkColor: pinkColor,
-                    textColor: textColor,
-                    softPink: softPink
-                ) {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        onSelect(mode)
-                    }
-                }
-            }
-        }
-        .padding(4)
-        .background(softPink.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-struct HotkeySelectorButton: View {
-    let mode: HotkeyMode
-    let isSelected: Bool
-    let pinkColor: Color
-    let textColor: Color
-    let softPink: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(mode.displayName)
-                .font(.system(size: 12, weight: isSelected ? .semibold : .medium))
-                .foregroundColor(isSelected ? .white : textColor.opacity(0.7))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-                .background(
-                    Group {
-                        if isSelected {
-                            LinearGradient(
-                                colors: [pinkColor, pinkColor.opacity(0.8)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        } else {
-                            Color.clear
-                        }
-                    }
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .shadow(color: isSelected ? pinkColor.opacity(0.3) : .clear, radius: 4, y: 2)
-        }
-        .buttonStyle(.plain)
     }
 }
 

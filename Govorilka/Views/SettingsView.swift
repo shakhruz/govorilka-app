@@ -31,12 +31,14 @@ struct SettingsView: View {
                             if showApiKey {
                                 TextField("Введите API ключ", text: $apiKeyInput)
                                     .textFieldStyle(.plain)
+                                    .foregroundColor(textColor)
                                     .padding(10)
                                     .background(softPink)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             } else {
                                 SecureField("Введите API ключ", text: $apiKeyInput)
                                     .textFieldStyle(.plain)
+                                    .foregroundColor(textColor)
                                     .padding(10)
                                     .background(softPink)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -176,6 +178,32 @@ struct SettingsView: View {
                     }
                 }
 
+                // Sound feedback section
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SettingsCardHeader(
+                            icon: "speaker.wave.2.fill",
+                            title: "Звуки",
+                            color: pinkColor
+                        )
+
+                        Toggle(isOn: Binding(
+                            get: { appState.soundsEnabled },
+                            set: { appState.saveSoundsEnabled($0) }
+                        )) {
+                            Text("Звуковые уведомления")
+                                .font(.system(size: 13))
+                                .foregroundColor(textColor)
+                        }
+                        .toggleStyle(.switch)
+                        .tint(pinkColor)
+
+                        Text("Звуки при начале/окончании записи")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.5))
+                    }
+                }
+
                 // Pro mode section (Agent Feedback)
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -199,6 +227,41 @@ struct SettingsView: View {
                         Text("Скриншот + голосовой комментарий для агента")
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
+
+                        // Screen Recording permission status
+                        Divider()
+                            .padding(.vertical, 2)
+
+                        HStack {
+                            if appState.hasScreenRecordingPermission {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(pinkColor)
+                                    Text("Запись экрана разрешена")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(textColor.opacity(0.6))
+                                }
+                            } else {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.orange)
+                                    Text("Нужен доступ к экрану")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(textColor.opacity(0.6))
+                                }
+                            }
+
+                            Spacer()
+
+                            Button(action: {
+                                appState.openScreenRecordingSettings()
+                            }) {
+                                Text("Настроить")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(pinkColor)
+                            }
+                            .buttonStyle(.plain)
+                        }
 
                         if appState.proModeEnabled {
                             Divider()
@@ -392,6 +455,7 @@ struct SettingsView: View {
         .onAppear {
             apiKeyInput = appState.apiKey
             appState.refreshAccessibilityStatus()
+            appState.refreshScreenRecordingStatus()
             updateExportFolderName()
         }
     }

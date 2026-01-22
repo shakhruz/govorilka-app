@@ -8,12 +8,15 @@ struct HistoryDetailView: View {
     @State private var screenshot: NSImage?
     @State private var copiedText = false
     @State private var copiedImage = false
+    @State private var savedToFolder = false
+    @State private var exportFolderName: String = ""
+    @State private var saveError: String?
 
-    // Theme colors
-    private let pinkColor = Color(hex: "FF69B4")
-    private let lightPink = Color(hex: "FFB6C1")
-    private let softPink = Color(hex: "FFF5F8")
-    private let textColor = Color(hex: "5D4E6D")
+    // Theme colors (use centralized Theme constants)
+    private let pinkColor = Theme.pink
+    private let lightPink = Theme.lightPink
+    private let softPink = Theme.softPink
+    private let textColor = Theme.text
 
     var body: some View {
         VStack(spacing: 0) {
@@ -170,11 +173,64 @@ struct HistoryDetailView: View {
                 }
                 .padding(16)
             }
+
+            // Bottom bar with save button
+            if !exportFolderName.isEmpty {
+                VStack(spacing: 8) {
+                    // Error message if any
+                    if let error = saveError {
+                        HStack(spacing: 6) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .font(.system(size: 11))
+                            Text(error)
+                                .font(.system(size: 11))
+                                .foregroundColor(.orange)
+                        }
+                    }
+
+                    HStack {
+                        // Folder info
+                        HStack(spacing: 6) {
+                            Image(systemName: "folder.fill")
+                                .foregroundColor(pinkColor)
+                                .font(.system(size: 11))
+                            Text(exportFolderName)
+                                .font(.system(size: 11))
+                                .foregroundColor(textColor.opacity(0.7))
+                                .lineLimit(1)
+                        }
+
+                        Spacer()
+
+                        // Save button
+                        Button(action: saveToFolder) {
+                            HStack(spacing: 6) {
+                                Image(systemName: savedToFolder ? "checkmark" : "square.and.arrow.down")
+                                    .font(.system(size: 11, weight: .medium))
+                                Text(savedToFolder ? "Сохранено!" : "Сохранить в папку")
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundColor(savedToFolder ? .white : pinkColor)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(savedToFolder ? pinkColor : pinkColor.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(savedToFolder)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(softPink.opacity(0.5))
+            }
         }
-        .frame(width: 500, height: 520)
+        .frame(width: 500, height: exportFolderName.isEmpty ? 520 : 570)
         .background(softPink.opacity(0.3))
         .onAppear {
             loadScreenshot()
+            checkExportFolder()
         }
     }
 
@@ -208,6 +264,73 @@ struct HistoryDetailView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.easeInOut(duration: 0.2)) {
                 copiedImage = false
+            }
+        }
+    }
+
+    private func checkExportFolder() {
+        if let url = StorageService.shared.resolveExportFolder() {
+            exportFolderName = url.lastPathComponent
+            StorageService.shared.stopAccessingExportFolder(url)
+        } else {
+            exportFolderName = ""
+        }
+    }
+
+    private func saveToFolder() {
+        guard let folderURL = StorageService.shared.resolveExportFolder() else {
+            saveError = "Папка недоступна"
+            return
+        }
+
+        defer {
+            StorageService.shared.stopAccessingExportFolder(folderURL)
+        }
+
+        saveError = nil
+
+        // Generate base filename from timestamp
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        let baseName = "govorilka_\(dateFormatter.string(from: entry.timestamp))"
+
+        // Save screenshot if available
+        if let image = screenshot {
+            let imageURL = folderURL.appendingPathComponent("\(baseName).png")
+
+            if let tiffData = image.tiffRepresentation,
+               let bitmapRep = NSBitmapImageRep(data: tiffData),
+               let pngData = bitmapRep.representation(using: .png, properties: [:]) {
+                do {
+                    try pngData.write(to: imageURL)
+                    print("[HistoryDetailView] Screenshot saved: \(imageURL.path)")
+                } catch {
+                    print("[HistoryDetailView] Failed to save screenshot: \(error)")
+                    saveError = "Ошибка сохранения скриншота"
+                    return
+                }
+            }
+        }
+
+        // Save text
+        let textURL = folderURL.appendingPathComponent("\(baseName).txt")
+        do {
+            try entry.text.write(to: textURL, atomically: true, encoding: .utf8)
+            print("[HistoryDetailView] Text saved: \(textURL.path)")
+        } catch {
+            print("[HistoryDetailView] Failed to save text: \(error)")
+            saveError = "Ошибка сохранения текста"
+            return
+        }
+
+        // Success
+        withAnimation(.easeInOut(duration: 0.2)) {
+            savedToFolder = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                savedToFolder = false
             }
         }
     }

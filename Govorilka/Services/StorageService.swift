@@ -22,6 +22,8 @@ final class StorageService {
         static let proExportFolderBookmark = "pro_export_folder_bookmark"
         // Text cleaning
         static let textCleaningEnabled = "text_cleaning_enabled"
+        // Sound feedback
+        static let soundsEnabled = "sounds_enabled"
     }
 
     // MARK: - API Key (stored in Keychain for security)
@@ -142,6 +144,13 @@ final class StorageService {
         set { defaults.set(newValue, forKey: Keys.textCleaningEnabled) }
     }
 
+    // MARK: - Sound Feedback
+
+    var soundsEnabled: Bool {
+        get { defaults.object(forKey: Keys.soundsEnabled) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: Keys.soundsEnabled) }
+    }
+
     /// Save export folder as security-scoped bookmark
     func saveExportFolder(_ url: URL) {
         do {
@@ -251,5 +260,6 @@ final class StorageService {
         defaults.removeObject(forKey: Keys.proModeEnabled)
         defaults.removeObject(forKey: Keys.proExportFolderBookmark)
         defaults.removeObject(forKey: Keys.textCleaningEnabled)
+        defaults.removeObject(forKey: Keys.soundsEnabled)
     }
 }

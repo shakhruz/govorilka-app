@@ -9,6 +9,7 @@ struct ProReviewView: View {
     @State private var copiedScreenshot = false
     @State private var copiedText = false
     @State private var exportFolderName: String = ""
+    @State private var currentScreenshotIndex = 0
 
     // Theme colors (use centralized Theme constants)
     private let pinkColor = Theme.pink
@@ -36,7 +37,7 @@ struct ProReviewView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    // Screenshot preview with copy button
+                    // Screenshot preview with carousel
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: "camera.fill")
@@ -45,6 +46,17 @@ struct ProReviewView: View {
                             Text("Скриншот")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(textColor)
+
+                            // Screenshot counter (if multiple)
+                            if data.screenshots.count > 1 {
+                                Text("\(currentScreenshotIndex + 1) / \(data.screenshots.count)")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(pinkColor)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(pinkColor.opacity(0.1))
+                                    .clipShape(Capsule())
+                            }
 
                             Spacer()
 
@@ -65,16 +77,65 @@ struct ProReviewView: View {
                             .buttonStyle(.plain)
                         }
 
-                        Image(nsImage: data.screenshot)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(pinkColor.opacity(0.3), lineWidth: 1)
-                            )
-                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        // Screenshot with navigation arrows
+                        ZStack {
+                            Image(nsImage: currentScreenshot)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(pinkColor.opacity(0.3), lineWidth: 1)
+                                )
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+
+                            // Navigation arrows (if multiple screenshots)
+                            if data.screenshots.count > 1 {
+                                HStack {
+                                    // Previous button
+                                    Button(action: previousScreenshot) {
+                                        Image(systemName: "chevron.left.circle.fill")
+                                            .font(.system(size: 28))
+                                            .foregroundColor(currentScreenshotIndex > 0 ? pinkColor : pinkColor.opacity(0.3))
+                                            .background(Circle().fill(Color.white.opacity(0.9)))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(currentScreenshotIndex == 0)
+
+                                    Spacer()
+
+                                    // Next button
+                                    Button(action: nextScreenshot) {
+                                        Image(systemName: "chevron.right.circle.fill")
+                                            .font(.system(size: 28))
+                                            .foregroundColor(currentScreenshotIndex < data.screenshots.count - 1 ? pinkColor : pinkColor.opacity(0.3))
+                                            .background(Circle().fill(Color.white.opacity(0.9)))
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(currentScreenshotIndex >= data.screenshots.count - 1)
+                                }
+                                .padding(.horizontal, 8)
+                            }
+                        }
+
+                        // Dots indicator (if multiple screenshots)
+                        if data.screenshots.count > 1 {
+                            HStack(spacing: 6) {
+                                ForEach(0..<data.screenshots.count, id: \.self) { index in
+                                    Circle()
+                                        .fill(index == currentScreenshotIndex ? pinkColor : pinkColor.opacity(0.3))
+                                        .frame(width: 8, height: 8)
+                                        .onTapGesture {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                currentScreenshotIndex = index
+                                            }
+                                        }
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 4)
+                        }
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -205,6 +266,29 @@ struct ProReviewView: View {
         }
     }
 
+    private var currentScreenshot: NSImage {
+        guard currentScreenshotIndex < data.screenshots.count else {
+            return data.screenshots.first ?? NSImage()
+        }
+        return data.screenshots[currentScreenshotIndex]
+    }
+
+    private func previousScreenshot() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if currentScreenshotIndex > 0 {
+                currentScreenshotIndex -= 1
+            }
+        }
+    }
+
+    private func nextScreenshot() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if currentScreenshotIndex < data.screenshots.count - 1 {
+                currentScreenshotIndex += 1
+            }
+        }
+    }
+
     private func checkExportFolder() {
         if let url = StorageService.shared.resolveExportFolder() {
             exportFolderName = url.lastPathComponent
@@ -215,7 +299,7 @@ struct ProReviewView: View {
     }
 
     private func copyScreenshot() {
-        PasteService.shared.copyImageToClipboard(data.screenshot)
+        PasteService.shared.copyImageToClipboard(currentScreenshot)
 
         withAnimation(.easeInOut(duration: 0.2)) {
             copiedScreenshot = true

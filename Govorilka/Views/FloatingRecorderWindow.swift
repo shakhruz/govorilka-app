@@ -10,6 +10,7 @@ struct FloatingRecorderView: View {
     @State private var timer: Timer?
     @State private var isStopButtonHovered = false
     @State private var isCancelHovered = false
+    @State private var isCameraHovered = false
 
     // Pink color scheme
     private let pinkColor = Color(hex: "FF69B4")
@@ -48,10 +49,65 @@ struct FloatingRecorderView: View {
             )
             .padding(.top, 4)
 
-            // Recording time
-            Text(formatDuration(recordingTime))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(pinkColor)
+            // Recording time and camera button
+            HStack(spacing: 12) {
+                Text(formatDuration(recordingTime))
+                    .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .foregroundColor(pinkColor)
+
+                // Camera button
+                Button(action: {
+                    appState.captureScreenshotDuringRecording()
+                }) {
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(isCameraHovered ? .white : pinkColor)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(isCameraHovered ? pinkColor : pinkColor.opacity(0.15))
+                        )
+                        .scaleEffect(isCameraHovered ? 1.1 : 1.0)
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering in
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isCameraHovered = hovering
+                    }
+                }
+                .help("Сделать скриншот")
+            }
+
+            // Screenshot thumbnails (if any)
+            if !appState.capturedScreenshots.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Array(appState.capturedScreenshots.enumerated()), id: \.offset) { index, screenshot in
+                            Image(nsImage: screenshot)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 36, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .stroke(pinkColor.opacity(0.5), lineWidth: 1)
+                                )
+                                .overlay(
+                                    Text("\(index + 1)")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .padding(2)
+                                        .background(pinkColor.opacity(0.8))
+                                        .clipShape(Circle())
+                                        .offset(x: 12, y: -8),
+                                    alignment: .topTrailing
+                                )
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .frame(height: 28)
+            }
 
             // Live transcript preview
             Text(transcriptPreview)
@@ -121,7 +177,7 @@ struct FloatingRecorderView: View {
             }
             .padding(.bottom, 16)
         }
-        .frame(width: 200, height: 300)
+        .frame(width: 200, height: appState.capturedScreenshots.isEmpty ? 300 : 340)
         .background(PinkBackground())
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: pinkColor.opacity(0.2), radius: 20, x: 0, y: 10)

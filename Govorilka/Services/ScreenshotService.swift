@@ -26,6 +26,27 @@ final class ScreenshotService {
         return screenshotsDir
     }
 
+    // MARK: - Permissions
+
+    /// Check if Screen Recording permission is granted
+    func hasScreenRecordingPermission() -> Bool {
+        // CGPreflightScreenCaptureAccess returns true if permission was previously granted
+        return CGPreflightScreenCaptureAccess()
+    }
+
+    /// Request Screen Recording permission (shows system dialog)
+    func requestScreenRecordingPermission() {
+        // This will trigger the system permission dialog
+        CGRequestScreenCaptureAccess()
+    }
+
+    /// Open Screen Recording preferences in System Settings
+    func openScreenRecordingSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
     // MARK: - Public Methods
 
     /// Capture the entire screen

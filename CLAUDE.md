@@ -62,5 +62,74 @@ Services communicate via delegate protocols (not Combine/async-await):
 The app requires:
 - **Microphone access**: For audio capture
 - **Accessibility** (optional): For auto-paste feature (simulates ⌘V)
+- **Screen Recording** (optional): For screenshot capture in feedback mode
 
 Configured in `Govorilka/Govorilka.entitlements` and `Govorilka/Info.plist`.
+
+## Design System
+
+### Color Palette (Pink Theme)
+
+The app uses a consistent pink color scheme. **Always use these exact colors:**
+
+| Name | Hex | Usage |
+|------|-----|-------|
+| `pinkColor` | `#FF69B4` | Primary accent, buttons, icons, highlights |
+| `lightPink` | `#FFB6C1` | Gradients (end color), secondary accents |
+| `softPink` | `#FFF0F5` | Backgrounds, input fields, cards |
+| `textColor` | `#5D4E6D` | Primary text (soft purple-gray) |
+
+### Background Gradients
+
+```swift
+// Main background gradient
+LinearGradient(
+    colors: [Color(hex: "FFF5F8"), Color(hex: "FFE4EC")],
+    startPoint: .top,
+    endPoint: .bottom
+)
+
+// Button gradient
+LinearGradient(
+    colors: [pinkColor, lightPink],  // #FF69B4 → #FFB6C1
+    startPoint: .topLeading,
+    endPoint: .bottomTrailing
+)
+```
+
+### UI Components Style
+
+- **Cards**: White background, cornerRadius 14, subtle shadow (black 0.04, radius 6)
+- **Buttons**: Capsule shape with gradient, white text, shadow with pink tint
+- **Input fields**: softPink background, cornerRadius 10, textColor for text
+- **Icons**: SF Symbols, pinkColor for primary, textColor.opacity(0.5) for secondary
+
+### Cloud Mascot Colors
+
+```swift
+// Cloud gradient
+colors: [Color(hex: "FFD1DC"), Color(hex: "FFB6C1")]
+
+// Eyes and smile
+eyeColor: Color(hex: "6B5B7A")
+
+// Blush cheeks
+blushColor: Color(hex: "FF8FAB")
+
+// Audio rings
+ringColor: Color(hex: "FFB6C1")
+```
+
+### Typography
+
+- Headers: System font, semibold weight
+- Body: System font, regular weight
+- Monospace: For hotkey labels (`.monospaced` design)
+- Sizes: 14pt headers, 13pt body, 11pt captions, 10pt hints
+
+### Important Design Rules
+
+1. **Never change the pink color scheme** — it's the app's identity
+2. **Use `Color(hex:)` extension** for all colors (defined in Theme.swift)
+3. **Maintain soft, friendly aesthetic** — rounded corners, subtle shadows
+4. **Text contrast**: Always use `textColor` (#5D4E6D) on light backgrounds

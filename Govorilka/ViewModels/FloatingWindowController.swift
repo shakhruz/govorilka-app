@@ -85,6 +85,20 @@ final class FloatingWindowController: ObservableObject {
         }
     }
 
+    /// Temporarily hide the window (for screenshot capture)
+    func temporaryHide() {
+        window?.alphaValue = 0
+        window?.orderOut(nil)
+    }
+
+    /// Restore temporarily hidden window
+    func temporaryShow() {
+        guard let window = window else { return }
+        window.orderFrontRegardless()
+        window.alphaValue = 1
+        isVisible = true
+    }
+
     /// Update the audio level binding
     func updateContent(appState: AppState, audioLevel: Binding<Float>) {
         guard let hostingView = hostingView else { return }

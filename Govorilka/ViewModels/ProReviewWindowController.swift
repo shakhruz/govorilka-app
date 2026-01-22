@@ -3,10 +3,31 @@ import SwiftUI
 
 /// Data passed to the Pro review window
 struct ProReviewData {
-    let screenshot: NSImage
+    let screenshots: [NSImage]  // Support multiple screenshots
     let transcript: String
     let duration: TimeInterval
     let timestamp: Date
+
+    /// Convenience for single screenshot (backward compatibility)
+    var screenshot: NSImage {
+        screenshots.first ?? NSImage()
+    }
+
+    /// Single screenshot initializer (backward compatibility)
+    init(screenshot: NSImage, transcript: String, duration: TimeInterval, timestamp: Date) {
+        self.screenshots = [screenshot]
+        self.transcript = transcript
+        self.duration = duration
+        self.timestamp = timestamp
+    }
+
+    /// Multiple screenshots initializer
+    init(screenshots: [NSImage], transcript: String, duration: TimeInterval, timestamp: Date) {
+        self.screenshots = screenshots
+        self.transcript = transcript
+        self.duration = duration
+        self.timestamp = timestamp
+    }
 }
 
 /// Controller for managing the Pro mode review window
@@ -29,11 +50,30 @@ final class ProReviewWindowController: NSObject, ObservableObject {
         onSave: @escaping (ProReviewData) -> Void,
         onCancel: @escaping () -> Void
     ) {
+        show(
+            screenshots: [screenshot],
+            transcript: transcript,
+            duration: duration,
+            onSave: onSave,
+            onCancel: onCancel
+        )
+    }
+
+    /// Show the review window with multiple screenshots and transcript
+    func show(
+        screenshots: [NSImage],
+        transcript: String,
+        duration: TimeInterval,
+        onSave: @escaping (ProReviewData) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        guard !screenshots.isEmpty else { return }
+
         self.onSave = onSave
         self.onCancel = onCancel
 
         let data = ProReviewData(
-            screenshot: screenshot,
+            screenshots: screenshots,
             transcript: transcript,
             duration: duration,
             timestamp: Date()

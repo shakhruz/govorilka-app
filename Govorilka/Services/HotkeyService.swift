@@ -77,6 +77,10 @@ final class HotkeyService {
     private var localMonitor: Any?
     private var globalMonitor: Any?
 
+    // Separate ESC monitor (always active)
+    private var escLocalMonitor: Any?
+    private var escGlobalMonitor: Any?
+
     // Key state tracking (using event.timestamp for accuracy)
     private var isKeyPressed = false
     private var lastKeyPressTimestamp: TimeInterval = 0
@@ -98,6 +102,9 @@ final class HotkeyService {
 
     /// Start monitoring for the current hotkey mode
     func startMonitoring() {
+        // Always monitor ESC for cancel functionality
+        setupEscapeMonitor()
+
         if proModeEnabled {
             // Pro mode: always monitor Right Command for voice input
             setupEventMonitors()
@@ -106,15 +113,22 @@ final class HotkeyService {
 
         guard currentMode.needsEventMonitoring else {
             // optionSpace mode is handled by KeyboardShortcuts only
-            stopMonitoring()
+            // But we still need ESC monitoring (done above)
+            stopHotkeyMonitoring()
             return
         }
 
         setupEventMonitors()
     }
 
-    /// Stop monitoring
+    /// Stop all monitoring
     func stopMonitoring() {
+        stopHotkeyMonitoring()
+        stopEscapeMonitoring()
+    }
+
+    /// Stop hotkey monitoring (but not ESC)
+    private func stopHotkeyMonitoring() {
         if let monitor = localMonitor {
             NSEvent.removeMonitor(monitor)
             localMonitor = nil
@@ -130,13 +144,56 @@ final class HotkeyService {
         lastKeyReleaseTimestamp = 0
     }
 
+    /// Stop ESC monitoring
+    private func stopEscapeMonitoring() {
+        if let monitor = escLocalMonitor {
+            NSEvent.removeMonitor(monitor)
+            escLocalMonitor = nil
+        }
+        if let monitor = escGlobalMonitor {
+            NSEvent.removeMonitor(monitor)
+            escGlobalMonitor = nil
+        }
+    }
+
+    /// Setup ESC key monitoring (always active)
+    private func setupEscapeMonitor() {
+        // Don't setup if already active
+        guard escLocalMonitor == nil else { return }
+
+        let eventMask: NSEvent.EventTypeMask = [.keyDown]
+
+        // Global monitor for when app is not focused
+        escGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: eventMask) { [weak self] event in
+            self?.handleEscapeEvent(event)
+        }
+
+        // Local monitor for when app is focused
+        escLocalMonitor = NSEvent.addLocalMonitorForEvents(matching: eventMask) { [weak self] event in
+            self?.handleEscapeEvent(event)
+            return event
+        }
+    }
+
+    /// Handle ESC key event
+    private func handleEscapeEvent(_ event: NSEvent) {
+        guard event.keyCode == escapeKeyCode else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.onEscapePressed?()
+        }
+    }
+
     private func restartMonitoring() {
         stopMonitoring()
         startMonitoring()
     }
 
     private func setupEventMonitors() {
-        let eventMask: NSEvent.EventTypeMask = [.flagsChanged, .keyDown]
+        // Don't setup if already active
+        guard localMonitor == nil else { return }
+
+        // Only flagsChanged for modifier keys (ESC handled separately)
+        let eventMask: NSEvent.EventTypeMask = [.flagsChanged]
 
         // Global monitor for when app is not focused
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: eventMask) { [weak self] event in
@@ -151,15 +208,8 @@ final class HotkeyService {
     }
 
     private func handleEvent(_ event: NSEvent) {
-        // Handle ESC key for canceling recording
-        if event.type == .keyDown && event.keyCode == escapeKeyCode {
-            DispatchQueue.main.async { [weak self] in
-                self?.onEscapePressed?()
-            }
-            return
-        }
-
         // Only process flags changed events for modifier keys
+        // ESC is handled by separate monitor (setupEscapeMonitor)
         guard event.type == .flagsChanged else { return }
 
         if proModeEnabled {

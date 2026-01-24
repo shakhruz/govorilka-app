@@ -495,6 +495,207 @@
             text-decoration: underline;
         }
 
+        /* Why Govorilka */
+        .why {
+            padding: 60px 0;
+        }
+
+        .why h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .why-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .why-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .why-point {
+            background: var(--white);
+            padding: 28px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .why-point h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .why-point p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .why-point .why-icon {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        /* Two Modes */
+        .modes {
+            padding: 60px 0;
+        }
+
+        .modes h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .mode-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card.mode-pro {
+            border: 2px solid var(--pink);
+        }
+
+        .mode-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .mode-card.mode-light .mode-label {
+            background: var(--gray);
+            color: var(--text-light);
+        }
+
+        .mode-card.mode-pro .mode-label {
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
+        }
+
+        .mode-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .mode-card .mode-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .mode-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mode-features li {
+            padding: 6px 0;
+            font-size: 0.9rem;
+            color: var(--text);
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--pink);
+            font-weight: 700;
+        }
+
+        /* Book */
+        .book {
+            padding: 60px 0;
+        }
+
+        .book-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .book-info .book-tagline {
+            font-size: 1.1rem;
+            color: var(--pink);
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .book-info p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .book-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(255, 105, 180, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .book-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 105, 180, 0.4);
+        }
+
+        .book-emoji {
+            font-size: 4rem;
+            flex-shrink: 0;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             h1 {
@@ -521,6 +722,15 @@
             }
 
             .promo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .book-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .modes-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -616,6 +826,63 @@
             </div>
         </section>
 
+        <!-- Why Govorilka -->
+        <section class="why">
+            <h2>Почему Говорилка</h2>
+            <p class="why-subtitle">Не просто диктовка — инструмент для общения с AI</p>
+            <div class="why-points">
+                <div class="why-point">
+                    <div class="why-icon">💬</div>
+                    <h3>Ни один фидбэк не должен пропасть</h3>
+                    <p>Мысль пришла — сказал — она записана. Не нужно печатать, переключаться, отвлекаться. Голос — самый быстрый способ передать идею.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">🚀</div>
+                    <h3>Ускоряет работу с AI</h3>
+                    <p>Говорилка — самый быстрый способ общаться с Claude Code и другими AI-ассистентами. Голосовой фидбэк со скриншотом — и AI понимает контекст мгновенно.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">🌱</div>
+                    <h3>Выращивание программ</h3>
+                    <p>Быстрый фидбэк — ключ к выращиванию программ. Чем быстрее вы отвечаете AI, тем быстрее растёт ваш продукт. Говорилка убирает трение из этого цикла.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">🔓</div>
+                    <h3>Открытость и простота</h3>
+                    <p>В отличие от Voice Ink, Superwhisper и других платных альтернатив — Говорилка бесплатна, open-source и делает ровно то, что нужно. Без лишнего.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two Modes -->
+        <section class="modes">
+            <h2>Два режима</h2>
+            <div class="modes-grid">
+                <div class="mode-card mode-light">
+                    <span class="mode-label">Light</span>
+                    <h3>Голосовой ввод</h3>
+                    <p class="mode-desc">Простая и быстрая диктовка. Нажал хоткей, сказал, текст вставлен. Идеально для сообщений, заметок, писем.</p>
+                    <ul class="mode-features">
+                        <li>Мгновенная транскрибация Deepgram</li>
+                        <li>Автовставка в любое приложение</li>
+                        <li>История записей</li>
+                        <li>Работает из menu bar</li>
+                    </ul>
+                </div>
+                <div class="mode-card mode-pro">
+                    <span class="mode-label">Pro</span>
+                    <h3>AI-ассистент</h3>
+                    <p class="mode-desc">Скриншот экрана + голосовой фидбэк сохраняются в папку. Claude Code видит что на экране и слышит вашу задачу — контекст передаётся мгновенно.</p>
+                    <ul class="mode-features">
+                        <li>Скриншот экрана перед записью</li>
+                        <li>Сохранение в папку проекта</li>
+                        <li>Визуальный контекст для AI</li>
+                        <li>Ускоряет цикл фидбэка в 3-5 раз</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- Hotkeys -->
         <section class="hotkeys">
             <div class="hotkeys-card">
@@ -654,6 +921,22 @@
             </div>
         </section>
 
+        <!-- Book -->
+        <section class="book">
+            <div class="book-card">
+                <div class="book-emoji">📖</div>
+                <div class="book-info">
+                    <h2>Выращивание программ</h2>
+                    <p class="book-tagline">Новый подход к разработке с AI</p>
+                    <p>Книга о том, как программы больше не пишутся — они выращиваются. AI-агенты берут на себя код, а разработчик становится садовником: направляет, подрезает, удобряет.</p>
+                    <p>Говорилка — практический инструмент из этой книги. Быстрый голосовой фидбэк — это удобрение, которое ускоряет рост вашей программы.</p>
+                    <a href="https://growingsoftwarebook.com" target="_blank" class="book-link">
+                        Читать книгу →
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- Author -->
         <section class="author">
             <div class="author-card">
@@ -661,24 +944,28 @@
                     <img src="author.png" alt="Шахруз Аширов" class="author-photo">
                     <div class="author-intro">
                         <h2>Об авторе</h2>
-                        <p>Шахруз Аширов — инженер, ментор, основатель Skyline Yoga</p>
+                        <p>Шахруз Аширов — инженер, автор «Выращивание программ», ментор</p>
                     </div>
                 </div>
                 <div class="author-bio">
-                    <p>Привет! Я Шахруз — инженер, ментор и основатель Skyline Yoga.</p>
-                    <p style="margin-top: 12px;">Говорилка — мой инструмент для быстрой работы с AI-ассистентами. Теперь он доступен всем.</p>
-                    <p style="margin-top: 12px;">Я помогаю разработчикам и основателям строить продукты с AI.</p>
+                    <p>Привет! Я Шахруз — инженер, ментор, автор книги «Выращивание программ» и основатель Skyline Yoga.</p>
+                    <p style="margin-top: 12px;">Говорилка — мой инструмент для быстрой работы с AI-ассистентами. Я верю, что голосовой фидбэк — это будущее разработки с AI.</p>
                 </div>
                 <div class="promo-grid">
-                    <a href="https://www.skylineyoga.online" target="_blank" class="promo-item">
-                        <div class="promo-icon">🧘</div>
-                        <h3>Skyline Yoga</h3>
-                        <p>Йога-студия в Ташкенте. Присоединяйся к практике!</p>
+                    <a href="https://growingsoftwarebook.com" target="_blank" class="promo-item">
+                        <div class="promo-icon">📖</div>
+                        <h3>Выращивание программ</h3>
+                        <p>Книга о новом подходе к разработке с AI-агентами</p>
                     </a>
                     <a href="https://www.skylineyoga.online/ai-mentorship" target="_blank" class="promo-item">
                         <div class="promo-icon">🤖</div>
                         <h3>AI Менторство</h3>
                         <p>Консультации, code review, архитектура. Первая сессия — бесплатно.</p>
+                    </a>
+                    <a href="https://www.skylineyoga.online" target="_blank" class="promo-item">
+                        <div class="promo-icon">🧘</div>
+                        <h3>Skyline Yoga</h3>
+                        <p>Йога-студия в Ташкенте. Присоединяйся к практике!</p>
                     </a>
                 </div>
                 <div class="author-contact">

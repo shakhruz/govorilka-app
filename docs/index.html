@@ -109,6 +109,62 @@
             color: var(--pink);
         }
 
+        .version-badge {
+            display: inline-block;
+            margin-top: 12px;
+            background: var(--pink-soft);
+            color: var(--pink);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--pink-light);
+        }
+
+        /* What's New */
+        .whats-new {
+            padding: 0 0 40px;
+        }
+
+        .whats-new-card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--pink);
+        }
+
+        .whats-new-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .whats-new-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .whats-new-list li {
+            padding: 8px 0;
+            font-size: 0.95rem;
+            color: var(--text);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .whats-new-list li::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--pink);
+            border-radius: 50%;
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
         /* Features */
         .features {
             padding: 60px 0;
@@ -486,7 +542,21 @@
             <a href="https://github.com/shakhruz/govorilka-app" class="secondary-link">
                 Исходный код на GitHub
             </a>
+            <span class="version-badge">v1.2.0</span>
         </header>
+
+        <!-- What's New -->
+        <section class="whats-new">
+            <div class="whats-new-card">
+                <h2>Что нового в v1.2.0</h2>
+                <ul class="whats-new-list">
+                    <li>Pro режим — скриншот экрана перед записью для контекста</li>
+                    <li>Звуковые уведомления при старте и остановке записи</li>
+                    <li>Отдельное окно для просмотра деталей записи</li>
+                    <li>Улучшена надёжность захвата аудио</li>
+                </ul>
+            </div>
+        </section>
 
         <!-- Features -->
         <section class="features">
@@ -512,9 +582,9 @@
                     <p>Deepgram отлично понимает русскую речь и терминологию</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">✨</div>
-                    <h3>Минимализм</h3>
-                    <p>Живёт в menu bar, не мешает работе, делает одно дело хорошо</p>
+                    <div class="feature-icon">📸</div>
+                    <h3>Pro режим</h3>
+                    <p>Скриншот экрана перед записью — AI получает визуальный контекст</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>

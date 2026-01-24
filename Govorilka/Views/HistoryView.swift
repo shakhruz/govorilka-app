@@ -6,7 +6,7 @@ struct HistoryView: View {
 
     @State private var copiedEntryId: UUID?
     @State private var showClearConfirmation = false
-    @State private var selectedEntry: TranscriptEntry?
+    @StateObject private var detailWindowController = HistoryDetailWindowController()
 
     // Theme colors (use centralized Theme constants)
     private let pinkColor = Theme.pink
@@ -56,7 +56,7 @@ struct HistoryView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 if entry.hasScreenshot {
-                                    selectedEntry = entry
+                                    detailWindowController.show(entry: entry)
                                 } else {
                                     copyEntry(entry)
                                 }
@@ -70,7 +70,7 @@ struct HistoryView: View {
 
                                 if entry.hasScreenshot {
                                     Button {
-                                        selectedEntry = entry
+                                        detailWindowController.show(entry: entry)
                                     } label: {
                                         Label("Показать подробности", systemImage: "eye")
                                     }
@@ -134,9 +134,6 @@ struct HistoryView: View {
             }
         } message: {
             Text("Все записи будут удалены")
-        }
-        .sheet(item: $selectedEntry) { entry in
-            HistoryDetailView(entry: entry, onClose: { selectedEntry = nil })
         }
     }
 

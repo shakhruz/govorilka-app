@@ -292,6 +292,7 @@ struct HistoryDetailView: View {
         // Generate base filename from timestamp
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         let baseName = "govorilka_\(dateFormatter.string(from: entry.timestamp))"
 
         // Save screenshot if available

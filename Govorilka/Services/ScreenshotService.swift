@@ -212,10 +212,33 @@ final class ScreenshotService {
         return "screenshot_\(timestamp)_\(uuid).png"
     }
 
-    /// Sanitize filename by removing invalid characters
+    /// Transliterate Cyrillic text to Latin
+    private func transliterate(_ text: String) -> String {
+        let mutableString = NSMutableString(string: text)
+        CFStringTransform(mutableString, nil, kCFStringTransformToLatin, false)
+        CFStringTransform(mutableString, nil, kCFStringTransformStripDiacritics, false)
+        return mutableString as String
+    }
+
+    /// Sanitize filename by removing invalid characters and transliterating
     private func sanitizeFilename(_ filename: String) -> String {
+        // Transliterate Cyrillic to Latin
+        var sanitized = transliterate(filename)
+
+        // Remove invalid filesystem characters
         let invalidCharacters = CharacterSet(charactersIn: "/\\?%*|\"<>:")
-        var sanitized = filename.components(separatedBy: invalidCharacters).joined(separator: "_")
+        sanitized = sanitized.components(separatedBy: invalidCharacters).joined(separator: "")
+
+        // Replace any whitespace (including Unicode spaces like \u202f) with underscores
+        sanitized = sanitized.components(separatedBy: .whitespaces).joined(separator: "_")
+
+        // Collapse multiple underscores
+        while sanitized.contains("__") {
+            sanitized = sanitized.replacingOccurrences(of: "__", with: "_")
+        }
+
+        // Trim leading/trailing underscores
+        sanitized = sanitized.trimmingCharacters(in: CharacterSet(charactersIn: "_"))
 
         // Truncate to reasonable length
         if sanitized.count > 50 {
@@ -229,6 +252,7 @@ final class ScreenshotService {
     func generateExportFilename(timestamp: Date, text: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd_HH-mm"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         let dateString = formatter.string(from: timestamp)
         let title = extractTitle(from: text)
         let sanitizedTitle = sanitizeFilename(title)

@@ -1,0 +1,37 @@
+# Fastfile for Govorilka iOS
+# Run: fastlane deliver
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Upload metadata to App Store Connect"
+  lane :metadata do
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true, # Skip confirmation
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: false
+      }
+    )
+  end
+
+  desc "Upload screenshots to App Store Connect"
+  lane :screenshots do
+    deliver(
+      skip_binary_upload: true,
+      skip_metadata: true,
+      force: true
+    )
+  end
+
+  desc "Upload everything (metadata + screenshots)"
+  lane :upload do
+    deliver(
+      skip_binary_upload: true,
+      force: true,
+      precheck_include_in_app_purchases: false
+    )
+  end
+end

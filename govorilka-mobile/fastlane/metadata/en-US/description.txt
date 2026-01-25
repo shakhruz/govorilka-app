@@ -1,0 +1,48 @@
+Govorilka is a minimalist app for converting speech to text using the advanced Deepgram Nova-2 AI.
+
+WHY GOVORILKA?
+
+• Free start — $200 credits when you sign up for Deepgram (≈775 hours of recording)
+• No subscription — pay only for usage ($0.0043/min)
+• Privacy — audio is not stored, history only on device
+• Open source — full transparency on GitHub
+
+FEATURES
+
+◉ Instant Transcription
+Speak — text appears in real time. WebSocket streaming technology ensures minimal latency.
+
+◉ Smart Text Cleanup
+Automatic removal of filler words. Enable with one tap in settings.
+
+◉ Recording History
+All transcriptions saved locally. Quick search, copy, and delete.
+
+◉ Pro Mode
+Take photos while recording. Perfect for feedback, bug reports, and contextual notes. Export to Google Drive.
+
+◉ Sounds and Haptics
+Tactile feedback during recording. Customizable sound notifications.
+
+EXCELLENT SPEECH RECOGNITION
+
+Deepgram Nova-2 is one of the best models for speech recognition. Higher accuracy than most competitors.
+
+HOW TO START
+
+1. Download the app
+2. Get a free API key at deepgram.com
+3. Paste the key in settings
+4. Press the record button and speak!
+
+PRIVACY
+
+✓ Audio streams directly to Deepgram and is not saved
+✓ History stored only on your device
+✓ No analytics or tracking
+✓ Source code open for review
+
+SUPPORT
+
+Questions and suggestions: create an issue on GitHub
+Website: govorilka.app

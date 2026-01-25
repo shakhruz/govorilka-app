@@ -1,0 +1,1 @@
+dictation,transcription,speech,recording,notes,voice,typing,stenography,lecture,memo,audio

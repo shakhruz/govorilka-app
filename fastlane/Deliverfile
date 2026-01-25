@@ -1,0 +1,42 @@
+# Deliverfile for Govorilka macOS
+# https://docs.fastlane.tools/actions/deliver/
+
+# App Information
+app_identifier "com.govorilka.app"
+username ENV["APPLE_ID"]
+platform "osx"
+
+# Metadata
+copyright "2024-2026 Govorilka"
+primary_category "Productivity"
+secondary_category "Utilities"
+
+# Pricing
+price_tier 0 # Free app
+
+# URLs
+privacy_url "https://govorilka.app/privacy"
+support_url "https://github.com/shakhruz/govorilka-app/issues"
+marketing_url "https://govorilka.app"
+
+# Screenshots and metadata path
+screenshots_path "./fastlane/screenshots"
+metadata_path "./fastlane/metadata"
+
+# Skip binary upload
+skip_binary_upload true
+
+# Auto-submit options
+submit_for_review false
+automatic_release false
+
+# App Review Information
+# app_review_information(
+#   first_name: "Your",
+#   last_name: "Name",
+#   phone_number: "+1234567890",
+#   email_address: "your@email.com",
+#   demo_user: "",
+#   demo_password: "",
+#   notes: "API key required from deepgram.com for testing. App requires Accessibility permission for auto-paste feature."
+# )

@@ -1,0 +1,65 @@
+Govorilka is a menu bar utility for instant speech-to-text conversion using Deepgram Nova-2 AI.
+
+ONE HOTKEY — AND YOU'RE DICTATING
+
+Press Right ⌘ or ⌥+Space — speak — text auto-inserts into the active app. No extra windows or clicks.
+
+WHY GOVORILKA?
+
+• Free start — $200 Deepgram credits (≈775 hours)
+• No subscription — pay only for usage
+• Minimalist — lives in menu bar, stays out of your way
+• Privacy — no tracking, open source
+
+FEATURES
+
+◉ Real-time Transcription
+Text appears instantly thanks to WebSocket streaming. See results before you finish speaking.
+
+◉ Auto-paste
+Text automatically copies and pastes into the active window. Works in any application.
+
+◉ Smart Cleanup
+Removal of filler words. Clean, polished text every time.
+
+◉ Customizable Hotkeys
+- Right ⌘ — single press
+- ⌥+Space — classic option
+- Right ⌥ — double press
+- ESC — cancel recording
+
+◉ Floating Window
+Sound wave visualization during recording. Drag it wherever convenient.
+
+◉ History
+All recordings saved locally. Search, copy, view details.
+
+◉ Pro Mode
+Screenshot + voice note. Perfect for developer and designer feedback. Export to folder.
+
+EXCELLENT SPEECH RECOGNITION
+
+Deepgram Nova-2 provides high accuracy — better than many alternatives.
+
+PERMISSIONS
+
+• Microphone — for voice recording
+• Accessibility — for auto-paste feature
+• Screen Recording — Pro mode only (screenshots)
+
+PRIVACY
+
+✓ Audio not cached locally
+✓ API key in secure Keychain
+✓ History only on your Mac
+✓ Source code on GitHub
+
+GETTING STARTED
+
+1. Install the app
+2. Get API key at deepgram.com (free)
+3. Paste key in settings
+4. Press hotkey and speak!
+
+Website: govorilka.app
+GitHub: github.com/shakhruz/govorilka-app

@@ -1,0 +1,49 @@
+# Fastfile for Govorilka macOS
+# Run: fastlane deliver --platform mac
+
+default_platform(:mac)
+
+platform :mac do
+  desc "Upload metadata to App Store Connect"
+  lane :metadata do
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true,
+      platform: "osx",
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  desc "Upload screenshots to App Store Connect"
+  lane :screenshots do
+    deliver(
+      skip_binary_upload: true,
+      skip_metadata: true,
+      force: true,
+      platform: "osx"
+    )
+  end
+
+  desc "Upload everything (metadata + screenshots)"
+  lane :upload do
+    deliver(
+      skip_binary_upload: true,
+      force: true,
+      platform: "osx",
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  desc "Build and notarize for direct distribution"
+  lane :build do
+    build_mac_app(
+      scheme: "Govorilka",
+      export_method: "developer-id"
+    )
+    notarize(
+      package: "Govorilka.app",
+      bundle_id: "com.govorilka.app"
+    )
+  end
+end

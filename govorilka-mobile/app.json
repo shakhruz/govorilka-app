@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Говорилка",
+    "slug": "govorilka-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "govorilka",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF5F8"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.govorilka.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Говорилка использует микрофон для распознавания речи",
+        "NSCameraUsageDescription": "Говорилка использует камеру для фото в Pro-режиме",
+        "UIBackgroundModes": ["audio"]
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Говорилка использует камеру для фото в Pro-режиме"
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Говорилка использует микрофон для распознавания речи"
+        }
+      ]
+    ]
+  }
+}

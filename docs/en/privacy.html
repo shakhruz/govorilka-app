@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy — Говорилка</title>
+    <title>Privacy Policy — Govorilka</title>
     <meta name="description" content="Privacy Policy for Govorilka - voice-to-text app for macOS and iOS">
-    <meta property="og:title" content="Privacy Policy — Говорилка">
+    <meta property="og:title" content="Privacy Policy — Govorilka">
     <meta property="og:description" content="Privacy Policy for Govorilka voice-to-text app">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://govorilka.app/privacy">
-    <link rel="icon" type="image/png" href="icon.png">
+    <meta property="og:url" content="https://govorilka.app/en/privacy">
+    <link rel="icon" type="image/png" href="../icon.png">
     <link rel="alternate" hreflang="ru" href="https://govorilka.app/privacy">
     <link rel="alternate" hreflang="en" href="https://govorilka.app/en/privacy">
     <style>
@@ -41,6 +41,39 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 0 24px;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            background: var(--white);
+            padding: 6px;
+            border-radius: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .lang-switcher a {
+            padding: 6px 12px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .lang-switcher a:hover {
+            color: var(--text);
+        }
+
+        .lang-switcher a.active {
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
         }
 
         /* Header */
@@ -191,39 +224,6 @@
             text-decoration: underline;
         }
 
-        /* Language Switcher */
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            background: var(--white);
-            padding: 6px;
-            border-radius: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-
-        .lang-switcher a {
-            padding: 6px 12px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-light);
-            transition: all 0.2s;
-        }
-
-        .lang-switcher a:hover {
-            color: var(--text);
-        }
-
-        .lang-switcher a.active {
-            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
-            color: white;
-        }
-
         /* Responsive */
         @media (max-width: 600px) {
             h1 {
@@ -285,21 +285,21 @@
 <body>
     <!-- Language Switcher -->
     <div class="lang-switcher">
-        <a href="/privacy" class="active">RU</a>
-        <a href="/en/privacy">EN</a>
+        <a href="/privacy">RU</a>
+        <a href="/en/privacy" class="active">EN</a>
     </div>
 
     <div class="container">
         <!-- Header -->
         <header>
-            <a href="/" class="logo-link">
-                <img src="icon.png" alt="Говорилка" class="logo">
+            <a href="/en/" class="logo-link">
+                <img src="../icon.png" alt="Govorilka" class="logo">
             </a>
             <h1>Privacy Policy</h1>
             <p class="subtitle">Govorilka — Voice-to-Text App</p>
         </header>
 
-        <a href="/" class="back-link">← Back to Home</a>
+        <a href="/en/" class="back-link">← Back to Home</a>
 
         <!-- Content -->
         <div class="content">
@@ -367,13 +367,13 @@
                 <li>GitHub: <a href="https://github.com/shakhruz/govorilka-app/issues" target="_blank">Open an issue</a></li>
             </ul>
 
-            <p class="last-updated">Last updated: January 25, 2025</p>
+            <p class="last-updated">Last updated: January 26, 2025</p>
         </div>
 
         <!-- Footer -->
         <footer>
             <div class="footer-links">
-                <a href="/">Home</a>
+                <a href="/en/">Home</a>
                 <a href="https://github.com/shakhruz/govorilka-app">GitHub</a>
                 <a href="https://github.com/shakhruz/govorilka-app/releases">Releases</a>
             </div>

@@ -1,31 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Говорилка — голосовой ввод для macOS</title>
-    <meta name="description" content="Бесплатное open-source приложение для macOS. Превращает речь в текст с помощью Deepgram AI. Минималистичное, быстрое, приватное.">
-    <meta name="keywords" content="голосовой ввод, speech to text, macOS, Deepgram, транскрибация, диктовка">
-    <meta property="og:title" content="Говорилка — голосовой ввод для macOS">
-    <meta property="og:description" content="Бесплатное open-source приложение для транскрибации речи в текст">
+    <title>Govorilka — Voice Input for macOS</title>
+    <meta name="description" content="Free open-source app for macOS. Converts speech to text using Deepgram AI. Minimalist, fast, private.">
+    <meta name="keywords" content="voice input, speech to text, macOS, Deepgram, transcription, dictation">
+    <meta property="og:title" content="Govorilka — Voice Input for macOS">
+    <meta property="og:description" content="Free open-source app for speech-to-text transcription">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://govorilka.app">
-    <link rel="icon" type="image/png" href="icon.png">
+    <meta property="og:url" content="https://govorilka.app/en/">
+    <link rel="icon" type="image/png" href="../icon.png">
     <link rel="alternate" hreflang="ru" href="https://govorilka.app/">
     <link rel="alternate" hreflang="en" href="https://govorilka.app/en/">
-    <script>
-        // Auto-detect language and redirect English users (first visit only)
-        (function() {
-            if (localStorage.getItem('lang_chosen')) return;
-            var lang = navigator.language || navigator.userLanguage;
-            if (lang && !lang.startsWith('ru') && !lang.startsWith('uk') && !lang.startsWith('be')) {
-                localStorage.setItem('lang_chosen', 'en');
-                window.location.href = '/en/';
-            } else {
-                localStorage.setItem('lang_chosen', 'ru');
-            }
-        })();
-    </script>
     <style>
         :root {
             --pink: #FF69B4;
@@ -55,6 +42,39 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 0 24px;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            background: var(--white);
+            padding: 6px;
+            border-radius: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .lang-switcher a {
+            padding: 6px 12px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .lang-switcher a:hover {
+            color: var(--text);
+        }
+
+        .lang-switcher a.active {
+            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
+            color: white;
         }
 
         /* Header */
@@ -408,39 +428,6 @@
 
         .footer-links a {
             margin: 0 12px;
-        }
-
-        /* Language Switcher */
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            background: var(--white);
-            padding: 6px;
-            border-radius: 20px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-
-        .lang-switcher a {
-            padding: 6px 12px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-light);
-            transition: all 0.2s;
-        }
-
-        .lang-switcher a:hover {
-            color: var(--text);
-        }
-
-        .lang-switcher a.active {
-            background: linear-gradient(135deg, var(--pink) 0%, var(--pink-light) 100%);
-            color: white;
         }
 
         /* Author */
@@ -833,24 +820,24 @@
 <body>
     <!-- Language Switcher -->
     <div class="lang-switcher">
-        <a href="/" class="active">RU</a>
-        <a href="/en/">EN</a>
+        <a href="/">RU</a>
+        <a href="/en/" class="active">EN</a>
     </div>
 
     <div class="container">
         <!-- Header -->
         <header>
-            <img src="icon.png" alt="Говорилка" class="logo">
-            <h1>Говорилка</h1>
-            <p class="tagline">Голосовой ввод для macOS</p>
+            <img src="../icon.png" alt="Govorilka" class="logo">
+            <h1>Govorilka</h1>
+            <p class="tagline">Voice Input for macOS</p>
             <a href="https://github.com/shakhruz/govorilka-app/releases/latest" class="cta-button">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                 </svg>
-                Скачать бесплатно
+                Download Free
             </a>
             <a href="https://github.com/shakhruz/govorilka-app" class="secondary-link">
-                Исходный код на GitHub
+                Source Code on GitHub
             </a>
             <span class="version-badge">v1.2.0</span>
         </header>
@@ -858,12 +845,12 @@
         <!-- What's New -->
         <section class="whats-new">
             <div class="whats-new-card">
-                <h2>Что нового в v1.2.0</h2>
+                <h2>What's New in v1.2.0</h2>
                 <ul class="whats-new-list">
-                    <li>Pro режим — скриншот экрана перед записью для контекста</li>
-                    <li>Звуковые уведомления при старте и остановке записи</li>
-                    <li>Отдельное окно для просмотра деталей записи</li>
-                    <li>Улучшена надёжность захвата аудио</li>
+                    <li>Pro mode — screenshot before recording for context</li>
+                    <li>Sound notifications on start and stop recording</li>
+                    <li>Separate window for viewing recording details</li>
+                    <li>Improved audio capture reliability</li>
                 </ul>
             </div>
         </section>
@@ -873,111 +860,111 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🎤</div>
-                    <h3>Мгновенная транскрибация</h3>
-                    <p>Текст появляется в реальном времени благодаря Deepgram Nova-2 AI</p>
+                    <h3>Instant Transcription</h3>
+                    <p>Text appears in real-time powered by Deepgram Nova-2 AI</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⌨️</div>
-                    <h3>Автовставка</h3>
-                    <p>Текст сразу вставляется туда, где стоит курсор</p>
+                    <h3>Auto-Paste</h3>
+                    <p>Text is instantly inserted where your cursor is</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
-                    <h3>Приватность</h3>
-                    <p>Open-source код, данные не сохраняются, ключи хранятся локально</p>
+                    <h3>Privacy First</h3>
+                    <p>Open-source, no data stored, keys saved locally</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🇷🇺</div>
-                    <h3>Отличный русский</h3>
-                    <p>Deepgram отлично понимает русскую речь и терминологию</p>
+                    <div class="feature-icon">🌍</div>
+                    <h3>Multi-Language</h3>
+                    <p>Deepgram supports 30+ languages with excellent accuracy</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📸</div>
-                    <h3>Pro режим</h3>
-                    <p>Скриншот экрана перед записью — AI получает визуальный контекст</p>
+                    <h3>Pro Mode</h3>
+                    <p>Screenshot before recording — AI gets visual context</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">💰</div>
-                    <h3>Бесплатно</h3>
-                    <p>$200 кредитов от Deepgram хватит на 775 часов диктовки</p>
+                    <h3>Free to Use</h3>
+                    <p>$200 free credits from Deepgram = 775 hours of dictation</p>
                 </div>
             </div>
         </section>
 
         <!-- How it works -->
         <section class="how-it-works">
-            <h2>Как это работает</h2>
+            <h2>How It Works</h2>
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <h4>Нажмите хоткей</h4>
-                    <p>⌥ Space или правый Command</p>
+                    <h4>Press Hotkey</h4>
+                    <p>⌥ Space or Right Command</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <h4>Говорите</h4>
-                    <p>Текст появляется в реальном времени</p>
+                    <h4>Speak</h4>
+                    <p>Text appears in real-time</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h4>Готово</h4>
-                    <p>Текст автоматически вставлен</p>
+                    <h4>Done</h4>
+                    <p>Text is automatically inserted</p>
                 </div>
             </div>
         </section>
 
         <!-- Why Govorilka -->
         <section class="why">
-            <h2>Почему Говорилка</h2>
-            <p class="why-subtitle">Не просто диктовка — инструмент для общения с AI</p>
+            <h2>Why Govorilka</h2>
+            <p class="why-subtitle">Not just dictation — a tool for AI communication</p>
             <div class="why-points">
                 <div class="why-point">
                     <div class="why-icon">💬</div>
-                    <h3>Ни один фидбэк не должен пропасть</h3>
-                    <p>Мысль пришла — сказал — она записана. Не нужно печатать, переключаться, отвлекаться. Голос — самый быстрый способ передать идею.</p>
+                    <h3>No Feedback Should Be Lost</h3>
+                    <p>Thought comes — speak it — it's captured. No typing, no context switching, no distractions. Voice is the fastest way to convey an idea.</p>
                 </div>
                 <div class="why-point">
                     <div class="why-icon">🚀</div>
-                    <h3>Ускоряет работу с AI</h3>
-                    <p>Говорилка — самый быстрый способ общаться с Claude Code и другими AI-ассистентами. Голосовой фидбэк со скриншотом — и AI понимает контекст мгновенно.</p>
+                    <h3>Accelerates AI Workflow</h3>
+                    <p>Govorilka is the fastest way to communicate with Claude Code and other AI assistants. Voice feedback with screenshot — AI understands context instantly.</p>
                 </div>
                 <div class="why-point">
                     <div class="why-icon">🌱</div>
-                    <h3>Выращивание программ</h3>
-                    <p>Быстрый фидбэк — ключ к выращиванию программ. Чем быстрее вы отвечаете AI, тем быстрее растёт ваш продукт. Говорилка убирает трение из этого цикла.</p>
+                    <h3>Growing Software</h3>
+                    <p>Fast feedback is key to growing software. The faster you respond to AI, the faster your product grows. Govorilka removes friction from this cycle.</p>
                 </div>
                 <div class="why-point">
                     <div class="why-icon">🔓</div>
-                    <h3>Открытость и простота</h3>
-                    <p>В отличие от Voice Ink, Superwhisper и других платных альтернатив — Говорилка бесплатна, open-source и делает ровно то, что нужно. Без лишнего.</p>
+                    <h3>Open & Simple</h3>
+                    <p>Unlike Voice Ink, Superwhisper and other paid alternatives — Govorilka is free, open-source, and does exactly what you need. Nothing more.</p>
                 </div>
             </div>
         </section>
 
         <!-- Two Modes -->
         <section class="modes">
-            <h2>Два режима</h2>
+            <h2>Two Modes</h2>
             <div class="modes-grid">
                 <div class="mode-card mode-light">
                     <span class="mode-label">Light</span>
-                    <h3>Голосовой ввод</h3>
-                    <p class="mode-desc">Простая и быстрая диктовка. Нажал хоткей, сказал, текст вставлен. Идеально для сообщений, заметок, писем.</p>
+                    <h3>Voice Input</h3>
+                    <p class="mode-desc">Simple and fast dictation. Press hotkey, speak, text inserted. Perfect for messages, notes, emails.</p>
                     <ul class="mode-features">
-                        <li>Мгновенная транскрибация Deepgram</li>
-                        <li>Автовставка в любое приложение</li>
-                        <li>История записей</li>
-                        <li>Работает из menu bar</li>
+                        <li>Instant Deepgram transcription</li>
+                        <li>Auto-paste to any app</li>
+                        <li>Recording history</li>
+                        <li>Works from menu bar</li>
                     </ul>
                 </div>
                 <div class="mode-card mode-pro">
                     <span class="mode-label">Pro</span>
-                    <h3>AI-ассистент</h3>
-                    <p class="mode-desc">Скриншот экрана + голосовой фидбэк сохраняются в папку. Claude Code видит что на экране и слышит вашу задачу — контекст передаётся мгновенно.</p>
+                    <h3>AI Assistant</h3>
+                    <p class="mode-desc">Screenshot + voice feedback saved to folder. Claude Code sees what's on screen and hears your task — context is transferred instantly.</p>
                     <ul class="mode-features">
-                        <li>Скриншот экрана перед записью</li>
-                        <li>Сохранение в папку проекта</li>
-                        <li>Визуальный контекст для AI</li>
-                        <li>Ускоряет цикл фидбэка в 3-5 раз</li>
+                        <li>Screenshot before recording</li>
+                        <li>Save to project folder</li>
+                        <li>Visual context for AI</li>
+                        <li>Speeds up feedback cycle 3-5x</li>
                     </ul>
                 </div>
             </div>
@@ -986,20 +973,20 @@
         <!-- Hotkeys -->
         <section class="hotkeys">
             <div class="hotkeys-card">
-                <h2>Горячие клавиши</h2>
+                <h2>Keyboard Shortcuts</h2>
                 <div class="hotkey-options">
                     <div class="hotkey">
                         <div class="hotkey-key">⌥ Space</div>
-                        <div class="hotkey-desc">Option + Пробел</div>
+                        <div class="hotkey-desc">Option + Space</div>
                     </div>
                     <div class="hotkey hotkey-recommended">
                         <div class="hotkey-key">Right ⌘</div>
-                        <div class="hotkey-desc">Правый Command</div>
-                        <div class="hotkey-badge">рекомендуется</div>
+                        <div class="hotkey-desc">Right Command</div>
+                        <div class="hotkey-badge">recommended</div>
                     </div>
                     <div class="hotkey">
                         <div class="hotkey-key">2× ⌥</div>
-                        <div class="hotkey-desc">Двойной правый Option</div>
+                        <div class="hotkey-desc">Double Right Option</div>
                     </div>
                 </div>
             </div>
@@ -1007,16 +994,16 @@
 
         <!-- Pricing -->
         <section class="pricing">
-            <h2>Сколько стоит</h2>
-            <p class="pricing-subtitle">Говорилка бесплатна. Вы платите только за API.</p>
+            <h2>Pricing</h2>
+            <p class="pricing-subtitle">Govorilka is free. You only pay for the API.</p>
             <div class="price-card">
-                <div class="price-amount">$0 <span>за приложение</span></div>
-                <p class="price-note">+ $200 бесплатных кредитов Deepgram</p>
+                <div class="price-amount">$0 <span>for the app</span></div>
+                <p class="price-note">+ $200 free Deepgram credits</p>
                 <div class="price-details">
-                    <p>✓ Регистрация без карты</p>
-                    <p>✓ ~775 часов диктовки бесплатно</p>
-                    <p>✓ Потом $0.0043/мин (~26 коп)</p>
-                    <p>✓ Никаких подписок</p>
+                    <p>✓ Sign up without credit card</p>
+                    <p>✓ ~775 hours of dictation free</p>
+                    <p>✓ Then $0.0043/min</p>
+                    <p>✓ No subscriptions</p>
                 </div>
             </div>
         </section>
@@ -1026,12 +1013,12 @@
             <div class="book-card">
                 <div class="book-emoji">📖</div>
                 <div class="book-info">
-                    <h2>Выращивание программ</h2>
-                    <p class="book-tagline">Новый подход к разработке с AI</p>
-                    <p>Книга о том, как программы больше не пишутся — они выращиваются. AI-агенты берут на себя код, а разработчик становится садовником: направляет, подрезает, удобряет.</p>
-                    <p>Говорилка — практический инструмент из этой книги. Быстрый голосовой фидбэк — это удобрение, которое ускоряет рост вашей программы.</p>
+                    <h2>Growing Software</h2>
+                    <p class="book-tagline">A new approach to development with AI</p>
+                    <p>A book about how software is no longer written — it's grown. AI agents take over the code, and the developer becomes a gardener: guiding, pruning, fertilizing.</p>
+                    <p>Govorilka is a practical tool from this book. Fast voice feedback is the fertilizer that accelerates your software growth.</p>
                     <a href="https://growingsoftwarebook.com" target="_blank" class="book-link">
-                        Читать книгу →
+                        Read the Book →
                     </a>
                 </div>
             </div>
@@ -1041,35 +1028,35 @@
         <section class="author">
             <div class="author-card">
                 <div class="author-header">
-                    <img src="author.png" alt="Шахруз Аширов" class="author-photo">
+                    <img src="../author.png" alt="Shakhruz Ashirov" class="author-photo">
                     <div class="author-intro">
-                        <h2>Об авторе</h2>
-                        <p>Шахруз Аширов — инженер, автор «Выращивание программ», ментор</p>
+                        <h2>About the Author</h2>
+                        <p>Shakhruz Ashirov — engineer, author of "Growing Software", mentor</p>
                     </div>
                 </div>
                 <div class="author-bio">
-                    <p>Привет! Я Шахруз — инженер, ментор, автор книги «Выращивание программ» и основатель Skyline Yoga.</p>
-                    <p style="margin-top: 12px;">Говорилка — мой инструмент для быстрой работы с AI-ассистентами. Я верю, что голосовой фидбэк — это будущее разработки с AI.</p>
+                    <p>Hi! I'm Shakhruz — engineer, mentor, author of "Growing Software" book, and founder of Skyline Yoga.</p>
+                    <p style="margin-top: 12px;">Govorilka is my tool for fast work with AI assistants. I believe voice feedback is the future of AI-powered development.</p>
                 </div>
                 <div class="promo-grid">
                     <a href="https://growingsoftwarebook.com" target="_blank" class="promo-item">
                         <div class="promo-icon">📖</div>
-                        <h3>Выращивание программ</h3>
-                        <p>Книга о новом подходе к разработке с AI-агентами</p>
+                        <h3>Growing Software</h3>
+                        <p>A book about new approach to development with AI agents</p>
                     </a>
                     <a href="https://www.skylineyoga.online/ai-mentorship" target="_blank" class="promo-item">
                         <div class="promo-icon">🤖</div>
-                        <h3>AI Менторство</h3>
-                        <p>Консультации, code review, архитектура. Первая сессия — бесплатно.</p>
+                        <h3>AI Mentorship</h3>
+                        <p>Consulting, code review, architecture. First session free.</p>
                     </a>
                     <a href="https://www.skylineyoga.online" target="_blank" class="promo-item">
                         <div class="promo-icon">🧘</div>
                         <h3>Skyline Yoga</h3>
-                        <p>Йога-студия в Ташкенте. Присоединяйся к практике!</p>
+                        <p>Yoga studio in Tashkent. Join the practice!</p>
                     </a>
                 </div>
                 <div class="author-contact">
-                    <p>Связаться: <a href="https://t.me/shakhruz_ashirov" target="_blank">@shakhruz_ashirov</a> в Telegram</p>
+                    <p>Contact: <a href="https://t.me/shakhruz_ashirov" target="_blank">@shakhruz_ashirov</a> on Telegram</p>
                 </div>
             </div>
         </section>
@@ -1079,10 +1066,10 @@
             <div class="footer-links">
                 <a href="https://github.com/shakhruz/govorilka-app">GitHub</a>
                 <a href="https://github.com/shakhruz/govorilka-app/releases">Releases</a>
-                <a href="https://github.com/shakhruz/govorilka-app/issues">Поддержка</a>
-                <a href="/privacy">Privacy Policy</a>
+                <a href="https://github.com/shakhruz/govorilka-app/issues">Support</a>
+                <a href="/en/privacy">Privacy Policy</a>
             </div>
-            <p>MIT License · Сделано с ❤️ для русскоязычного сообщества</p>
+            <p>MIT License · Made with care</p>
         </footer>
     </div>
 </body>

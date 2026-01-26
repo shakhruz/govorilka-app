@@ -6,12 +6,13 @@
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Configuration
-const GITHUB_CLIENT_ID = 'YOUR_GITHUB_CLIENT_ID'; // TODO: Replace with actual client ID
+// Configuration from app.json extra
+const GITHUB_CLIENT_ID = Constants.expoConfig?.extra?.githubClientId || '';
 const OAUTH_REDIRECT_URI = Linking.createURL('oauth/github');
-const API_BASE_URL = 'https://govorilka.milagpt.com/api';
+const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'https://govorilka.app/api';
 const GITHUB_API = 'https://api.github.com';
 
 // Storage keys

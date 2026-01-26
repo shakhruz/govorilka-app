@@ -1,0 +1,40 @@
+{
+  "identifier" : "com.govorilka.mobile.storekit",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "supporter_001",
+      "localizations" : [
+        {
+          "description" : "Поддержите разработку Говорилки",
+          "displayName" : "Поддержать разработку",
+          "locale" : "ru"
+        },
+        {
+          "description" : "Support Govorilka development",
+          "displayName" : "Support Development",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.govorilka.supporter",
+      "referenceName" : "Supporter",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "govorilka_storekit",
+    "_developerTeamID" : "MILAGPT",
+    "_lastSynchronizedDate" : 788644800
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

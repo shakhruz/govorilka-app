@@ -22,6 +22,13 @@
         "UIBackgroundModes": ["audio"]
       }
     },
+    "extra": {
+      "githubClientId": "GITHUB_CLIENT_ID_PLACEHOLDER",
+      "apiBaseUrl": "https://govorilka.app/api",
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",

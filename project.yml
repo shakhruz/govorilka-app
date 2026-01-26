@@ -1,6 +1,6 @@
 name: Govorilka
 options:
-  bundleIdPrefix: com.milagpt
+  bundleIdPrefix: com.govorilka
   deploymentTarget:
     macOS: "13.0"
   xcodeVersion: "15.0"
@@ -20,7 +20,7 @@ targets:
       - Govorilka
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.milagpt.govorilka
+        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.mobile
         PRODUCT_NAME: Govorilka
         MARKETING_VERSION: "1.2.0"
         CURRENT_PROJECT_VERSION: "3"
@@ -41,6 +41,7 @@ targets:
         com.apple.security.automation.apple-events: true
         com.apple.security.device.audio-input: true
         com.apple.security.network.client: true
+        com.apple.developer.in-app-payments: true
     info:
       path: Govorilka/Info.plist
       properties:
@@ -55,7 +56,7 @@ targets:
       - GovorilkaTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.milagpt.govorilka.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.mobile.tests
         SWIFT_VERSION: "5.9"
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         GENERATE_INFOPLIST_FILE: YES

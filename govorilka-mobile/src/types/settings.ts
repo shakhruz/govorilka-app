@@ -3,8 +3,15 @@ export interface AppSettings {
   soundEnabled: boolean;
   hapticEnabled: boolean;
   proModeEnabled: boolean;
+  // Google Drive integration
   googleDriveConnected: boolean;
   googleDriveEmail?: string;
+  // GitHub integration
+  githubConnected: boolean;
+  githubUsername?: string;
+  githubSelectedRepo?: string;
+  // Supporter status
+  isSupporter: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -13,4 +20,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   hapticEnabled: true,
   proModeEnabled: false,
   googleDriveConnected: false,
+  githubConnected: false,
+  isSupporter: false,
 };

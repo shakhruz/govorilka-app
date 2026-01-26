@@ -2,7 +2,7 @@
 # https://docs.fastlane.tools/actions/deliver/
 
 # App Information
-app_identifier "com.govorilka.app"
+app_identifier "com.govorilka.mobile"
 username ENV["APPLE_ID"]
 platform "osx"
 
@@ -15,9 +15,9 @@ secondary_category "Utilities"
 price_tier 0 # Free app
 
 # URLs
-privacy_url "https://govorilka.app/privacy"
-support_url "https://github.com/shakhruz/govorilka-app/issues"
-marketing_url "https://govorilka.app"
+privacy_url "https://govorilka.milagpt.com/privacy"
+support_url "https://github.com/skylineyoga/govorilka/issues"
+marketing_url "https://govorilka.milagpt.com"
 
 # Screenshots and metadata path
 screenshots_path "./fastlane/screenshots"

@@ -43,7 +43,22 @@ platform :mac do
     )
     notarize(
       package: "Govorilka.app",
-      bundle_id: "com.govorilka.app"
+      bundle_id: "com.govorilka.mobile"
+    )
+  end
+
+  desc "Build and upload to App Store Connect"
+  lane :release do
+    build_mac_app(
+      scheme: "Govorilka",
+      configuration: "Release",
+      export_method: "app-store-connect",
+      output_directory: "./build"
+    )
+    deliver(
+      force: true,
+      precheck_include_in_app_purchases: false,
+      platform: "osx"
     )
   end
 end

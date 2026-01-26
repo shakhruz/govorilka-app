@@ -4,6 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ApiKeyInput } from '../../src/components/settings/ApiKeyInput';
 import { GoogleDriveSection } from '../../src/components/settings/GoogleDriveSection';
+import { GitHubSection } from '../../src/components/settings/GitHubSection';
+import { SupporterSection } from '../../src/components/settings/SupporterSection';
 import { useSettingsStore } from '../../src/stores/useSettingsStore';
 import { colors } from '../../src/theme/colors';
 
@@ -28,6 +30,11 @@ export default function SettingsScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.scroll}>
           <Text style={styles.title}>Настройки</Text>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Поддержка</Text>
+            <SupporterSection />
+          </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>API</Text>
@@ -73,6 +80,8 @@ export default function SettingsScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Экспорт</Text>
             <GoogleDriveSection />
+            <View style={{ height: 12 }} />
+            <GitHubSection />
           </View>
         </ScrollView>
       </SafeAreaView>

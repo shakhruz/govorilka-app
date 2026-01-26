@@ -1,15 +1,21 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { useRecordingStore } from '../src/stores/useRecordingStore';
 import { useHistoryStore } from '../src/stores/useHistoryStore';
+import { useSettingsStore } from '../src/stores/useSettingsStore';
+import { useFeedbackQueueStore } from '../src/stores/useFeedbackQueueStore';
 import { colors } from '../src/theme/colors';
 
 export default function ProReviewScreen() {
   const transcript = useRecordingStore((s) => s.transcript);
   const addEntry = useHistoryStore((s) => s.addEntry);
+  const { githubConnected, githubSelectedRepo } = useSettingsStore();
+  const addToQueue = useFeedbackQueueStore((s) => s.addToQueue);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [isPushingToGitHub, setIsPushingToGitHub] = useState(false);
 
   const takePhoto = useCallback(async () => {
     const result = await ImagePicker.launchCameraAsync({
@@ -39,6 +45,47 @@ export default function ProReviewScreen() {
     addEntry(entry);
     router.back();
   }, [transcript, photos, addEntry]);
+
+  const handlePushToGitHub = useCallback(async () => {
+    if (!githubSelectedRepo) {
+      Alert.alert('Ошибка', 'Выберите репозиторий в настройках');
+      return;
+    }
+
+    setIsPushingToGitHub(true);
+
+    try {
+      // Convert photo URIs to base64
+      const photoBase64s: string[] = [];
+      for (const uri of photos) {
+        try {
+          const base64 = await FileSystem.readAsStringAsync(uri, {
+            encoding: 'base64',
+          });
+          photoBase64s.push(base64);
+        } catch (err) {
+          console.error('Failed to read photo:', err);
+        }
+      }
+
+      // Add to queue (will sync automatically or retry later)
+      addToQueue(githubSelectedRepo, {
+        text: transcript,
+        timestamp: new Date(),
+        photos: photoBase64s.length > 0 ? photoBase64s : undefined,
+      });
+
+      Alert.alert('Отправлено', 'Фидбэк добавлен в очередь синхронизации');
+
+      // Also save locally
+      handleSave();
+    } catch (error) {
+      console.error('GitHub push error:', error);
+      Alert.alert('Ошибка', 'Не удалось отправить в GitHub');
+    } finally {
+      setIsPushingToGitHub(false);
+    }
+  }, [githubSelectedRepo, photos, transcript, addToQueue, handleSave]);
 
   return (
     <View style={styles.container}>
@@ -81,6 +128,32 @@ export default function ProReviewScreen() {
             </Text>
           </View>
         </View>
+
+        {/* GitHub Push Button */}
+        {githubConnected && (
+          <View style={styles.githubSection}>
+            <TouchableOpacity
+              style={[
+                styles.githubBtn,
+                !githubSelectedRepo && styles.githubBtnDisabled,
+              ]}
+              onPress={handlePushToGitHub}
+              disabled={isPushingToGitHub || !githubSelectedRepo}
+            >
+              {isPushingToGitHub ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <>
+                  <Text style={styles.githubBtnIcon}>🐙</Text>
+                  <Text style={styles.githubBtnText}>Push to GitHub</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            {githubSelectedRepo && (
+              <Text style={styles.repoHint}>→ {githubSelectedRepo}</Text>
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -168,5 +241,36 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textColor,
     lineHeight: 22,
+  },
+  githubSection: {
+    marginTop: 24,
+    marginBottom: 40,
+  },
+  githubBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#24292e',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+  githubBtnDisabled: {
+    opacity: 0.5,
+  },
+  githubBtnIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  githubBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  repoHint: {
+    fontSize: 12,
+    color: colors.gray,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

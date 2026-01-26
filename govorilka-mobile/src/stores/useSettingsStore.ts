@@ -9,6 +9,9 @@ interface SettingsState extends AppSettings {
   setHaptic: (enabled: boolean) => void;
   setProMode: (enabled: boolean) => void;
   setGoogleDriveConnected: (connected: boolean, email?: string) => void;
+  setGitHubConnected: (connected: boolean, username?: string) => void;
+  setGitHubSelectedRepo: (repo: string | undefined) => void;
+  setIsSupporter: (isSupporter: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -22,6 +25,10 @@ export const useSettingsStore = create<SettingsState>()(
       setProMode: (proModeEnabled) => set({ proModeEnabled }),
       setGoogleDriveConnected: (googleDriveConnected, googleDriveEmail) =>
         set({ googleDriveConnected, googleDriveEmail }),
+      setGitHubConnected: (githubConnected, githubUsername) =>
+        set({ githubConnected, githubUsername, githubSelectedRepo: undefined }),
+      setGitHubSelectedRepo: (githubSelectedRepo) => set({ githubSelectedRepo }),
+      setIsSupporter: (isSupporter) => set({ isSupporter }),
     }),
     {
       name: 'govorilka-settings',

@@ -4,6 +4,7 @@ import SwiftUI
 /// Beautiful simplified settings view with pink theme
 struct SettingsView: View {
     @ObservedObject var appState: AppState
+    @StateObject private var purchaseService = PurchaseService.shared
 
     @State private var apiKeyInput = ""
     @State private var showApiKey = false
@@ -105,6 +106,116 @@ struct SettingsView: View {
                         Text("$200 кредитов при регистрации")
                             .font(.system(size: 10))
                             .foregroundColor(textColor.opacity(0.5))
+                    }
+                }
+
+                // Supporter section
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 8) {
+                            Image(systemName: purchaseService.isSupporter ? "heart.fill" : "heart")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(pinkColor)
+                            Text(purchaseService.isSupporter ? "Спасибо за поддержку!" : "Поддержать разработку")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(textColor)
+
+                            Spacer()
+
+                            if purchaseService.isSupporter {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundColor(pinkColor)
+                                    Text("Supporter")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(pinkColor)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(softPink)
+                                .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.bottom, 2)
+
+                        if !purchaseService.isSupporter {
+                            Text("Говорилка — open-source и бесплатна. Покупка поддерживает разработку и даёт автообновления из App Store.")
+                                .font(.system(size: 12))
+                                .foregroundColor(textColor.opacity(0.7))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            HStack(spacing: 10) {
+                                Button(action: {
+                                    Task {
+                                        await purchaseService.purchaseSupporter()
+                                    }
+                                }) {
+                                    HStack(spacing: 6) {
+                                        if purchaseService.isPurchasing {
+                                            ProgressView()
+                                                .scaleEffect(0.7)
+                                                .frame(width: 14, height: 14)
+                                        } else {
+                                            Image(systemName: "heart.fill")
+                                                .font(.system(size: 11))
+                                        }
+                                        Text(purchaseService.formattedPrice)
+                                            .font(.system(size: 12, weight: .semibold))
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [pinkColor, lightPink],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .shadow(color: pinkColor.opacity(0.3), radius: 4, x: 0, y: 2)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(purchaseService.isPurchasing || purchaseService.supporterProduct == nil)
+
+                                Button(action: {
+                                    Task {
+                                        await purchaseService.restorePurchases()
+                                    }
+                                }) {
+                                    Text("Восстановить")
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(pinkColor)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(purchaseService.isPurchasing)
+                            }
+
+                            if let error = purchaseService.errorMessage {
+                                Text(error)
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.red.opacity(0.8))
+                            }
+
+                            Divider()
+                                .padding(.vertical, 2)
+
+                            Link(destination: URL(string: "https://github.com/skylineyoga/govorilka")!) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chevron.left.forwardslash.chevron.right")
+                                        .font(.system(size: 10))
+                                    Text("Собрать бесплатно из исходников")
+                                        .font(.system(size: 11, weight: .medium))
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 9))
+                                }
+                                .foregroundColor(textColor.opacity(0.6))
+                            }
+                        } else {
+                            Text("Вы помогаете развивать Говорилку. Спасибо!")
+                                .font(.system(size: 12))
+                                .foregroundColor(textColor.opacity(0.7))
+                        }
                     }
                 }
 

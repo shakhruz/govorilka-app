@@ -24,5 +24,7 @@
 	<string>Говорилка использует Универсальный доступ для автоматической вставки текста в активное приложение после записи</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Говорилка использует микрофон для записи голоса и преобразования в текст через Deepgram API</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

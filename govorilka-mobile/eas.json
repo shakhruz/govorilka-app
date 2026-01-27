@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 12.0.0"
+    "version": ">= 12.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -13,6 +14,23 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "autoIncrement": true,
+        "credentialsSource": "remote"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "shakhruz.ashirov@ya.ru",
+        "ascAppId": "6758294692",
+        "appleTeamId": "TZY7G965L4",
+        "ascApiKeyPath": "./fastlane/api_key.json",
+        "ascApiKeyIssuerId": "69a6de8c-13cb-47e3-e053-5b8c7c11a4d1",
+        "ascApiKeyId": "4M73FRWZ6J"
+      }
+    }
   }
 }

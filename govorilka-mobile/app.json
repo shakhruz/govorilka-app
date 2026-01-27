@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "scheme": "govorilka",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -19,14 +19,19 @@
       "infoPlist": {
         "NSMicrophoneUsageDescription": "Говорилка использует микрофон для распознавания речи",
         "NSCameraUsageDescription": "Говорилка использует камеру для фото в Pro-режиме",
-        "UIBackgroundModes": ["audio"]
-      }
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "7"
     },
     "extra": {
       "githubClientId": "GITHUB_CLIENT_ID_PLACEHOLDER",
       "apiBaseUrl": "https://govorilka.app/api",
+      "router": {},
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "120395bc-6598-4ef1-8feb-4831f2cdf4e3"
       }
     },
     "plugins": [
@@ -43,7 +48,9 @@
         {
           "microphonePermission": "Говорилка использует микрофон для распознавания речи"
         }
-      ]
-    ]
+      ],
+      "./plugins/withLiveAudioStream.js"
+    ],
+    "owner": "shakhruz"
   }
 }

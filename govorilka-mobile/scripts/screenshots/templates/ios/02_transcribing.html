@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcribing - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .headline {
+      font-size: 86px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 80px;
+      max-width: 95%;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 380px;
+      flex: 1;
+      max-height: 800px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 55px;
+      padding: 14px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 25px 40px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 38px;
+      background: #1a1a1a;
+      border-radius: 0 0 22px 22px;
+    }
+
+    /* Small cloud indicator */
+    .cloud-small {
+      width: 60px;
+      height: 40px;
+      margin-top: 30px;
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .cloud-small-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 20px;
+      position: relative;
+    }
+
+    .cloud-small-body::before {
+      content: '';
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -10px;
+      left: 8px;
+    }
+
+    .cloud-small-body::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -6px;
+      right: 12px;
+    }
+
+    /* Transcript area */
+    .transcript-card {
+      width: 100%;
+      background: white;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 8px 30px var(--shadow);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .transcript-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--pink-soft);
+    }
+
+    .recording-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--pink-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--pink-primary);
+    }
+
+    .recording-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-color);
+      opacity: 0.7;
+    }
+
+    .transcript-text {
+      font-size: 22px;
+      line-height: 1.5;
+      color: var(--text-color);
+      flex: 1;
+    }
+
+    .transcript-text .typed {
+      color: var(--text-color);
+    }
+
+    .transcript-text .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 26px;
+      background: var(--pink-primary);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+    }
+
+    /* Audio indicator bar */
+    .audio-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .audio-indicator .bar {
+      width: 4px;
+      background: var(--pink-light);
+      border-radius: 2px;
+    }
+
+    .audio-indicator .bar:nth-child(1) { height: 15px; }
+    .audio-indicator .bar:nth-child(2) { height: 25px; }
+    .audio-indicator .bar:nth-child(3) { height: 35px; }
+    .audio-indicator .bar:nth-child(4) { height: 28px; }
+    .audio-indicator .bar:nth-child(5) { height: 18px; }
+    .audio-indicator .bar:nth-child(6) { height: 30px; }
+    .audio-indicator .bar:nth-child(7) { height: 22px; }
+
+    /* Stop button */
+    .stop-btn {
+      margin-top: 25px;
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 8px 30px var(--glow),
+        0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stop-btn::before {
+      content: '';
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 6px;
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      top: 25%;
+      left: -120px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="phone-mockup">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <div class="cloud-small">
+            <div class="cloud-small-body"></div>
+          </div>
+
+          <div class="transcript-card">
+            <div class="transcript-header">
+              <div class="recording-dot"></div>
+              <span class="recording-label">Recording...</span>
+            </div>
+            <div class="transcript-text">
+              <span class="typed">Привет! Это тестовая запись голосовой заметки. Говорилка распознаёт речь в реальном времени</span><span class="cursor"></span>
+            </div>
+            <div class="audio-indicator">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
+
+          <div class="stop-btn"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

@@ -1,21 +1,22 @@
-import LiveAudioStream from 'react-native-live-audio-stream';
+import {
+  ExpoAudioStreamModule,
+  AudioEventPayload,
+  RecordingConfig,
+} from '@mykin-ai/expo-audio-stream';
+import { EventSubscription } from 'expo-modules-core';
 
 export interface AudioStreamConfig {
   sampleRate: number;
   channels: number;
   bitsPerSample: number;
-  audioSource?: number;
-  bufferSize?: number;
-  wavFile: string;
+  interval?: number;
 }
 
 const DEFAULT_CONFIG: AudioStreamConfig = {
   sampleRate: 16000,
   channels: 1,
   bitsPerSample: 16,
-  audioSource: 6,
-  bufferSize: 2048,
-  wavFile: '', // Not used, streaming only
+  interval: 100, // ms between audio chunks
 };
 
 export type AudioDataCallback = (base64Data: string) => void;
@@ -25,65 +26,65 @@ class AudioStreamServiceClass {
   private isStreaming = false;
   private onAudioData: AudioDataCallback | null = null;
   private onAudioLevel: AudioLevelCallback | null = null;
+  private subscription: EventSubscription | null = null;
+  private config: AudioStreamConfig = DEFAULT_CONFIG;
 
   init(config: Partial<AudioStreamConfig> = {}): void {
-    const finalConfig = { ...DEFAULT_CONFIG, ...config };
-    LiveAudioStream.init(finalConfig);
+    this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
-  start(onData: AudioDataCallback, onLevel?: AudioLevelCallback): void {
+  async start(onData: AudioDataCallback, onLevel?: AudioLevelCallback): Promise<void> {
     if (this.isStreaming) return;
 
     this.onAudioData = onData;
     this.onAudioLevel = onLevel || null;
     this.isStreaming = true;
 
-    LiveAudioStream.start();
+    // Subscribe to audio events
+    this.subscription = ExpoAudioStreamModule.subscribeToAudioEvents(
+      (event: AudioEventPayload) => {
+        if (this.onAudioData && event.data) {
+          this.onAudioData(event.data);
+        }
+        if (this.onAudioLevel && typeof event.soundLevel === 'number') {
+          // soundLevel is already 0-1 normalized
+          this.onAudioLevel(event.soundLevel);
+        }
+      }
+    );
 
-    LiveAudioStream.on('data', (data: string) => {
-      if (this.onAudioData) {
-        this.onAudioData(data);
-      }
-      if (this.onAudioLevel) {
-        const level = this.calculateLevel(data);
-        this.onAudioLevel(level);
-      }
-    });
+    // Start recording with config
+    const recordingConfig: RecordingConfig = {
+      sampleRate: this.config.sampleRate,
+      channels: this.config.channels as 1 | 2,
+      encoding: 'pcm_16bit',
+      interval: this.config.interval || 100,
+    };
+
+    await ExpoAudioStreamModule.startRecording(recordingConfig);
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     if (!this.isStreaming) return;
     this.isStreaming = false;
-    LiveAudioStream.stop();
+
+    try {
+      await ExpoAudioStreamModule.stopRecording();
+    } catch (e) {
+      console.warn('Error stopping recording:', e);
+    }
+
+    if (this.subscription) {
+      this.subscription.remove();
+      this.subscription = null;
+    }
+
     this.onAudioData = null;
     this.onAudioLevel = null;
   }
 
   getIsStreaming(): boolean {
     return this.isStreaming;
-  }
-
-  private calculateLevel(base64Data: string): number {
-    try {
-      const binaryString = atob(base64Data);
-      const length = binaryString.length;
-      let sum = 0;
-      const sampleCount = Math.floor(length / 2);
-
-      for (let i = 0; i < length - 1; i += 2) {
-        const low = binaryString.charCodeAt(i);
-        const high = binaryString.charCodeAt(i + 1);
-        let sample = (high << 8) | low;
-        if (sample > 32767) sample -= 65536;
-        sum += Math.abs(sample);
-      }
-
-      const average = sum / sampleCount;
-      // Normalize to 0-1 range (16-bit max is 32768)
-      return Math.min(average / 8000, 1.0);
-    } catch {
-      return 0;
-    }
   }
 }
 

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Govorilka Screenshot</title>
+  <style>
+    /* CSS Variables from Govorilka Design System */
+    :root {
+      /* Background gradient */
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+
+      /* Primary colors */
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+
+      /* Text */
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+
+      /* Cloud mascot */
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+
+      /* Effects */
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Typography - SF Pro Display */
+    @font-face {
+      font-family: 'SF Pro Display';
+      src: local('SF Pro Display'),
+           local('.SF NS Display'),
+           local('Helvetica Neue'),
+           local('Helvetica');
+      font-weight: 400;
+    }
+
+    @font-face {
+      font-family: 'SF Pro Display';
+      src: local('SF Pro Display Semibold'),
+           local('.SF NS Display Semibold'),
+           local('Helvetica Neue Medium'),
+           local('Helvetica');
+      font-weight: 600;
+    }
+
+    @font-face {
+      font-family: 'SF Pro Display';
+      src: local('SF Pro Display Bold'),
+           local('.SF NS Display Bold'),
+           local('Helvetica Neue Bold'),
+           local('Helvetica');
+      font-weight: 700;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    /* Main container */
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      position: relative;
+    }
+
+    /* Headline text */
+    .headline {
+      font-size: 72px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.2;
+      margin-bottom: 60px;
+      max-width: 90%;
+      z-index: 10;
+    }
+
+    /* Device mockup frame */
+    .device-frame {
+      position: relative;
+      z-index: 5;
+    }
+
+    .device-frame.iphone {
+      width: 320px;
+      height: 650px;
+      background: #1a1a1a;
+      border-radius: 50px;
+      padding: 12px;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .device-frame.iphone .screen {
+      width: 100%;
+      height: 100%;
+      background: var(--pink-soft);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .device-frame.iphone .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 35px;
+      background: #1a1a1a;
+      border-radius: 0 0 20px 20px;
+      z-index: 10;
+    }
+
+    .device-frame.mac {
+      width: 700px;
+      background: #e0e0e0;
+      border-radius: 16px;
+      padding: 16px 16px 50px 16px;
+      box-shadow:
+        0 50px 100px rgba(0, 0, 0, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .device-frame.mac .screen {
+      width: 100%;
+      height: 420px;
+      background: var(--pink-soft);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .device-frame.mac .camera {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      background: #3a3a3a;
+      border-radius: 50%;
+    }
+
+    /* Cloud mascot */
+    .cloud-mascot {
+      position: absolute;
+      width: 200px;
+      height: 140px;
+    }
+
+    .cloud-mascot .cloud-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 70px;
+      position: relative;
+      box-shadow: 0 10px 40px var(--glow);
+    }
+
+    .cloud-mascot .cloud-body::before,
+    .cloud-mascot .cloud-body::after {
+      content: '';
+      position: absolute;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+    }
+
+    .cloud-mascot .cloud-body::before {
+      width: 80px;
+      height: 80px;
+      top: -30px;
+      left: 30px;
+    }
+
+    .cloud-mascot .cloud-body::after {
+      width: 60px;
+      height: 60px;
+      top: -20px;
+      right: 40px;
+    }
+
+    .cloud-mascot .eyes {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 30px;
+    }
+
+    .cloud-mascot .eye {
+      width: 14px;
+      height: 14px;
+      background: var(--eye-color);
+      border-radius: 50%;
+    }
+
+    .cloud-mascot .smile {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 15px;
+      border: 3px solid var(--eye-color);
+      border-top: none;
+      border-radius: 0 0 30px 30px;
+    }
+
+    .cloud-mascot .blush {
+      position: absolute;
+      top: 50%;
+      width: 20px;
+      height: 10px;
+      background: var(--blush-color);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+
+    .cloud-mascot .blush.left {
+      left: 20%;
+    }
+
+    .cloud-mascot .blush.right {
+      right: 20%;
+    }
+
+    /* Audio rings */
+    .audio-rings {
+      position: absolute;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .audio-ring {
+      width: 4px;
+      background: var(--pink-light);
+      border-radius: 2px;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .audio-ring:nth-child(1) { height: 20px; animation-delay: 0s; }
+    .audio-ring:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+    .audio-ring:nth-child(3) { height: 50px; animation-delay: 0.2s; }
+    .audio-ring:nth-child(4) { height: 35px; animation-delay: 0.3s; }
+    .audio-ring:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* Decorative elements */
+    .glow-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Button styles */
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      color: var(--text-white);
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow:
+        0 8px 24px var(--glow),
+        0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Card styles */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow:
+        0 4px 6px var(--shadow),
+        0 1px 3px var(--shadow);
+    }
+
+    /* Hotkey badge */
+    .hotkey {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: white;
+      border-radius: 8px;
+      font-family: 'SF Mono', monospace;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-color);
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .hotkey .key {
+      padding: 4px 10px;
+      background: var(--pink-soft);
+      border-radius: 6px;
+      border: 1px solid var(--pink-light);
+    }
+  </style>
+</head>
+<body>
+  <!-- Content will be defined in specific templates -->
+</body>
+</html>

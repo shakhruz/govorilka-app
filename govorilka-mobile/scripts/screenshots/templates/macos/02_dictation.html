@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dictation - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 100px 80px 80px;
+    }
+
+    .headline {
+      font-size: 72px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 60px;
+    }
+
+    /* macOS desktop mockup */
+    .mac-mockup {
+      position: relative;
+      width: 1200px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Menu bar */
+    .menubar {
+      width: 100%;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .menubar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .apple-logo {
+      font-size: 16px;
+    }
+
+    .menubar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .govorilka-icon {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--pink-primary);
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Desktop content */
+    .desktop {
+      flex: 1;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 0 0 8px 8px;
+      position: relative;
+      overflow: hidden;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Notes app window */
+    .notes-window {
+      width: 700px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .window-header {
+      height: 40px;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+    }
+
+    .window-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .window-btn.red { background: #ff5f56; }
+    .window-btn.yellow { background: #ffbd2e; }
+    .window-btn.green { background: #27ca40; }
+
+    .window-title {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .window-content {
+      padding: 30px;
+      min-height: 300px;
+    }
+
+    .note-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .note-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    .note-text .typed {
+      background: linear-gradient(180deg, transparent 60%, var(--pink-soft) 60%);
+    }
+
+    .note-text .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 20px;
+      background: var(--pink-primary);
+      margin-left: 1px;
+      vertical-align: text-bottom;
+    }
+
+    /* Recording indicator */
+    .recording-indicator {
+      position: absolute;
+      top: 50px;
+      right: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .recording-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--pink-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--pink-primary);
+    }
+
+    .recording-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .audio-mini {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .audio-mini .bar {
+      width: 3px;
+      background: var(--pink-light);
+      border-radius: 2px;
+    }
+
+    .audio-mini .bar:nth-child(1) { height: 10px; }
+    .audio-mini .bar:nth-child(2) { height: 16px; }
+    .audio-mini .bar:nth-child(3) { height: 12px; }
+    .audio-mini .bar:nth-child(4) { height: 18px; }
+    .audio-mini .bar:nth-child(5) { height: 14px; }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      top: -100px;
+      left: -150px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="mac-mockup">
+      <div class="menubar">
+        <div class="menubar-left">
+          <span class="apple-logo"></span>
+          <span>Notes</span>
+          <span>File</span>
+          <span>Edit</span>
+          <span>Format</span>
+        </div>
+        <div class="menubar-right">
+          <span>🔋</span>
+          <span>📶</span>
+          <div class="govorilka-icon">🎙 REC</div>
+          <span>Mon 14:32</span>
+        </div>
+      </div>
+
+      <div class="desktop">
+        <div class="notes-window">
+          <div class="window-header">
+            <div class="window-btn red"></div>
+            <div class="window-btn yellow"></div>
+            <div class="window-btn green"></div>
+            <span class="window-title">Notes</span>
+          </div>
+          <div class="window-content">
+            <div class="note-title">Идеи для проекта</div>
+            <div class="note-text">
+              <span class="typed">Важно помнить о главных приоритетах на этой неделе. Первое — закончить дизайн главной страницы. Второе — подготовить презентацию для команды</span><span class="cursor"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="recording-indicator">
+          <div class="recording-dot"></div>
+          <span class="recording-label">Recording</span>
+          <div class="audio-mini">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

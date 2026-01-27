@@ -24,7 +24,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "7"
+      "buildNumber": "8"
     },
     "extra": {
       "githubClientId": "GITHUB_CLIENT_ID_PLACEHOLDER",
@@ -49,7 +49,7 @@
           "microphonePermission": "Говорилка использует микрофон для распознавания речи"
         }
       ],
-      "./plugins/withLiveAudioStream.js"
+      "@mykin-ai/expo-audio-stream"
     ],
     "owner": "shakhruz"
   }

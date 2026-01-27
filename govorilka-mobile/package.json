@@ -8,11 +8,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:dev": "eas build --profile development --platform ios",
-    "build:preview": "eas build --profile preview --platform ios",
-    "postinstall": "patch-package"
+    "build:preview": "eas build --profile preview --platform ios"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.1.0",
+    "@mykin-ai/expo-audio-stream": "^0.3.5",
     "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-native-community/netinfo": "~11.4.1",
     "@react-native-google-signin/google-signin": "^13.0.0",
@@ -34,7 +34,6 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
-    "react-native-live-audio-stream": "^1.1.1",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

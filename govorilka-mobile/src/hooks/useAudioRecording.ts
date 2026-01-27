@@ -57,7 +57,7 @@ export function useAudioRecording() {
       sampleRate: 16000,
       channels: 1,
       bitsPerSample: 16,
-      bufferSize: 2048,
+      interval: 100, // ms between audio chunks
     });
 
     // Connect to Deepgram
@@ -79,7 +79,7 @@ export function useAudioRecording() {
         stopRecording();
         SoundService.playError();
       },
-      onConnected: () => {
+      onConnected: async () => {
         setConnecting(false);
         setRecording(true);
         startTimeRef.current = Date.now();
@@ -89,7 +89,7 @@ export function useAudioRecording() {
         LocalRecorderService.startRecording();
 
         // Start audio streaming
-        AudioStreamService.start(
+        await AudioStreamService.start(
           (base64Data) => {
             DeepgramWebSocketService.sendAudio(base64Data);
             LocalRecorderService.addChunk(base64Data);
@@ -108,7 +108,7 @@ export function useAudioRecording() {
   }, [settings.soundEnabled, settings.hapticEnabled, settings.textCleaningEnabled]);
 
   const stopRecording = useCallback(async () => {
-    AudioStreamService.stop();
+    await AudioStreamService.stop();
     DeepgramWebSocketService.finishStream();
 
     // Small delay for final transcript to arrive

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .headline {
+      font-size: 86px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 80px;
+      max-width: 95%;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 380px;
+      flex: 1;
+      max-height: 800px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 55px;
+      padding: 14px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 80px 20px 40px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 38px;
+      background: #1a1a1a;
+      border-radius: 0 0 22px 22px;
+    }
+
+    /* Header */
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding: 0 5px;
+    }
+
+    .screen-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .search-icon {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    /* History list */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .history-item {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 4px 15px var(--shadow);
+    }
+
+    .history-item.highlighted {
+      border: 2px solid var(--pink-primary);
+      box-shadow: 0 4px 20px var(--glow);
+    }
+
+    .history-text {
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--text-color);
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-color);
+      opacity: 0.5;
+    }
+
+    /* Record button */
+    .record-fab {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 10px 40px var(--glow),
+        0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .record-fab::before {
+      content: '';
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      bottom: 20%;
+      left: -100px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="phone-mockup">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <div class="screen-header">
+            <span class="screen-title">История</span>
+            <div class="search-icon">🔍</div>
+          </div>
+
+          <div class="history-list">
+            <div class="history-item highlighted">
+              <div class="history-text">Привет! Это тестовая запись голосовой заметки. Говорилка распознаёт речь...</div>
+              <div class="history-meta">
+                <span>Сегодня, 14:32</span>
+                <span>23 слова</span>
+              </div>
+            </div>
+
+            <div class="history-item">
+              <div class="history-text">Не забыть купить молоко, хлеб и яблоки в магазине.</div>
+              <div class="history-meta">
+                <span>Сегодня, 10:15</span>
+                <span>9 слов</span>
+              </div>
+            </div>
+
+            <div class="history-item">
+              <div class="history-text">Завтра встреча с командой в 15:00. Подготовить презентацию по новому проекту.</div>
+              <div class="history-meta">
+                <span>Вчера, 18:45</span>
+                <span>11 слов</span>
+              </div>
+            </div>
+
+            <div class="history-item">
+              <div class="history-text">Идея для приложения: добавить тёмную тему и синхронизацию с iCloud.</div>
+              <div class="history-meta">
+                <span>Вчера, 09:20</span>
+                <span>10 слов</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="record-fab"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

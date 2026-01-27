@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recording - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .headline {
+      font-size: 86px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 80px;
+      max-width: 95%;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 380px;
+      flex: 1;
+      max-height: 800px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 55px;
+      padding: 14px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 30px 40px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 38px;
+      background: #1a1a1a;
+      border-radius: 0 0 22px 22px;
+    }
+
+    /* Cloud mascot in screen */
+    .cloud-mascot {
+      width: 180px;
+      height: 120px;
+      margin-top: 40px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .cloud-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 60px;
+      position: relative;
+      box-shadow: 0 15px 50px var(--glow);
+    }
+
+    .cloud-body::before {
+      content: '';
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -25px;
+      left: 25px;
+    }
+
+    .cloud-body::after {
+      content: '';
+      position: absolute;
+      width: 55px;
+      height: 55px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -18px;
+      right: 35px;
+    }
+
+    .eyes {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 28px;
+    }
+
+    .eye {
+      width: 12px;
+      height: 12px;
+      background: var(--eye-color);
+      border-radius: 50%;
+    }
+
+    .smile {
+      position: absolute;
+      top: 58%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 13px;
+      border: 3px solid var(--eye-color);
+      border-top: none;
+      border-radius: 0 0 26px 26px;
+    }
+
+    .blush {
+      position: absolute;
+      top: 48%;
+      width: 18px;
+      height: 9px;
+      background: var(--blush-color);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+
+    .blush.left { left: 18%; }
+    .blush.right { right: 18%; }
+
+    /* Audio visualization */
+    .audio-viz {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .audio-bar {
+      width: 6px;
+      background: linear-gradient(180deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      border-radius: 3px;
+    }
+
+    .audio-bar:nth-child(1) { height: 30px; }
+    .audio-bar:nth-child(2) { height: 50px; }
+    .audio-bar:nth-child(3) { height: 70px; }
+    .audio-bar:nth-child(4) { height: 55px; }
+    .audio-bar:nth-child(5) { height: 35px; }
+
+    /* Record button */
+    .record-btn {
+      margin-top: auto;
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 10px 40px var(--glow),
+        0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .record-btn::before {
+      content: '';
+      width: 35px;
+      height: 35px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      top: 20%;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    .glow-2 {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      bottom: 15%;
+      right: -80px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="phone-mockup">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <div class="cloud-mascot">
+            <div class="cloud-body">
+              <div class="eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+              </div>
+              <div class="smile"></div>
+              <div class="blush left"></div>
+              <div class="blush right"></div>
+            </div>
+          </div>
+
+          <div class="audio-viz">
+            <div class="audio-bar"></div>
+            <div class="audio-bar"></div>
+            <div class="audio-bar"></div>
+            <div class="audio-bar"></div>
+            <div class="audio-bar"></div>
+          </div>
+
+          <div class="record-btn"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+  </div>
+</body>
+</html>

@@ -10,13 +10,10 @@ copyright "2024-2026 Govorilka"
 primary_category "Productivity"
 secondary_category "Utilities"
 
-# Pricing
-price_tier 0 # Free app
+# Pricing is managed in App Store Connect directly
+# price_tier 0 # Free app
 
-# URLs
-privacy_url "https://govorilka.milagpt.com/privacy"
-support_url "https://github.com/skylineyoga/govorilka/issues"
-marketing_url "https://govorilka.milagpt.com"
+# URLs are defined per-locale in metadata/*/privacy_url.txt, etc.
 
 # Screenshots and metadata path
 screenshots_path "./fastlane/screenshots"

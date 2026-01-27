@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .headline {
+      font-size: 86px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 80px;
+      max-width: 95%;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 380px;
+      flex: 1;
+      max-height: 800px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 55px;
+      padding: 14px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 80px 20px 40px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 38px;
+      background: #1a1a1a;
+      border-radius: 0 0 22px 22px;
+    }
+
+    /* Header */
+    .screen-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      padding: 0 5px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 3px 10px var(--shadow);
+    }
+
+    .screen-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    /* Settings sections */
+    .settings-section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-color);
+      opacity: 0.5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      padding-left: 5px;
+    }
+
+    .settings-group {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px var(--shadow);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--pink-soft);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .setting-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--pink-soft);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .setting-label {
+      font-size: 16px;
+      color: var(--text-color);
+    }
+
+    .setting-value {
+      font-size: 14px;
+      color: var(--text-color);
+      opacity: 0.5;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      width: 50px;
+      height: 30px;
+      background: var(--pink-soft);
+      border-radius: 15px;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle.on {
+      background: var(--pink-primary);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    /* Chevron */
+    .chevron {
+      font-size: 14px;
+      color: var(--text-color);
+      opacity: 0.3;
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      bottom: 25%;
+      right: -80px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="phone-mockup">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <div class="screen-header">
+            <div class="back-btn">‹</div>
+            <span class="screen-title">Настройки</span>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-title">Основные</div>
+            <div class="settings-group">
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">🌐</div>
+                  <span class="setting-label">Язык распознавания</span>
+                </div>
+                <span class="setting-value">Русский ›</span>
+              </div>
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">📋</div>
+                  <span class="setting-label">Автокопирование</span>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">🔊</div>
+                  <span class="setting-label">Звуки</span>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-title">Аккаунт</div>
+            <div class="settings-group">
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">🔑</div>
+                  <span class="setting-label">API ключ</span>
+                </div>
+                <span class="setting-value">••••4f2a ›</span>
+              </div>
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">⭐</div>
+                  <span class="setting-label">PRO режим</span>
+                </div>
+                <span class="setting-value">Активен ›</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-title">О приложении</div>
+            <div class="settings-group">
+              <div class="setting-item">
+                <div class="setting-left">
+                  <div class="setting-icon">ℹ️</div>
+                  <span class="setting-label">Версия</span>
+                </div>
+                <span class="setting-value">1.0.0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

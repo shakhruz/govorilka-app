@@ -1,0 +1,16 @@
+{
+  "name": "govorilka-screenshots",
+  "version": "1.0.0",
+  "description": "App Store screenshot generator for Govorilka",
+  "scripts": {
+    "generate": "node generate.js",
+    "generate:ios": "node generate.js --platform=ios",
+    "generate:macos": "node generate.js --platform=macos",
+    "generate:ru": "node generate.js --locale=ru",
+    "generate:en": "node generate.js --locale=en-US",
+    "clean": "rm -rf output/**/**.png"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Mode - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 120px 60px 80px;
+    }
+
+    .headline {
+      font-size: 86px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 80px;
+      max-width: 95%;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 380px;
+      flex: 1;
+      max-height: 800px;
+    }
+
+    .phone-frame {
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 55px;
+      padding: 14px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.2),
+        0 30px 80px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 3px #3a3a3a;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      border-radius: 45px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 25px 40px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 38px;
+      background: #1a1a1a;
+      border-radius: 0 0 22px 22px;
+    }
+
+    /* PRO badge */
+    .pro-badge {
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 20px var(--glow);
+    }
+
+    /* Image preview */
+    .image-preview {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%);
+      border-radius: 16px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .image-preview::before {
+      content: '📷';
+      font-size: 50px;
+      opacity: 0.8;
+    }
+
+    .image-preview .overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.5));
+      color: white;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    /* Context card */
+    .context-card {
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 25px var(--shadow);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .context-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pink-primary);
+      margin-bottom: 12px;
+    }
+
+    .context-text {
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--text-color);
+      flex: 1;
+    }
+
+    .context-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--pink-soft);
+    }
+
+    .tag {
+      padding: 6px 12px;
+      background: var(--pink-soft);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-color);
+    }
+
+    /* Action row */
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      color: white;
+      box-shadow: 0 6px 20px var(--glow);
+    }
+
+    .action-btn.secondary {
+      background: white;
+      color: var(--text-color);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      top: 15%;
+      right: -120px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="phone-mockup">
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="notch"></div>
+
+          <div class="pro-badge">PRO MODE</div>
+
+          <div class="image-preview">
+            <div class="overlay">Фото документа</div>
+          </div>
+
+          <div class="context-card">
+            <div class="context-label">
+              <span>✨</span>
+              AI-контекст
+            </div>
+            <div class="context-text">
+              На фото изображён договор аренды. Основные пункты: срок 12 месяцев, оплата 50 000 руб/мес, депозит 100 000 руб.
+            </div>
+            <div class="context-tags">
+              <span class="tag">📄 Документ</span>
+              <span class="tag">💰 Финансы</span>
+              <span class="tag">🏠 Недвижимость</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <div class="action-btn primary">💬 Обсудить</div>
+            <div class="action-btn secondary">📋 Копировать</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

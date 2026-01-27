@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Bar - Govorilka</title>
+  <style>
+    :root {
+      --bg-start: {{BG_START}};
+      --bg-end: {{BG_END}};
+      --pink-primary: {{PINK_PRIMARY}};
+      --pink-light: {{PINK_LIGHT}};
+      --pink-soft: {{PINK_SOFT}};
+      --text-color: {{TEXT_COLOR}};
+      --text-white: {{TEXT_WHITE}};
+      --cloud-start: {{CLOUD_START}};
+      --cloud-end: {{CLOUD_END}};
+      --eye-color: {{EYE_COLOR}};
+      --blush-color: {{BLUSH_COLOR}};
+      --shadow: {{SHADOW}};
+      --glow: {{GLOW}};
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 100px 80px 80px;
+    }
+
+    .headline {
+      font-size: 72px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+      line-height: 1.15;
+      margin-bottom: 60px;
+    }
+
+    /* macOS desktop mockup */
+    .mac-mockup {
+      position: relative;
+      width: 1200px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Menu bar */
+    .menubar {
+      width: 100%;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .menubar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .apple-logo {
+      font-size: 16px;
+    }
+
+    .menubar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menubar-icon {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .govorilka-icon {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--pink-soft);
+      border-radius: 6px;
+      color: var(--pink-primary);
+      font-weight: 600;
+    }
+
+    /* Desktop content */
+    .desktop {
+      flex: 1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 0 0 8px 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* App popover */
+    .popover {
+      position: absolute;
+      top: 10px;
+      right: 120px;
+      width: 340px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 14px;
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.2),
+        0 8px 25px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .popover-arrow {
+      position: absolute;
+      top: -8px;
+      right: 30px;
+      width: 16px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      transform: rotate(45deg);
+    }
+
+    /* Cloud in popover */
+    .cloud-mini {
+      width: 80px;
+      height: 55px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    .cloud-mini-body {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 28px;
+      position: relative;
+    }
+
+    .cloud-mini-body::before {
+      content: '';
+      position: absolute;
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -12px;
+      left: 12px;
+    }
+
+    .cloud-mini-body::after {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(180deg, var(--cloud-start) 0%, var(--cloud-end) 100%);
+      border-radius: 50%;
+      top: -8px;
+      right: 15px;
+    }
+
+    .cloud-mini .eyes {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 14px;
+    }
+
+    .cloud-mini .eye {
+      width: 6px;
+      height: 6px;
+      background: var(--eye-color);
+      border-radius: 50%;
+    }
+
+    .cloud-mini .smile {
+      position: absolute;
+      top: 58%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 7px;
+      border: 2px solid var(--eye-color);
+      border-top: none;
+      border-radius: 0 0 14px 14px;
+    }
+
+    .popover-text {
+      text-align: center;
+      font-size: 15px;
+      color: var(--text-color);
+      margin-bottom: 20px;
+    }
+
+    .popover-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--pink-primary) 0%, var(--pink-light) 100%);
+      color: white;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 6px 20px var(--glow);
+    }
+
+    .hotkey-hint {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-color);
+      opacity: 0.6;
+    }
+
+    .hotkey-badge {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--pink-soft);
+      border-radius: 6px;
+      font-family: 'SF Mono', monospace;
+    }
+
+    /* Decorative glow */
+    .glow-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      bottom: -100px;
+      left: -150px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="headline">{{TEXT}}</h1>
+
+    <div class="mac-mockup">
+      <div class="menubar">
+        <div class="menubar-left">
+          <span class="apple-logo"></span>
+          <span>Finder</span>
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+        </div>
+        <div class="menubar-right">
+          <span class="menubar-icon">🔋</span>
+          <span class="menubar-icon">📶</span>
+          <div class="govorilka-icon">☁️</div>
+          <span>Mon 14:32</span>
+        </div>
+      </div>
+
+      <div class="desktop">
+        <div class="popover">
+          <div class="popover-arrow"></div>
+
+          <div class="cloud-mini">
+            <div class="cloud-mini-body">
+              <div class="eyes">
+                <div class="eye"></div>
+                <div class="eye"></div>
+              </div>
+              <div class="smile"></div>
+            </div>
+          </div>
+
+          <div class="popover-text">
+            Нажмите кнопку или используйте<br>горячую клавишу для записи
+          </div>
+
+          <div class="popover-btn">🎙 Начать запись</div>
+
+          <div class="hotkey-hint">
+            <span class="hotkey-badge">⌥ Option + Space</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glow-1"></div>
+  </div>
+</body>
+</html>

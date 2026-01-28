@@ -260,6 +260,43 @@ struct SettingsView: View {
                         Text("Удаляет «ну», «как бы», «типа» и др.")
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
+
+                        // Accessibility status for auto-paste
+                        if appState.autoPasteEnabled {
+                            Divider()
+                                .padding(.vertical, 2)
+
+                            HStack {
+                                if appState.hasAccessibilityPermission {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(pinkColor)
+                                        Text("Универсальный доступ разрешён")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(textColor.opacity(0.6))
+                                    }
+                                } else {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(.orange)
+                                        Text("Нужен Универсальный доступ")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(textColor.opacity(0.6))
+                                    }
+                                }
+
+                                Spacer()
+
+                                Button(action: {
+                                    appState.requestAccessibility()
+                                }) {
+                                    Text("Настроить")
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(pinkColor)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                     }
                 }
 

@@ -20,10 +20,10 @@ targets:
       - Govorilka
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.mobile
+        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.app
         PRODUCT_NAME: Govorilka
         MARKETING_VERSION: "1.2.0"
-        CURRENT_PROJECT_VERSION: "3"
+        CURRENT_PROJECT_VERSION: "4"
         INFOPLIST_FILE: Govorilka/Info.plist
         CODE_SIGN_ENTITLEMENTS: Govorilka/Govorilka.entitlements
         SWIFT_VERSION: "5.9"
@@ -31,7 +31,7 @@ targets:
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: "MILAGPT"
+        DEVELOPMENT_TEAM: "TZY7G965L4"
     dependencies:
       - package: KeyboardShortcuts
     entitlements:
@@ -41,7 +41,6 @@ targets:
         com.apple.security.automation.apple-events: true
         com.apple.security.device.audio-input: true
         com.apple.security.network.client: true
-        com.apple.developer.in-app-payments: true
     info:
       path: Govorilka/Info.plist
       properties:
@@ -56,7 +55,7 @@ targets:
       - GovorilkaTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.mobile.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.govorilka.app.tests
         SWIFT_VERSION: "5.9"
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         GENERATE_INFOPLIST_FILE: YES

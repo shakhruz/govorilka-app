@@ -450,50 +450,55 @@ struct SettingsView: View {
                                 .background(softPink)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
-
-                            Divider()
-                                .padding(.vertical, 2)
-
-                            // Export folder
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Папка для экспорта")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(textColor)
-
-                                HStack(spacing: 8) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "folder.fill")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(pinkColor)
-                                        Text(exportFolderName)
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.7))
-                                            .lineLimit(1)
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(softPink)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                    Spacer()
-
-                                    Button(action: selectExportFolder) {
-                                        Text("Выбрать")
-                                            .font(.system(size: 11, weight: .medium))
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(pinkColor)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-
-                                Text("PNG и MD файлы для агента")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(textColor.opacity(0.4))
-                            }
                         }
+                    }
+                }
+
+                // Export folder section (always visible, not Pro-only)
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SettingsCardHeader(
+                            icon: "folder.fill",
+                            title: "Папка для экспорта",
+                            color: pinkColor
+                        )
+
+                        Text("Автоматически сохранять записи в выбранную папку")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.5))
+
+                        HStack(spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "folder.fill")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(pinkColor)
+                                Text(exportFolderName)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(textColor.opacity(0.7))
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(softPink)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                            Spacer()
+
+                            Button(action: selectExportFolder) {
+                                Text("Выбрать")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(pinkColor)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        Text("PNG и TXT файлы сохраняются автоматически")
+                            .font(.system(size: 10))
+                            .foregroundColor(textColor.opacity(0.4))
                     }
                 }
 

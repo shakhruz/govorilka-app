@@ -373,13 +373,25 @@ final class AppState: ObservableObject {
                     let frontAppBefore = NSWorkspace.shared.frontmostApplication
                     print("[AppState] 📋 Before paste delay - frontmost app: \(frontAppBefore?.localizedName ?? "unknown")")
 
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+                    // Increased delay from 0.25 to 0.5 for better focus handling
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                        guard let self = self else { return }
+
                         let frontAppNow = NSWorkspace.shared.frontmostApplication
                         print("[AppState] 📋 After delay - frontmost app: \(frontAppNow?.localizedName ?? "unknown")")
+
+                        // Check that Govorilka is NOT the frontmost app
+                        if frontAppNow?.bundleIdentifier == Bundle.main.bundleIdentifier {
+                            print("[AppState] ❌ Cannot paste: Govorilka is still frontmost, copying to clipboard only")
+                            self.pasteService.copyToClipboard(finalText)
+                            self.soundService.play(.success)
+                            return
+                        }
+
                         print("[AppState] 📋 Triggering pasteAtCursor with text: \"\(finalText.prefix(50))...\"")
-                        self?.pasteService.pasteAtCursor(finalText, restoreClipboard: true)
+                        self.pasteService.pasteAtCursor(finalText, restoreClipboard: true)
                         // Play success sound after paste
-                        self?.soundService.play(.success)
+                        self.soundService.play(.success)
                     }
                 } else {
                     // No permission - just copy to clipboard

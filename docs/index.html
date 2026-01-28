@@ -852,18 +852,30 @@
             <a href="https://github.com/shakhruz/govorilka-app" class="secondary-link">
                 Исходный код на GitHub
             </a>
-            <span class="version-badge">v1.2.0</span>
+            <span class="version-badge">v1.2.1</span>
         </header>
 
         <!-- What's New -->
         <section class="whats-new">
             <div class="whats-new-card">
-                <h2>Что нового в v1.2.0</h2>
+                <h2>Что нового в v1.2.1</h2>
                 <ul class="whats-new-list">
-                    <li>Pro режим — скриншот экрана перед записью для контекста</li>
-                    <li>Звуковые уведомления при старте и остановке записи</li>
-                    <li>Отдельное окно для просмотра деталей записи</li>
-                    <li>Улучшена надёжность захвата аудио</li>
+                    <li>Исправлена кнопка настройки Accessibility — теперь всегда видна в разделе «Автовставка»</li>
+                    <li>Улучшена поддержка нескольких скриншотов в Pro-режиме</li>
+                    <li>Исправлены ошибки сборки для распространения</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Installation Note -->
+        <section class="whats-new">
+            <div class="whats-new-card" style="border-left-color: #FFA500;">
+                <h2>⚠️ При первом запуске</h2>
+                <ul class="whats-new-list">
+                    <li><strong>Правый клик → «Открыть»</strong> — macOS блокирует приложения не из App Store</li>
+                    <li><strong>Разрешите микрофон</strong> — для записи голоса</li>
+                    <li><strong>Разрешите Accessibility</strong> — для автовставки текста (Настройки → Автовставка → Настроить)</li>
+                    <li><strong>Keychain: «Always Allow»</strong> — если macOS спросит доступ к com.govorilka.api (это ваш API ключ)</li>
                 </ul>
             </div>
         </section>

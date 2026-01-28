@@ -9,10 +9,25 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
 
     // Pro mode fields (optional for backward compatibility)
     let screenshotFilename: String?
+    let screenshotFilenames: [String]?  // Multiple screenshots support
     let isProMode: Bool
 
-    /// Check if entry has a screenshot
-    var hasScreenshot: Bool { screenshotFilename != nil }
+    /// Get all screenshot filenames (backward compatible)
+    var allScreenshotFilenames: [String] {
+        if let filenames = screenshotFilenames, !filenames.isEmpty {
+            return filenames
+        }
+        if let single = screenshotFilename {
+            return [single]
+        }
+        return []
+    }
+
+    /// Check if entry has screenshots
+    var hasScreenshots: Bool { !allScreenshotFilenames.isEmpty }
+
+    /// Check if entry has a screenshot (backward compatible alias)
+    var hasScreenshot: Bool { hasScreenshots }
 
     // MARK: - Initializers
 
@@ -22,6 +37,7 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
         timestamp: Date = Date(),
         duration: TimeInterval = 0,
         screenshotFilename: String? = nil,
+        screenshotFilenames: [String]? = nil,
         isProMode: Bool = false
     ) {
         self.id = id
@@ -29,6 +45,7 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
         self.timestamp = timestamp
         self.duration = duration
         self.screenshotFilename = screenshotFilename
+        self.screenshotFilenames = screenshotFilenames
         self.isProMode = isProMode
     }
 
@@ -36,7 +53,7 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case id, text, timestamp, duration
-        case screenshotFilename, isProMode
+        case screenshotFilename, screenshotFilenames, isProMode
     }
 
     init(from decoder: Decoder) throws {
@@ -49,6 +66,7 @@ struct TranscriptEntry: Identifiable, Codable, Equatable {
 
         // Optional fields with defaults for backward compatibility
         screenshotFilename = try container.decodeIfPresent(String.self, forKey: .screenshotFilename)
+        screenshotFilenames = try container.decodeIfPresent([String].self, forKey: .screenshotFilenames)
         isProMode = try container.decodeIfPresent(Bool.self, forKey: .isProMode) ?? false
     }
 

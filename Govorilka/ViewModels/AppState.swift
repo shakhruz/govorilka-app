@@ -471,18 +471,26 @@ final class AppState: ObservableObject {
 
     /// Handle save from multi-screenshot review dialog
     private func handleMultiScreenshotSave(data: ProReviewData) {
-        // Save first screenshot to app storage (for history thumbnail)
-        guard let firstFilename = screenshotService.saveScreenshot(data.screenshots[0]) else {
-            print("[AppState] Failed to save first screenshot")
+        // Save ALL screenshots to app storage
+        var savedFilenames: [String] = []
+        for screenshot in data.screenshots {
+            if let filename = screenshotService.saveScreenshot(screenshot) {
+                savedFilenames.append(filename)
+            }
+        }
+
+        guard !savedFilenames.isEmpty else {
+            print("[AppState] Failed to save any screenshots")
             return
         }
 
-        // Create entry with first screenshot
+        // Create entry with all screenshots
         let entry = TranscriptEntry(
             text: data.transcript,
             timestamp: data.timestamp,
             duration: data.duration,
-            screenshotFilename: firstFilename,
+            screenshotFilename: savedFilenames.first,  // Backward compatibility
+            screenshotFilenames: savedFilenames,        // All screenshots
             isProMode: true
         )
 
@@ -589,8 +597,8 @@ final class AppState: ObservableObject {
 
     /// Delete entry from history
     func deleteEntry(_ entry: TranscriptEntry) {
-        // Delete screenshot if exists
-        if let filename = entry.screenshotFilename {
+        // Delete all screenshots
+        for filename in entry.allScreenshotFilenames {
             screenshotService.deleteScreenshot(filename: filename)
         }
         history.removeAll { $0.id == entry.id }

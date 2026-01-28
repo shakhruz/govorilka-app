@@ -5,7 +5,8 @@ struct HistoryDetailView: View {
     let entry: TranscriptEntry
     let onClose: () -> Void
 
-    @State private var screenshot: NSImage?
+    @State private var screenshots: [NSImage] = []
+    @State private var currentScreenshotIndex: Int = 0
     @State private var copiedText = false
     @State private var copiedImage = false
     @State private var savedToFolder = false
@@ -55,16 +56,27 @@ struct HistoryDetailView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    // Screenshot
-                    if let screenshot = screenshot {
+                    // Screenshots gallery
+                    if !screenshots.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Image(systemName: "camera.fill")
                                     .foregroundColor(pinkColor)
                                     .font(.system(size: 11))
-                                Text("Скриншот")
+                                Text(screenshots.count > 1 ? "Скриншоты" : "Скриншот")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(textColor)
+
+                                // Screenshot counter (if multiple)
+                                if screenshots.count > 1 {
+                                    Text("\(currentScreenshotIndex + 1)/\(screenshots.count)")
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(pinkColor)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .background(pinkColor.opacity(0.1))
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                }
 
                                 Spacer()
 
@@ -84,16 +96,66 @@ struct HistoryDetailView: View {
                                 .buttonStyle(.plain)
                             }
 
-                            Image(nsImage: screenshot)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 250)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(pinkColor.opacity(0.3), lineWidth: 1)
-                                )
-                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                            // Screenshot with navigation
+                            ZStack {
+                                Image(nsImage: screenshots[currentScreenshotIndex])
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(maxHeight: 250)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(pinkColor.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+
+                                // Navigation arrows (if multiple screenshots)
+                                if screenshots.count > 1 {
+                                    HStack {
+                                        // Left arrow
+                                        Button(action: previousScreenshot) {
+                                            Image(systemName: "chevron.left.circle.fill")
+                                                .font(.system(size: 28))
+                                                .foregroundColor(currentScreenshotIndex > 0 ? pinkColor : pinkColor.opacity(0.3))
+                                                .shadow(color: Color.black.opacity(0.2), radius: 2)
+                                        }
+                                        .buttonStyle(.plain)
+                                        .disabled(currentScreenshotIndex == 0)
+
+                                        Spacer()
+
+                                        // Right arrow
+                                        Button(action: nextScreenshot) {
+                                            Image(systemName: "chevron.right.circle.fill")
+                                                .font(.system(size: 28))
+                                                .foregroundColor(currentScreenshotIndex < screenshots.count - 1 ? pinkColor : pinkColor.opacity(0.3))
+                                                .shadow(color: Color.black.opacity(0.2), radius: 2)
+                                        }
+                                        .buttonStyle(.plain)
+                                        .disabled(currentScreenshotIndex >= screenshots.count - 1)
+                                    }
+                                    .padding(.horizontal, 8)
+                                }
+                            }
+
+                            // Dot indicators (if multiple screenshots)
+                            if screenshots.count > 1 {
+                                HStack(spacing: 6) {
+                                    Spacer()
+                                    ForEach(0..<screenshots.count, id: \.self) { index in
+                                        Circle()
+                                            .fill(index == currentScreenshotIndex ? pinkColor : pinkColor.opacity(0.3))
+                                            .frame(width: 6, height: 6)
+                                            .onTapGesture {
+                                                withAnimation(.easeInOut(duration: 0.2)) {
+                                                    currentScreenshotIndex = index
+                                                }
+                                            }
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.top, 4)
+                            }
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -229,14 +291,33 @@ struct HistoryDetailView: View {
         .frame(width: 500, height: exportFolderName.isEmpty ? 520 : 570)
         .background(softPink.opacity(0.3))
         .onAppear {
-            loadScreenshot()
+            loadScreenshots()
             checkExportFolder()
         }
     }
 
-    private func loadScreenshot() {
-        guard let filename = entry.screenshotFilename else { return }
-        screenshot = ScreenshotService.shared.loadScreenshot(filename: filename)
+    private func loadScreenshots() {
+        let filenames = entry.allScreenshotFilenames
+        screenshots = filenames.compactMap { filename in
+            ScreenshotService.shared.loadScreenshot(filename: filename)
+        }
+        currentScreenshotIndex = 0
+    }
+
+    private func previousScreenshot() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if currentScreenshotIndex > 0 {
+                currentScreenshotIndex -= 1
+            }
+        }
+    }
+
+    private func nextScreenshot() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if currentScreenshotIndex < screenshots.count - 1 {
+                currentScreenshotIndex += 1
+            }
+        }
     }
 
     private func copyText() {
@@ -254,7 +335,8 @@ struct HistoryDetailView: View {
     }
 
     private func copyScreenshot() {
-        guard let image = screenshot else { return }
+        guard !screenshots.isEmpty else { return }
+        let image = screenshots[currentScreenshotIndex]
         PasteService.shared.copyImageToClipboard(image)
 
         withAnimation(.easeInOut(duration: 0.2)) {
@@ -295,20 +377,23 @@ struct HistoryDetailView: View {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         let baseName = "govorilka_\(dateFormatter.string(from: entry.timestamp))"
 
-        // Save screenshot if available
-        if let image = screenshot {
-            let imageURL = folderURL.appendingPathComponent("\(baseName).png")
+        // Save all screenshots with numbering
+        if !screenshots.isEmpty {
+            for (index, image) in screenshots.enumerated() {
+                let suffix = screenshots.count > 1 ? "_\(index + 1)" : ""
+                let imageURL = folderURL.appendingPathComponent("\(baseName)\(suffix).png")
 
-            if let tiffData = image.tiffRepresentation,
-               let bitmapRep = NSBitmapImageRep(data: tiffData),
-               let pngData = bitmapRep.representation(using: .png, properties: [:]) {
-                do {
-                    try pngData.write(to: imageURL)
-                    print("[HistoryDetailView] Screenshot saved: \(imageURL.path)")
-                } catch {
-                    print("[HistoryDetailView] Failed to save screenshot: \(error)")
-                    saveError = "Ошибка сохранения скриншота"
-                    return
+                if let tiffData = image.tiffRepresentation,
+                   let bitmapRep = NSBitmapImageRep(data: tiffData),
+                   let pngData = bitmapRep.representation(using: .png, properties: [:]) {
+                    do {
+                        try pngData.write(to: imageURL)
+                        print("[HistoryDetailView] Screenshot \(index + 1) saved: \(imageURL.path)")
+                    } catch {
+                        print("[HistoryDetailView] Failed to save screenshot \(index + 1): \(error)")
+                        saveError = "Ошибка сохранения скриншота \(index + 1)"
+                        return
+                    }
                 }
             }
         }

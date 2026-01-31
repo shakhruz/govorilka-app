@@ -105,6 +105,82 @@ pkill -x Govorilka; rm -rf ~/Library/Developer/Xcode/DerivedData/Govorilka-* && 
 
 ---
 
+## Release билд с нотаризацией (для распространения)
+
+### Шаг 1: Собрать Release без отладочных entitlements
+
+```bash
+xcodebuild -project Govorilka.xcodeproj -scheme Govorilka -configuration Release CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO clean build 2>&1 | grep -E "(error:|BUILD)"
+```
+
+### Шаг 2: Подписать с Developer ID и timestamp
+
+```bash
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Govorilka-*/Build/Products/Release -name "Govorilka.app" -type d | head -1)
+codesign --force --options runtime --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$APP_PATH"
+```
+
+### Шаг 3: Создать и подписать DMG
+
+```bash
+VERSION=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*"\(.*\)"/\1/')
+DMG_PATH="Govorilka-${VERSION}.dmg"
+rm -f "$DMG_PATH"
+hdiutil create -volname "Govorilka" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_PATH"
+codesign --force --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$DMG_PATH"
+```
+
+### Шаг 4: Нотаризовать
+
+```bash
+xcrun notarytool submit "$DMG_PATH" --keychain-profile "notarytool" --wait
+```
+
+### Шаг 5: Staple нотаризацию
+
+```bash
+xcrun stapler staple "$DMG_PATH"
+```
+
+### Шаг 6: Проверить
+
+```bash
+spctl -a -vvv -t install "$DMG_PATH"
+# Должно показать: source=Notarized Developer ID
+```
+
+### Быстрая команда Release + Нотаризация
+
+```bash
+VERSION=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*"\(.*\)"/\1/') && \
+xcodebuild -project Govorilka.xcodeproj -scheme Govorilka -configuration Release CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO clean build 2>&1 | grep BUILD && \
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Govorilka-*/Build/Products/Release -name "Govorilka.app" -type d | head -1) && \
+codesign --force --options runtime --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$APP_PATH" && \
+rm -f "Govorilka-${VERSION}.dmg" && \
+hdiutil create -volname "Govorilka" -srcfolder "$APP_PATH" -ov -format UDZO "Govorilka-${VERSION}.dmg" && \
+codesign --force --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "Govorilka-${VERSION}.dmg" && \
+xcrun notarytool submit "Govorilka-${VERSION}.dmg" --keychain-profile "notarytool" --wait && \
+xcrun stapler staple "Govorilka-${VERSION}.dmg" && \
+echo "✅ Govorilka-${VERSION}.dmg готов к распространению!"
+```
+
+---
+
+## Настройка нотаризации (один раз)
+
+Для сохранения credentials:
+
+```bash
+xcrun notarytool store-credentials "notarytool" \
+  --apple-id "shakhruz.ashirov@ya.ru" \
+  --team-id "TZY7G965L4" \
+  --password "APP_SPECIFIC_PASSWORD"
+```
+
+App-specific password создаётся на [appleid.apple.com](https://appleid.apple.com/account/manage) → Sign-In and Security → App-Specific Passwords.
+
+---
+
 ## Troubleshooting
 
 ### Версия не обновляется
@@ -119,4 +195,21 @@ pkill -x Govorilka; rm -rf ~/Library/Developer/Xcode/DerivedData/Govorilka-* && 
 ### Тесты перед билдом
 ```bash
 xcodebuild -project Govorilka.xcodeproj -scheme GovorilkaTests -destination 'platform=macOS' test 2>&1 | grep -E "(Executed|passed|failed)"
+```
+
+### Нотаризация не проходит
+
+**"The signature does not include a secure timestamp"**
+- Добавь `--timestamp` при подписи
+
+**"The executable requests the com.apple.security.get-task-allow entitlement"**
+- Собери с `CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO`
+
+**"Invalid credentials" (401)**
+- Проверь Apple ID и Team ID
+- Создай новый app-specific password
+
+**Проверить логи нотаризации:**
+```bash
+xcrun notarytool log SUBMISSION_ID --keychain-profile "notarytool"
 ```

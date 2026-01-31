@@ -9,6 +9,9 @@ struct SettingsView: View {
     @State private var apiKeyInput = ""
     @State private var showApiKey = false
     @State private var exportFolderName: String = "Не выбрана"
+    @State private var llmApiKeyInput = ""
+    @State private var showLLMApiKey = false
+    @State private var llmApiKeySaved = false
 
     // Theme colors (use centralized Theme constants)
     private let pinkColor = Theme.pink
@@ -104,6 +107,108 @@ struct SettingsView: View {
                         }
 
                         Text("$200 кредитов при регистрации")
+                            .font(.system(size: 10))
+                            .foregroundColor(textColor.opacity(0.5))
+                    }
+                }
+
+                // AI Touch section
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SettingsCardHeader(
+                            icon: "wand.and.stars",
+                            title: "AI Touch",
+                            color: pinkColor
+                        )
+
+                        Text("Улучшение транскрипции с помощью ИИ")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.5))
+
+                        HStack(spacing: 8) {
+                            if showLLMApiKey {
+                                TextField("Введите Groq API ключ", text: $llmApiKeyInput)
+                                    .textFieldStyle(.plain)
+                                    .foregroundColor(textColor)
+                                    .padding(10)
+                                    .background(softPink)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            } else {
+                                SecureField("Введите Groq API ключ", text: $llmApiKeyInput)
+                                    .textFieldStyle(.plain)
+                                    .foregroundColor(textColor)
+                                    .padding(10)
+                                    .background(softPink)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+
+                            Button(action: { showLLMApiKey.toggle() }) {
+                                Image(systemName: showLLMApiKey ? "eye.slash.fill" : "eye.fill")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(textColor.opacity(0.5))
+                                    .frame(width: 32, height: 32)
+                                    .background(softPink)
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                appState.saveLLMApiKey(llmApiKeyInput)
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    llmApiKeySaved = true
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        llmApiKeySaved = false
+                                    }
+                                }
+                            }) {
+                                Text("Сохранить")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [pinkColor, lightPink],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(llmApiKeyInput.isEmpty)
+                            .opacity(llmApiKeyInput.isEmpty ? 0.5 : 1)
+
+                            if llmApiKeySaved || StorageService.shared.hasLLMApiKey {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(pinkColor)
+                                    Text("Сохранён")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(textColor.opacity(0.6))
+                                }
+                            }
+                        }
+
+                        Divider()
+                            .padding(.vertical, 2)
+
+                        Link(destination: URL(string: "https://console.groq.com/keys")!) {
+                            HStack(spacing: 6) {
+                                Text("🔑")
+                                Text("Получить API ключ")
+                                    .font(.system(size: 12, weight: .medium))
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 9))
+                            }
+                            .foregroundColor(pinkColor)
+                        }
+
+                        Text("Бесплатно: 30 запросов/мин")
                             .font(.system(size: 10))
                             .foregroundColor(textColor.opacity(0.5))
                     }
@@ -607,6 +712,7 @@ struct SettingsView: View {
         .background(softPink.opacity(0.3))
         .onAppear {
             apiKeyInput = appState.apiKey
+            llmApiKeyInput = StorageService.shared.llmApiKey ?? ""
             appState.refreshAccessibilityStatus()
             appState.refreshScreenRecordingStatus()
             updateExportFolderName()

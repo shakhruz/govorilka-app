@@ -3,13 +3,21 @@ import SwiftUI
 /// Pro mode review dialog view
 struct ProReviewView: View {
     let data: ProReviewData
-    let onSave: () -> Void
+    let onSave: (String) -> Void
     let onCancel: () -> Void
 
     @State private var copiedScreenshot = false
     @State private var copiedText = false
     @State private var exportFolderName: String = ""
     @State private var currentScreenshotIndex = 0
+
+    // AI Touch state
+    @State private var currentTranscript: String = ""
+    @State private var transcriptHistory: [String] = []
+    @State private var isProcessingAI = false
+    @State private var aiError: String?
+
+    private let llmService = LLMService.shared
 
     // Theme colors (use centralized Theme constants)
     private let pinkColor = Theme.pink
@@ -143,7 +151,7 @@ struct ProReviewView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
 
-                    // Transcript preview with copy button
+                    // Transcript preview with copy button and AI Touch
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image(systemName: "text.alignleft")
@@ -173,13 +181,80 @@ struct ProReviewView: View {
                         }
 
                         ScrollView {
-                            Text(data.transcript)
+                            Text(currentTranscript)
                                 .font(.system(size: 13))
                                 .foregroundColor(textColor)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .textSelection(.enabled)
                         }
                         .frame(height: 80)
+
+                        // AI Touch controls
+                        HStack(spacing: 8) {
+                            // Undo button (if history exists)
+                            if !transcriptHistory.isEmpty {
+                                Button(action: undoAITouch) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "arrow.uturn.backward")
+                                            .font(.system(size: 10))
+                                        Text("Назад")
+                                            .font(.system(size: 10, weight: .medium))
+                                    }
+                                    .foregroundColor(pinkColor)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(pinkColor.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            Spacer()
+
+                            // AI Touch button
+                            Button(action: performAITouch) {
+                                HStack(spacing: 4) {
+                                    if isProcessingAI {
+                                        ProgressView()
+                                            .scaleEffect(0.6)
+                                            .frame(width: 12, height: 12)
+                                    } else {
+                                        Image(systemName: "wand.and.stars")
+                                            .font(.system(size: 10))
+                                    }
+                                    Text(isProcessingAI ? "Улучшаю..." : "AI Touch")
+                                        .font(.system(size: 10, weight: .semibold))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    LinearGradient(
+                                        colors: [pinkColor, lightPink],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .opacity(isProcessingAI || !StorageService.shared.hasLLMApiKey ? 0.6 : 1)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(isProcessingAI || !StorageService.shared.hasLLMApiKey)
+                        }
+
+                        // Error message
+                        if let error = aiError {
+                            Text(error)
+                                .font(.system(size: 10))
+                                .foregroundColor(.red.opacity(0.8))
+                        }
+
+                        // Hint for API key
+                        if !StorageService.shared.hasLLMApiKey {
+                            Text("Добавьте Groq API ключ в настройках")
+                                .font(.system(size: 10))
+                                .foregroundColor(textColor.opacity(0.5))
+                        }
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -222,7 +297,7 @@ struct ProReviewView: View {
 
                 Spacer()
 
-                Button(action: { onSave() }) {
+                Button(action: { onSave(currentTranscript) }) {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark")
                             .font(.system(size: 11, weight: .bold))
@@ -248,11 +323,50 @@ struct ProReviewView: View {
             .padding(.vertical, 14)
             .background(softPink.opacity(0.5))
         }
-        .frame(width: 500, height: 480)
+        .frame(width: 500, height: 520)
         .background(softPink.opacity(0.3))
+        .preferredColorScheme(.light)
         .onAppear {
+            currentTranscript = data.transcript
             checkExportFolder()
         }
+    }
+
+    // MARK: - AI Touch Methods
+
+    private func performAITouch() {
+        guard !isProcessingAI else { return }
+
+        isProcessingAI = true
+        aiError = nil
+
+        // Save current text to history before modification
+        transcriptHistory.append(currentTranscript)
+
+        Task {
+            do {
+                let improvedText = try await llmService.improveText(currentTranscript)
+                await MainActor.run {
+                    currentTranscript = improvedText
+                    isProcessingAI = false
+                }
+            } catch {
+                await MainActor.run {
+                    // Restore from history on error
+                    if let lastText = transcriptHistory.popLast() {
+                        currentTranscript = lastText
+                    }
+                    aiError = error.localizedDescription
+                    isProcessingAI = false
+                }
+            }
+        }
+    }
+
+    private func undoAITouch() {
+        guard let previousText = transcriptHistory.popLast() else { return }
+        currentTranscript = previousText
+        aiError = nil
     }
 
     private var formattedDuration: String {
@@ -313,7 +427,7 @@ struct ProReviewView: View {
     }
 
     private func copyText() {
-        PasteService.shared.copyToClipboard(data.transcript)
+        PasteService.shared.copyToClipboard(currentTranscript)
 
         withAnimation(.easeInOut(duration: 0.2)) {
             copiedText = true
@@ -335,7 +449,7 @@ struct ProReviewView: View {
             duration: 15.5,
             timestamp: Date()
         ),
-        onSave: {},
+        onSave: { _ in },
         onCancel: {}
     )
 }

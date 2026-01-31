@@ -82,6 +82,80 @@ final class KeychainService {
     var hasApiKey: Bool {
         loadApiKey() != nil && !(loadApiKey()?.isEmpty ?? true)
     }
+
+    // MARK: - LLM API Key (Groq)
+
+    private let llmApiKeyAccount = "llm_api_key"
+
+    /// Save LLM API key to Keychain
+    /// - Parameter key: The API key to store
+    /// - Throws: KeychainError if save fails
+    func saveLLMApiKey(_ key: String) throws {
+        guard let data = key.data(using: .utf8) else {
+            throw KeychainError.encodingFailed
+        }
+
+        // Delete existing item first
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: llmApiKeyAccount
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+
+        // Add new item
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: llmApiKeyAccount,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked
+        ]
+
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+
+        guard status == errSecSuccess else {
+            throw KeychainError.saveFailed(status)
+        }
+    }
+
+    /// Load LLM API key from Keychain
+    /// - Returns: The stored API key, or nil if not found
+    func loadLLMApiKey() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: llmApiKeyAccount,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let key = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+
+        return key
+    }
+
+    /// Delete LLM API key from Keychain
+    func deleteLLMApiKey() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: llmApiKeyAccount
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
+    /// Check if LLM API key exists in Keychain
+    var hasLLMApiKey: Bool {
+        loadLLMApiKey() != nil && !(loadLLMApiKey()?.isEmpty ?? true)
+    }
 }
 
 // MARK: - Errors

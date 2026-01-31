@@ -4,7 +4,7 @@ import SwiftUI
 /// Data passed to the Pro review window
 struct ProReviewData {
     let screenshots: [NSImage]  // Support multiple screenshots
-    let transcript: String
+    var transcript: String
     let duration: TimeInterval
     let timestamp: Date
 
@@ -88,8 +88,10 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] in
-                self?.handleSave(data: data)
+            onSave: { [weak self] editedTranscript in
+                var updatedData = data
+                updatedData.transcript = editedTranscript
+                self?.handleSave(data: updatedData)
             },
             onCancel: { [weak self] in
                 self?.handleCancel()
@@ -101,7 +103,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         // Create window
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 500, height: 480),
+            contentRect: NSRect(x: 0, y: 0, width: 500, height: 520),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -109,6 +111,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         window.contentView = hostingView
         window.title = "Обратная связь для агента"
+        window.appearance = NSAppearance(named: .aqua)
         window.isReleasedWhenClosed = false
         window.level = .floating
         window.collectionBehavior = [.canJoinAllSpaces]
@@ -163,8 +166,10 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] in
-                self?.handleSave(data: data)
+            onSave: { [weak self] editedTranscript in
+                var updatedData = data
+                updatedData.transcript = editedTranscript
+                self?.handleSave(data: updatedData)
             },
             onCancel: { [weak self] in
                 self?.handleCancel()

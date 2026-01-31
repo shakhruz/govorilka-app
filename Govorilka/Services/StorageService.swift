@@ -87,6 +87,30 @@ final class StorageService {
         }
     }
 
+    // MARK: - LLM API Key (stored in Keychain for security)
+
+    var llmApiKey: String? {
+        get {
+            return keychain.loadLLMApiKey()
+        }
+        set {
+            if let key = newValue, !key.isEmpty {
+                do {
+                    try keychain.saveLLMApiKey(key)
+                } catch {
+                    print("[StorageService] Failed to save LLM API key to Keychain: \(error)")
+                }
+            } else {
+                keychain.deleteLLMApiKey()
+            }
+        }
+    }
+
+    var hasLLMApiKey: Bool {
+        guard let key = llmApiKey else { return false }
+        return !key.isEmpty
+    }
+
     // MARK: - Settings
 
     var autoPasteEnabled: Bool {

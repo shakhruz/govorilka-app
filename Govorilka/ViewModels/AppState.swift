@@ -655,6 +655,11 @@ final class AppState: ObservableObject {
         storage.soundsEnabled = enabled
     }
 
+    /// Save LLM API key
+    func saveLLMApiKey(_ key: String) {
+        storage.llmApiKey = key
+    }
+
     /// Save export folder
     func saveExportFolder(_ url: URL) {
         storage.saveExportFolder(url)

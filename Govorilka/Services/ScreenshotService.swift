@@ -226,7 +226,7 @@ final class ScreenshotService {
         var sanitized = transliterate(filename)
 
         // Remove invalid filesystem characters
-        let invalidCharacters = CharacterSet(charactersIn: "/\\?%*|\"<>:")
+        let invalidCharacters = CharacterSet(charactersIn: "/\\?%*|\"<>:'")
         sanitized = sanitized.components(separatedBy: invalidCharacters).joined(separator: "")
 
         // Replace any whitespace (including Unicode spaces like \u202f) with underscores

@@ -316,31 +316,17 @@ final class AppState: ObservableObject {
         capturedScreenshots = []
         isStopping = false
 
-        // Pro mode: show review dialog
-        if wasProRecording, let proScreenshot = screenshot, !finalText.isEmpty {
-            pendingDuration = duration
-            proReviewController.show(
-                screenshot: proScreenshot,
-                transcript: finalText,
-                duration: duration,
-                onSave: { [weak self] data in
-                    self?.handleProSave(data: data)
-                },
-                onCancel: { [weak self] in
-                    self?.handleProCancel()
-                }
-            )
-
-            // Reset disconnect flag after a delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.isDisconnecting = false
-            }
-            return
+        // Combine Pro mode initial screenshot with camera button screenshots
+        var allScreenshots: [NSImage] = []
+        if let proScreenshot = screenshot {
+            allScreenshots.append(proScreenshot)
         }
+        allScreenshots.append(contentsOf: screenshots)
 
-        // If screenshots were captured during recording (camera button), save as feedback
-        if !screenshots.isEmpty && !finalText.isEmpty {
-            handleMultiScreenshotFeedback(screenshots: screenshots, text: finalText, duration: duration)
+        // Pro mode or camera button screenshots: show review dialog
+        if !allScreenshots.isEmpty && !finalText.isEmpty {
+            pendingDuration = duration
+            handleMultiScreenshotFeedback(screenshots: allScreenshots, text: finalText, duration: duration)
 
             // Reset disconnect flag after a delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -747,11 +733,12 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Request accessibility permission
+    /// Request accessibility permission - opens System Settings directly
     func requestAccessibility() {
-        pasteService.requestAccessibilityPermission()
+        // Open System Settings directly - the prompt dialog only works once
+        pasteService.openAccessibilitySettings()
         // Check again after a delay (user might grant permission)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.hasAccessibilityPermission = self?.pasteService.hasAccessibilityPermission() ?? false
         }
     }

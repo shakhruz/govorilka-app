@@ -236,22 +236,22 @@ struct HistoryDetailView: View {
                 .padding(16)
             }
 
-            // Bottom bar with save button
-            if !exportFolderName.isEmpty {
-                VStack(spacing: 8) {
-                    // Error message if any
-                    if let error = saveError {
-                        HStack(spacing: 6) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.orange)
-                                .font(.system(size: 11))
-                            Text(error)
-                                .font(.system(size: 11))
-                                .foregroundColor(.orange)
-                        }
+            // Bottom bar with save button (always visible)
+            VStack(spacing: 8) {
+                // Error message if any
+                if let error = saveError {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 11))
+                        Text(error)
+                            .font(.system(size: 11))
+                            .foregroundColor(.orange)
                     }
+                }
 
-                    HStack {
+                HStack {
+                    if !exportFolderName.isEmpty {
                         // Folder info
                         HStack(spacing: 6) {
                             Image(systemName: "folder.fill")
@@ -270,7 +270,7 @@ struct HistoryDetailView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: savedToFolder ? "checkmark" : "square.and.arrow.down")
                                     .font(.system(size: 11, weight: .medium))
-                                Text(savedToFolder ? "Сохранено!" : "Сохранить в папку")
+                                Text(savedToFolder ? "Сохранено!" : "Сохранить")
                                     .font(.system(size: 12, weight: .medium))
                             }
                             .foregroundColor(savedToFolder ? .white : pinkColor)
@@ -281,14 +281,36 @@ struct HistoryDetailView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(savedToFolder)
+                    } else {
+                        // No folder selected - show select button
+                        Text("Выберите папку для сохранения")
+                            .font(.system(size: 11))
+                            .foregroundColor(textColor.opacity(0.6))
+
+                        Spacer()
+
+                        Button(action: selectExportFolder) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "folder.badge.plus")
+                                    .font(.system(size: 11, weight: .medium))
+                                Text("Выбрать папку")
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(pinkColor)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(softPink.opacity(0.5))
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(softPink.opacity(0.5))
         }
-        .frame(width: 500, height: exportFolderName.isEmpty ? 520 : 570)
+        .frame(width: 500, height: 570)
         .background(softPink.opacity(0.3))
         .onAppear {
             loadScreenshots()
@@ -356,6 +378,20 @@ struct HistoryDetailView: View {
             StorageService.shared.stopAccessingExportFolder(url)
         } else {
             exportFolderName = ""
+        }
+    }
+
+    private func selectExportFolder() {
+        let panel = NSOpenPanel()
+        panel.title = "Выберите папку для экспорта"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK, let url = panel.url {
+            StorageService.shared.saveExportFolder(url)
+            exportFolderName = url.lastPathComponent
         }
     }
 

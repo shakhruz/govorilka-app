@@ -70,7 +70,7 @@ struct MenuBarView: View {
                     Image(systemName: "heart.fill")
                         .font(.system(size: 8))
                         .foregroundColor(pinkColor)
-                    Text("Говорилка v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
+                    Text("Говорилка v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(textColor.opacity(0.5))
                 }

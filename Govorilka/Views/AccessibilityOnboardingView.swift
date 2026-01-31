@@ -134,7 +134,7 @@ struct AccessibilityOnboardingView: View {
 
             instructionRow(
                 icon: "1️⃣",
-                title: "⌥ + Пробел",
+                title: "Правый ⌘",
                 subtitle: "Начнётся запись голоса"
             )
 
@@ -146,20 +146,20 @@ struct AccessibilityOnboardingView: View {
 
             instructionRow(
                 icon: "3️⃣",
-                title: "Снова ⌥ + Пробел",
+                title: "Снова ⌘",
                 subtitle: "Текст появится там, где курсор"
             )
 
             // Keyboard hint
             HStack(spacing: 8) {
-                KeyboardKeyView(text: "⌥")
+                KeyboardKeyView(text: "⌘")
                 Text("→")
                     .foregroundColor(textColor.opacity(0.5))
                 Image(systemName: "mic.fill")
                     .foregroundColor(pinkColor)
                 Text("→")
                     .foregroundColor(textColor.opacity(0.5))
-                KeyboardKeyView(text: "⌥")
+                KeyboardKeyView(text: "⌘")
                 Text("→")
                     .foregroundColor(textColor.opacity(0.5))
                 Image(systemName: "doc.on.clipboard.fill")

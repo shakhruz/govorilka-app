@@ -1,3 +1,4 @@
+import AppKit
 import AVFoundation
 import Combine
 import Foundation
@@ -58,6 +59,13 @@ final class AudioService {
             return false
         @unknown default:
             return false
+        }
+    }
+
+    /// Open Microphone preferences in System Settings
+    func openMicrophoneSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
+            NSWorkspace.shared.open(url)
         }
     }
 

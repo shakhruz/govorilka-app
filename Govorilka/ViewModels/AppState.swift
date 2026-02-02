@@ -191,7 +191,9 @@ final class AppState: ObservableObject {
             let hasPermission = await audioService.requestPermission()
 
             guard hasPermission else {
-                showError(message: "Доступ к микрофону запрещён")
+                await MainActor.run {
+                    showMicrophonePermissionAlert()
+                }
                 return
             }
 
@@ -735,6 +737,30 @@ final class AppState: ObservableObject {
 
         if response == .alertFirstButtonReturn {
             screenshotService.openScreenRecordingSettings()
+        }
+    }
+
+    /// Show friendly alert for Microphone permission
+    private func showMicrophonePermissionAlert() {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = "Нужен доступ к микрофону"
+        alert.informativeText = """
+        Чтобы использовать голосовой ввод:
+
+        1. Откройте Настройки → Конфиденциальность → Микрофон
+        2. Найдите «Govorilka» и включите тумблер
+        3. Попробуйте записать снова
+
+        Если приложения нет в списке, нажмите «+» и добавьте его.
+        """
+        alert.addButton(withTitle: "Открыть настройки")
+        alert.addButton(withTitle: "Позже")
+
+        let response = alert.runModal()
+
+        if response == .alertFirstButtonReturn {
+            audioService.openMicrophoneSettings()
         }
     }
 

@@ -120,13 +120,15 @@ APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Govorilka-*/Build/Products
 codesign --force --options runtime --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$APP_PATH"
 ```
 
-### Шаг 3: Создать и подписать DMG
+### Шаг 3: Создать брендированный DMG
 
 ```bash
+# Красивый DMG с Applications symlink и фоном
+./scripts/create-dmg.sh "$APP_PATH"
+
+# Подписать DMG
 VERSION=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*"\(.*\)"/\1/')
 DMG_PATH="Govorilka-${VERSION}.dmg"
-rm -f "$DMG_PATH"
-hdiutil create -volname "Govorilka" -srcfolder "$APP_PATH" -ov -format UDZO "$DMG_PATH"
 codesign --force --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$DMG_PATH"
 ```
 
@@ -156,8 +158,7 @@ VERSION=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*"\(.*\)"/\1/') && \
 xcodebuild -project Govorilka.xcodeproj -scheme Govorilka -configuration Release CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO clean build 2>&1 | grep BUILD && \
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData/Govorilka-*/Build/Products/Release -name "Govorilka.app" -type d | head -1) && \
 codesign --force --options runtime --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "$APP_PATH" && \
-rm -f "Govorilka-${VERSION}.dmg" && \
-hdiutil create -volname "Govorilka" -srcfolder "$APP_PATH" -ov -format UDZO "Govorilka-${VERSION}.dmg" && \
+./scripts/create-dmg.sh "$APP_PATH" && \
 codesign --force --timestamp --sign "Developer ID Application: Shakhruz Ashirov (TZY7G965L4)" "Govorilka-${VERSION}.dmg" && \
 xcrun notarytool submit "Govorilka-${VERSION}.dmg" --keychain-profile "notarytool" --wait && \
 xcrun stapler staple "Govorilka-${VERSION}.dmg" && \

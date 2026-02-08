@@ -17,6 +17,7 @@ final class StorageService {
         static let maxHistoryCount = "max_history_count"
         static let onboardingCompleted = "onboarding_completed"
         static let accessibilityOnboardingSkipped = "accessibility_onboarding_skipped"
+        static let permissionsOnboardingCompleted = "permissions_onboarding_completed"
         // Pro mode
         static let proModeEnabled = "pro_mode_enabled"
         static let proExportFolderBookmark = "pro_export_folder_bookmark"
@@ -147,6 +148,11 @@ final class StorageService {
     var accessibilityOnboardingSkipped: Bool {
         get { defaults.bool(forKey: Keys.accessibilityOnboardingSkipped) }
         set { defaults.set(newValue, forKey: Keys.accessibilityOnboardingSkipped) }
+    }
+
+    var permissionsOnboardingCompleted: Bool {
+        get { defaults.bool(forKey: Keys.permissionsOnboardingCompleted) }
+        set { defaults.set(newValue, forKey: Keys.permissionsOnboardingCompleted) }
     }
 
     // MARK: - Pro Mode
@@ -281,6 +287,7 @@ final class StorageService {
         defaults.removeObject(forKey: Keys.maxHistoryCount)
         defaults.removeObject(forKey: Keys.onboardingCompleted)
         defaults.removeObject(forKey: Keys.accessibilityOnboardingSkipped)
+        defaults.removeObject(forKey: Keys.permissionsOnboardingCompleted)
         defaults.removeObject(forKey: Keys.proModeEnabled)
         defaults.removeObject(forKey: Keys.proExportFolderBookmark)
         defaults.removeObject(forKey: Keys.textCleaningEnabled)

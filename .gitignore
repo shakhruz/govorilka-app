@@ -1,8 +1,8 @@
 # Xcode
-*.xcodeproj/
+*.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
-*.xcworkspace/
+*.xcworkspace/*
 !*.xcworkspace/contents.xcworkspacedata
 !*.xcworkspace/xcshareddata/
 xcuserdata/

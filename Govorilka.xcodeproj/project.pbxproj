@@ -1,0 +1,666 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0243B5CF89917458EFB01691 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A9C549951A2BC217E1C07F /* MenuBarView.swift */; };
+		096BBE9A55730326652F916C /* FloatingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFC5F9F34A845647BB9B1FC /* FloatingWindowController.swift */; };
+		0E1BF550099257798B0B2693 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FE60E9B51F4022412289D0 /* AudioService.swift */; };
+		0ECBC1B1D8A3EF4CC8734A82 /* SoundService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2603AFF6258AD1E09C377641 /* SoundService.swift */; };
+		106F127ABD116EB8C1D52229 /* RecordingStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B6877901F481CABCCDBF43 /* RecordingStateTests.swift */; };
+		17DDB75842D4721708EB773F /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D44FDC7493465230B5E331 /* StorageService.swift */; };
+		19989EFDEFCCBB9635BEC1E2 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D6A84EAAFA095E09578DBE /* AppState.swift */; };
+		1A1F0DACB5189594407E9355 /* TextCleanerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C9087C30BFA30D3A618232 /* TextCleanerService.swift */; };
+		20A96470BA8BB680A760C09B /* HistoryDetailWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E250FC29C84ECC694048C63 /* HistoryDetailWindowController.swift */; };
+		299FAB5A8080DF81FE1EB746 /* SmilingCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E60E5CAF62985B3F06C482 /* SmilingCloudView.swift */; };
+		33EB48775C405362A5A6C69E /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936B01394EF0F7B881518BE5 /* LLMService.swift */; };
+		456C232012DF381954080B4D /* FloatingRecorderWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A44195148F1616C269CE52E /* FloatingRecorderWindow.swift */; };
+		4C3DBDB7BE08C05C1AC51605 /* HistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E61F3CE536009E7801CFB596 /* HistoryDetailView.swift */; };
+		50299F9644442B3FAB7FC0FD /* ProModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B4316517E587DB76DCD0108 /* ProModeTests.swift */; };
+		58986912C37E1DCF68929757 /* DeepgramHTTPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C72B55DB30B06A1A265AEB /* DeepgramHTTPService.swift */; };
+		5F3CC87CF6AEEC89E0B6354C /* StorageServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE2BD4A2AD85D029322B65C /* StorageServiceTests.swift */; };
+		61848C67C3253DDF381D7F4C /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7588F7A7CA27E8B1A6686EC /* RecordingView.swift */; };
+		650003D70B00F5325544B772 /* ScreenshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F33E0DD307C7C4B98829B45 /* ScreenshotService.swift */; };
+		6996427157C0036856B59256 /* ThemeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD1A2CB3759F12865113314 /* ThemeConstants.swift */; };
+		7527E671DD2E72F0D804EB16 /* HotkeyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E6BBF1EA9C545DAE240847 /* HotkeyServiceTests.swift */; };
+		7B6F677A430290E3C49D8B83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4CA4DBB6E593D733AA4B31B /* Assets.xcassets */; };
+		7C05E2BF3AEF47793D5E586D /* DeepgramService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91AAF090D0F547EA19BCC4A /* DeepgramService.swift */; };
+		84297F4CDD9FA3D83A90C0FB /* ScreenshotServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54419EB52970786B789F6D01 /* ScreenshotServiceTests.swift */; };
+		850BB48DDFE317851084640E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDADC2B27EB8C29826C737B /* SettingsView.swift */; };
+		893B30637E6FFE59A8523849 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9089D477DCC5BF9E0486D597 /* PurchaseService.swift */; };
+		8A5BA1689CD6524F3D271A49 /* ProReviewWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A639FD85ECBB82F1761093D /* ProReviewWindowController.swift */; };
+		8BF91B4F9B9588B47237A625 /* PasteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E4CA10DC86728F14795904 /* PasteServiceTests.swift */; };
+		919BDBCD41D1C6A76295E086 /* HotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0B213263B0769790A7A80 /* HotkeyService.swift */; };
+		921017EB69FD8284E73413A9 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = BCD0628DC262D66E4E15B377 /* KeyboardShortcuts */; };
+		ACF80595EF70D115747F4247 /* OnboardingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52763627CA9B5D060D1BF1DA /* OnboardingWindowController.swift */; };
+		B0888BC53FCDC53F1E409469 /* TranscriptEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A6978899A0B1C2 /* PermissionManager.swift */; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* PermissionStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D3C4B5A697889900A1B2C3 /* PermissionStatusView.swift */; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* OnboardingPermissionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C4B5A69788990011A2B3C4 /* OnboardingPermissionsView.swift */; };
+		BD5EBA497B55211A9DFD7203 /* CompactCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C569D22B5B2C70C2FE5E1B81 /* CompactCloudView.swift */; };
+		C9BF027C49BDF0F7D03DE29A /* ProReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08B3C26940F3453FBC8ABE6 /* ProReviewView.swift */; };
+		CF79D9318CED93233D20E6E0 /* menubar-icon.svg in Resources */ = {isa = PBXBuildFile; fileRef = 55AE8AE8EF6951A4343DFBF1 /* menubar-icon.svg */; };
+		D7355B0ADBF2B59BD14BCE33 /* CircularWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B868188F3AF6AC89D06FE5A /* CircularWaveformView.swift */; };
+		E092087E11F436DB617366F0 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFA5E58A1F9F51854D4323 /* KeychainService.swift */; };
+		E5C2CAFC53CDFAC8E5C64A80 /* PasteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C46B70F83CE1637AB8933B /* PasteService.swift */; };
+		E9B8BAA6707DFE58598BE5FA /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16AE56CBD17BDFFF4AADD42 /* HistoryView.swift */; };
+		FD1C68ED97449717CAAD93C9 /* LocalRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C19EA5577A811114CB9CF78 /* LocalRecorderService.swift */; };
+		FE0D0A530FA9FDC44836C921 /* GovorilkaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE94DB0A038872262A98C747 /* GovorilkaApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FCF2E5AD9D91C79D0CE57B90 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8FE5E0B44632B306A1AEBF5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B4712AC7697B5EE94191524;
+			remoteInfo = Govorilka;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01E60E5CAF62985B3F06C482 /* SmilingCloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmilingCloudView.swift; sourceTree = "<group>"; };
+		02C46B70F83CE1637AB8933B /* PasteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteService.swift; sourceTree = "<group>"; };
+		07FE60E9B51F4022412289D0 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
+		0AFC5F9F34A845647BB9B1FC /* FloatingWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowController.swift; sourceTree = "<group>"; };
+		0B868188F3AF6AC89D06FE5A /* CircularWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularWaveformView.swift; sourceTree = "<group>"; };
+		0C19EA5577A811114CB9CF78 /* LocalRecorderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRecorderService.swift; sourceTree = "<group>"; };
+		0CE2BD4A2AD85D029322B65C /* StorageServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageServiceTests.swift; sourceTree = "<group>"; };
+		1E250FC29C84ECC694048C63 /* HistoryDetailWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailWindowController.swift; sourceTree = "<group>"; };
+		20D6A84EAAFA095E09578DBE /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		2603AFF6258AD1E09C377641 /* SoundService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundService.swift; sourceTree = "<group>"; };
+		2F33E0DD307C7C4B98829B45 /* ScreenshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotService.swift; sourceTree = "<group>"; };
+		2FD1A2CB3759F12865113314 /* ThemeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeConstants.swift; sourceTree = "<group>"; };
+		327382642EB555A905CA5D1C /* Govorilka.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Govorilka.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A264EB451C66798F8A223BA /* GovorilkaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GovorilkaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A44195148F1616C269CE52E /* FloatingRecorderWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingRecorderWindow.swift; sourceTree = "<group>"; };
+		3BDADC2B27EB8C29826C737B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		52763627CA9B5D060D1BF1DA /* OnboardingWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWindowController.swift; sourceTree = "<group>"; };
+		54419EB52970786B789F6D01 /* ScreenshotServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotServiceTests.swift; sourceTree = "<group>"; };
+		55AE8AE8EF6951A4343DFBF1 /* menubar-icon.svg */ = {isa = PBXFileReference; path = "menubar-icon.svg"; sourceTree = "<group>"; };
+		55C72B55DB30B06A1A265AEB /* DeepgramHTTPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramHTTPService.swift; sourceTree = "<group>"; };
+		6A639FD85ECBB82F1761093D /* ProReviewWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProReviewWindowController.swift; sourceTree = "<group>"; };
+		7B4316517E587DB76DCD0108 /* ProModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProModeTests.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A6978899A0B1C2 /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		E2D3C4B5A697889900A1B2C3 /* PermissionStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionStatusView.swift; sourceTree = "<group>"; };
+		D3C4B5A69788990011A2B3C4 /* OnboardingPermissionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPermissionsView.swift; sourceTree = "<group>"; };
+		81A9C549951A2BC217E1C07F /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		84E4CA10DC86728F14795904 /* PasteServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteServiceTests.swift; sourceTree = "<group>"; };
+		9089D477DCC5BF9E0486D597 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
+		91B6877901F481CABCCDBF43 /* RecordingStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingStateTests.swift; sourceTree = "<group>"; };
+		936B01394EF0F7B881518BE5 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
+		A1D0B213263B0769790A7A80 /* HotkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyService.swift; sourceTree = "<group>"; };
+		A4CA4DBB6E593D733AA4B31B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AE94DB0A038872262A98C747 /* GovorilkaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GovorilkaApp.swift; sourceTree = "<group>"; };
+		B16AE56CBD17BDFFF4AADD42 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		B5E6BBF1EA9C545DAE240847 /* HotkeyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyServiceTests.swift; sourceTree = "<group>"; };
+		B5EFA5E58A1F9F51854D4323 /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		C569D22B5B2C70C2FE5E1B81 /* CompactCloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactCloudView.swift; sourceTree = "<group>"; };
+		C9C9087C30BFA30D3A618232 /* TextCleanerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCleanerService.swift; sourceTree = "<group>"; };
+		CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEntry.swift; sourceTree = "<group>"; };
+		D7588F7A7CA27E8B1A6686EC /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
+		D8D44FDC7493465230B5E331 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		E52DC75818BA678D8333FA45 /* Govorilka.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Govorilka.entitlements; sourceTree = "<group>"; };
+		E61F3CE536009E7801CFB596 /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
+		E662FC4D7E614147AD0693EF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F08B3C26940F3453FBC8ABE6 /* ProReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProReviewView.swift; sourceTree = "<group>"; };
+		F91AAF090D0F547EA19BCC4A /* DeepgramService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepgramService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		80D20456017212188571D559 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				921017EB69FD8284E73413A9 /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2937653B2AD4E33542844D02 = {
+			isa = PBXGroup;
+			children = (
+				5D282D170A4CCC9F0F809FCB /* Govorilka */,
+				35436B65A1BB5FA30D56C4DA /* GovorilkaTests */,
+				E9B732FE34E9B99C56BAB25D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2C7132D0130DC85349B0EEFC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				07FE60E9B51F4022412289D0 /* AudioService.swift */,
+				55C72B55DB30B06A1A265AEB /* DeepgramHTTPService.swift */,
+				F91AAF090D0F547EA19BCC4A /* DeepgramService.swift */,
+				A1D0B213263B0769790A7A80 /* HotkeyService.swift */,
+				B5EFA5E58A1F9F51854D4323 /* KeychainService.swift */,
+				936B01394EF0F7B881518BE5 /* LLMService.swift */,
+				0C19EA5577A811114CB9CF78 /* LocalRecorderService.swift */,
+				02C46B70F83CE1637AB8933B /* PasteService.swift */,
+				F1E2D3C4B5A6978899A0B1C2 /* PermissionManager.swift */,
+				9089D477DCC5BF9E0486D597 /* PurchaseService.swift */,
+				2F33E0DD307C7C4B98829B45 /* ScreenshotService.swift */,
+				2603AFF6258AD1E09C377641 /* SoundService.swift */,
+				D8D44FDC7493465230B5E331 /* StorageService.swift */,
+				C9C9087C30BFA30D3A618232 /* TextCleanerService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		35436B65A1BB5FA30D56C4DA /* GovorilkaTests */ = {
+			isa = PBXGroup;
+			children = (
+				B5E6BBF1EA9C545DAE240847 /* HotkeyServiceTests.swift */,
+				84E4CA10DC86728F14795904 /* PasteServiceTests.swift */,
+				7B4316517E587DB76DCD0108 /* ProModeTests.swift */,
+				91B6877901F481CABCCDBF43 /* RecordingStateTests.swift */,
+				54419EB52970786B789F6D01 /* ScreenshotServiceTests.swift */,
+				0CE2BD4A2AD85D029322B65C /* StorageServiceTests.swift */,
+			);
+			path = GovorilkaTests;
+			sourceTree = "<group>";
+		};
+		428C60242AAD6D9D1B0E0C77 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		5D282D170A4CCC9F0F809FCB /* Govorilka */ = {
+			isa = PBXGroup;
+			children = (
+				E52DC75818BA678D8333FA45 /* Govorilka.entitlements */,
+				AE94DB0A038872262A98C747 /* GovorilkaApp.swift */,
+				E662FC4D7E614147AD0693EF /* Info.plist */,
+				428C60242AAD6D9D1B0E0C77 /* Models */,
+				E26E4F4CB6AA8068818F897C /* Resources */,
+				2C7132D0130DC85349B0EEFC /* Services */,
+				685FC5FD47CDFED1932AF284 /* Theme */,
+				E44E31BE336B5F9FD6C3DD64 /* ViewModels */,
+				84615C8FE778EDF2E6784687 /* Views */,
+			);
+			path = Govorilka;
+			sourceTree = "<group>";
+		};
+		685FC5FD47CDFED1932AF284 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				2FD1A2CB3759F12865113314 /* ThemeConstants.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		84615C8FE778EDF2E6784687 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0B868188F3AF6AC89D06FE5A /* CircularWaveformView.swift */,
+				C569D22B5B2C70C2FE5E1B81 /* CompactCloudView.swift */,
+				3A44195148F1616C269CE52E /* FloatingRecorderWindow.swift */,
+				E61F3CE536009E7801CFB596 /* HistoryDetailView.swift */,
+				B16AE56CBD17BDFFF4AADD42 /* HistoryView.swift */,
+				81A9C549951A2BC217E1C07F /* MenuBarView.swift */,
+				D3C4B5A69788990011A2B3C4 /* OnboardingPermissionsView.swift */,
+				E2D3C4B5A697889900A1B2C3 /* PermissionStatusView.swift */,
+				F08B3C26940F3453FBC8ABE6 /* ProReviewView.swift */,
+				D7588F7A7CA27E8B1A6686EC /* RecordingView.swift */,
+				3BDADC2B27EB8C29826C737B /* SettingsView.swift */,
+				01E60E5CAF62985B3F06C482 /* SmilingCloudView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E26E4F4CB6AA8068818F897C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A4CA4DBB6E593D733AA4B31B /* Assets.xcassets */,
+				55AE8AE8EF6951A4343DFBF1 /* menubar-icon.svg */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E44E31BE336B5F9FD6C3DD64 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				20D6A84EAAFA095E09578DBE /* AppState.swift */,
+				0AFC5F9F34A845647BB9B1FC /* FloatingWindowController.swift */,
+				1E250FC29C84ECC694048C63 /* HistoryDetailWindowController.swift */,
+				52763627CA9B5D060D1BF1DA /* OnboardingWindowController.swift */,
+				6A639FD85ECBB82F1761093D /* ProReviewWindowController.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		E9B732FE34E9B99C56BAB25D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				327382642EB555A905CA5D1C /* Govorilka.app */,
+				3A264EB451C66798F8A223BA /* GovorilkaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5B4712AC7697B5EE94191524 /* Govorilka */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F66F907796681F0633036865 /* Build configuration list for PBXNativeTarget "Govorilka" */;
+			buildPhases = (
+				F316A473E95E0459CD9AD759 /* Sources */,
+				0C0C5FD574EC36D098C9A93E /* Resources */,
+				80D20456017212188571D559 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Govorilka;
+			packageProductDependencies = (
+				BCD0628DC262D66E4E15B377 /* KeyboardShortcuts */,
+			);
+			productName = Govorilka;
+			productReference = 327382642EB555A905CA5D1C /* Govorilka.app */;
+			productType = "com.apple.product-type.application";
+		};
+		848CDED3D5D60129A97B3FF1 /* GovorilkaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2FE05E0E589176683F19B656 /* Build configuration list for PBXNativeTarget "GovorilkaTests" */;
+			buildPhases = (
+				5858D281DCFE7932866C6314 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1315BBBD5A3BD121F4DEC8E6 /* PBXTargetDependency */,
+			);
+			name = GovorilkaTests;
+			packageProductDependencies = (
+			);
+			productName = GovorilkaTests;
+			productReference = 3A264EB451C66798F8A223BA /* GovorilkaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8FE5E0B44632B306A1AEBF5F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					5B4712AC7697B5EE94191524 = {
+						DevelopmentTeam = TZY7G965L4;
+						ProvisioningStyle = Automatic;
+					};
+					848CDED3D5D60129A97B3FF1 = {
+						DevelopmentTeam = TZY7G965L4;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 20BD7AB69A9A2C47FDBDC67A /* Build configuration list for PBXProject "Govorilka" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2937653B2AD4E33542844D02;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				895DA35914F18FC54E617218 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5B4712AC7697B5EE94191524 /* Govorilka */,
+				848CDED3D5D60129A97B3FF1 /* GovorilkaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0C0C5FD574EC36D098C9A93E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B6F677A430290E3C49D8B83 /* Assets.xcassets in Resources */,
+				CF79D9318CED93233D20E6E0 /* menubar-icon.svg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5858D281DCFE7932866C6314 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7527E671DD2E72F0D804EB16 /* HotkeyServiceTests.swift in Sources */,
+				8BF91B4F9B9588B47237A625 /* PasteServiceTests.swift in Sources */,
+				50299F9644442B3FAB7FC0FD /* ProModeTests.swift in Sources */,
+				106F127ABD116EB8C1D52229 /* RecordingStateTests.swift in Sources */,
+				84297F4CDD9FA3D83A90C0FB /* ScreenshotServiceTests.swift in Sources */,
+				5F3CC87CF6AEEC89E0B6354C /* StorageServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F316A473E95E0459CD9AD759 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				19989EFDEFCCBB9635BEC1E2 /* AppState.swift in Sources */,
+				0E1BF550099257798B0B2693 /* AudioService.swift in Sources */,
+				D7355B0ADBF2B59BD14BCE33 /* CircularWaveformView.swift in Sources */,
+				BD5EBA497B55211A9DFD7203 /* CompactCloudView.swift in Sources */,
+				58986912C37E1DCF68929757 /* DeepgramHTTPService.swift in Sources */,
+				7C05E2BF3AEF47793D5E586D /* DeepgramService.swift in Sources */,
+				456C232012DF381954080B4D /* FloatingRecorderWindow.swift in Sources */,
+				096BBE9A55730326652F916C /* FloatingWindowController.swift in Sources */,
+				FE0D0A530FA9FDC44836C921 /* GovorilkaApp.swift in Sources */,
+				4C3DBDB7BE08C05C1AC51605 /* HistoryDetailView.swift in Sources */,
+				20A96470BA8BB680A760C09B /* HistoryDetailWindowController.swift in Sources */,
+				E9B8BAA6707DFE58598BE5FA /* HistoryView.swift in Sources */,
+				919BDBCD41D1C6A76295E086 /* HotkeyService.swift in Sources */,
+				E092087E11F436DB617366F0 /* KeychainService.swift in Sources */,
+				33EB48775C405362A5A6C69E /* LLMService.swift in Sources */,
+				FD1C68ED97449717CAAD93C9 /* LocalRecorderService.swift in Sources */,
+				0243B5CF89917458EFB01691 /* MenuBarView.swift in Sources */,
+				ACF80595EF70D115747F4247 /* OnboardingWindowController.swift in Sources */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* OnboardingPermissionsView.swift in Sources */,
+				E5C2CAFC53CDFAC8E5C64A80 /* PasteService.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* PermissionManager.swift in Sources */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* PermissionStatusView.swift in Sources */,
+				C9BF027C49BDF0F7D03DE29A /* ProReviewView.swift in Sources */,
+				8A5BA1689CD6524F3D271A49 /* ProReviewWindowController.swift in Sources */,
+				893B30637E6FFE59A8523849 /* PurchaseService.swift in Sources */,
+				61848C67C3253DDF381D7F4C /* RecordingView.swift in Sources */,
+				650003D70B00F5325544B772 /* ScreenshotService.swift in Sources */,
+				850BB48DDFE317851084640E /* SettingsView.swift in Sources */,
+				299FAB5A8080DF81FE1EB746 /* SmilingCloudView.swift in Sources */,
+				0ECBC1B1D8A3EF4CC8734A82 /* SoundService.swift in Sources */,
+				17DDB75842D4721708EB773F /* StorageService.swift in Sources */,
+				1A1F0DACB5189594407E9355 /* TextCleanerService.swift in Sources */,
+				6996427157C0036856B59256 /* ThemeConstants.swift in Sources */,
+				B0888BC53FCDC53F1E409469 /* TranscriptEntry.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1315BBBD5A3BD121F4DEC8E6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B4712AC7697B5EE94191524 /* Govorilka */;
+			targetProxy = FCF2E5AD9D91C79D0CE57B90 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0665D14D6B7E936B284297C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Govorilka/Govorilka.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = TZY7G965L4;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Govorilka/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.govorilka.app;
+				PRODUCT_NAME = Govorilka;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		3CB955B7A3A9BFAD2BFF97F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = TZY7G965L4;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.govorilka.app.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Govorilka.app/Contents/MacOS/Govorilka";
+			};
+			name = Release;
+		};
+		3F7ED730188E12AD0EFF34A7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = TZY7G965L4;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.govorilka.app.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Govorilka.app/Contents/MacOS/Govorilka";
+			};
+			name = Debug;
+		};
+		7449A47FE0E3B61ECF86C700 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A8DB13E7648AE2C131995226 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F4BEA6DE1CB9CB93351A3B26 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Govorilka/Govorilka.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = TZY7G965L4;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Govorilka/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.govorilka.app;
+				PRODUCT_NAME = Govorilka;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20BD7AB69A9A2C47FDBDC67A /* Build configuration list for PBXProject "Govorilka" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7449A47FE0E3B61ECF86C700 /* Debug */,
+				A8DB13E7648AE2C131995226 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2FE05E0E589176683F19B656 /* Build configuration list for PBXNativeTarget "GovorilkaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F7ED730188E12AD0EFF34A7 /* Debug */,
+				3CB955B7A3A9BFAD2BFF97F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F66F907796681F0633036865 /* Build configuration list for PBXNativeTarget "Govorilka" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0665D14D6B7E936B284297C4 /* Debug */,
+				F4BEA6DE1CB9CB93351A3B26 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		895DA35914F18FC54E617218 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BCD0628DC262D66E4E15B377 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 895DA35914F18FC54E617218 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8FE5E0B44632B306A1AEBF5F /* Project object */;
+}

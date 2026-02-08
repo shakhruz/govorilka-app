@@ -94,24 +94,6 @@ final class PasteService {
         return AXIsProcessTrusted()
     }
 
-    /// Check with optional prompt
-    func checkAccessibilityPermission(prompt: Bool) -> Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt]
-        return AXIsProcessTrustedWithOptions(options as CFDictionary)
-    }
-
-    /// Request accessibility permission (shows system dialog)
-    func requestAccessibilityPermission() {
-        _ = checkAccessibilityPermission(prompt: true)
-    }
-
-    /// Open System Settings at Privacy & Security > Accessibility
-    func openAccessibilitySettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
-            NSWorkspace.shared.open(url)
-        }
-    }
-
     // MARK: - Paste Methods
 
     /// Simulate Cmd+V key press
@@ -124,8 +106,6 @@ final class PasteService {
 
         guard trusted else {
             print("[PasteService] ❌ Cannot paste: no accessibility permission")
-            print("[PasteService] Opening System Preferences...")
-            openAccessibilitySettings()
             return
         }
 

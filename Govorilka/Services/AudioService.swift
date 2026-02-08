@@ -62,13 +62,6 @@ final class AudioService {
         }
     }
 
-    /// Open Microphone preferences in System Settings
-    func openMicrophoneSettings() {
-        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
-            NSWorkspace.shared.open(url)
-        }
-    }
-
     /// Start recording audio
     func startRecording() throws {
         guard !isRecording else { return }

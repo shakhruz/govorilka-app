@@ -24,9 +24,10 @@ final class AppState: ObservableObject {
     // Settings
     @Published var apiKey: String = ""
     @Published var autoPasteEnabled: Bool = true
-    @Published var hasAccessibilityPermission = false
-    @Published var hasScreenRecordingPermission = false
     @Published var hotkeyMode: HotkeyMode = .optionSpace
+
+    // Permissions (centralized)
+    let permissionManager = PermissionManager.shared
 
     // Connection status
     @Published var isConnecting = false
@@ -94,8 +95,7 @@ final class AppState: ObservableObject {
         textCleaningEnabled = storage.textCleaningEnabled
         soundsEnabled = storage.soundsEnabled
         history = storage.loadHistory()
-        hasAccessibilityPermission = pasteService.hasAccessibilityPermission()
-        hasScreenRecordingPermission = screenshotService.hasScreenRecordingPermission()
+        // Permissions are managed by PermissionManager (auto-checked on init)
 
         // Set up delegates
         audioService.delegate = self
@@ -136,19 +136,19 @@ final class AppState: ObservableObject {
         hotkeyService.proModeEnabled = proModeEnabled
         hotkeyService.startMonitoring()
 
-        // Show accessibility onboarding if needed
-        if !hasAccessibilityPermission && !storage.accessibilityOnboardingSkipped {
+        // Show permissions onboarding if needed
+        if !permissionManager.allRequiredPermissionsGranted && !storage.permissionsOnboardingCompleted {
             // Delay slightly to let the app finish launching
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.showAccessibilityOnboarding()
+                self?.showPermissionsOnboarding()
             }
         }
     }
 
-    // MARK: - Accessibility Onboarding
+    // MARK: - Permissions Onboarding
 
-    /// Show the accessibility onboarding window
-    func showAccessibilityOnboarding() {
+    /// Show the permissions onboarding window
+    func showPermissionsOnboarding() {
         onboardingWindowController.show()
     }
 
@@ -186,9 +186,9 @@ final class AppState: ObservableObject {
             return
         }
 
-        // Request microphone permission
+        // Request microphone permission via PermissionManager
         Task {
-            let hasPermission = await audioService.requestPermission()
+            let hasPermission = await permissionManager.requestMicrophoneAccess()
 
             guard hasPermission else {
                 await MainActor.run {
@@ -350,8 +350,8 @@ final class AppState: ObservableObject {
 
             // Auto-paste if enabled, otherwise just copy to clipboard
             if autoPasteEnabled {
-                let canPaste = pasteService.hasAccessibilityPermission()
-                hasAccessibilityPermission = canPaste
+                permissionManager.checkAccessibilityPermission()
+                let canPaste = permissionManager.accessibilityStatus == .granted
 
                 print("[AppState] Auto-paste enabled, has permission: \(canPaste)")
 
@@ -675,7 +675,7 @@ final class AppState: ObservableObject {
         guard isRecording else { return }
 
         // Check permission first (but skip if we've already captured successfully)
-        if !screenshotCaptureVerified && !screenshotService.hasScreenRecordingPermission() {
+        if !screenshotCaptureVerified && permissionManager.screenRecordingStatus != .granted {
             showScreenRecordingPermissionAlert()
             return
         }
@@ -736,7 +736,7 @@ final class AppState: ObservableObject {
         let response = alert.runModal()
 
         if response == .alertFirstButtonReturn {
-            screenshotService.openScreenRecordingSettings()
+            permissionManager.openScreenRecordingSettings()
         }
     }
 
@@ -760,36 +760,30 @@ final class AppState: ObservableObject {
         let response = alert.runModal()
 
         if response == .alertFirstButtonReturn {
-            audioService.openMicrophoneSettings()
+            permissionManager.openMicrophoneSettings()
         }
     }
 
     /// Request accessibility permission - opens System Settings directly
     func requestAccessibility() {
-        // Open System Settings directly - the prompt dialog only works once
-        pasteService.openAccessibilitySettings()
+        permissionManager.requestAccessibilityAccess()
         // Check again after a delay (user might grant permission)
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            self?.hasAccessibilityPermission = self?.pasteService.hasAccessibilityPermission() ?? false
+            self?.permissionManager.checkAccessibilityPermission()
         }
     }
 
-    /// Refresh accessibility permission status
-    func refreshAccessibilityStatus() {
-        hasAccessibilityPermission = pasteService.hasAccessibilityPermission()
-    }
-
-    /// Refresh screen recording permission status
-    func refreshScreenRecordingStatus() {
-        hasScreenRecordingPermission = screenshotService.hasScreenRecordingPermission()
+    /// Refresh all permission statuses
+    func refreshPermissions() {
+        permissionManager.checkAllPermissions()
     }
 
     /// Open Screen Recording settings
     func openScreenRecordingSettings() {
-        screenshotService.openScreenRecordingSettings()
+        permissionManager.openScreenRecordingSettings()
         // Check again after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.refreshScreenRecordingStatus()
+            self?.permissionManager.checkScreenRecordingPermission()
         }
     }
 

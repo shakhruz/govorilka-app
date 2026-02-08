@@ -324,6 +324,83 @@ struct SettingsView: View {
                     }
                 }
 
+                // Permissions section
+                SettingsCard(pinkColor: pinkColor, softPink: softPink) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        SettingsCardHeader(
+                            icon: "lock.shield.fill",
+                            title: "Разрешения",
+                            color: pinkColor
+                        )
+
+                        PermissionCard(
+                            icon: "mic.fill",
+                            title: "Микрофон",
+                            description: "Запись голоса для транскрипции",
+                            status: appState.permissionManager.microphoneStatus,
+                            actionLabel: "Разрешить"
+                        ) {
+                            Task {
+                                _ = await appState.permissionManager.requestMicrophoneAccess()
+                            }
+                        }
+
+                        PermissionCard(
+                            icon: "accessibility",
+                            title: "Универсальный доступ",
+                            description: "Автовставка текста и горячие клавиши",
+                            status: appState.permissionManager.accessibilityStatus,
+                            actionLabel: "Открыть настройки"
+                        ) {
+                            appState.requestAccessibility()
+                        }
+
+                        PermissionCard(
+                            icon: "rectangle.dashed.badge.record",
+                            title: "Запись экрана",
+                            description: "Скриншоты для режима агента",
+                            status: appState.permissionManager.screenRecordingStatus,
+                            actionLabel: "Настроить",
+                            isOptional: true
+                        ) {
+                            appState.openScreenRecordingSettings()
+                        }
+
+                        Divider()
+                            .padding(.vertical, 2)
+
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                appState.refreshPermissions()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 11))
+                                    Text("Обновить")
+                                        .font(.system(size: 11, weight: .medium))
+                                }
+                                .foregroundColor(pinkColor)
+                            }
+                            .buttonStyle(.plain)
+
+                            Spacer()
+
+                            Button(action: {
+                                showTCCResetInstructions()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .font(.system(size: 11))
+                                    Text("Сброс разрешений")
+                                        .font(.system(size: 11, weight: .medium))
+                                }
+                                .foregroundColor(textColor.opacity(0.5))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+
                 // Auto-paste section
                 SettingsCard(pinkColor: pinkColor, softPink: softPink) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -366,40 +443,18 @@ struct SettingsView: View {
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
 
-                        // Accessibility status for auto-paste
-                        if appState.autoPasteEnabled {
+                        // Accessibility status for auto-paste (compact)
+                        if appState.autoPasteEnabled && appState.permissionManager.accessibilityStatus != .granted {
                             Divider()
                                 .padding(.vertical, 2)
 
-                            HStack {
-                                if appState.hasAccessibilityPermission {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(pinkColor)
-                                        Text("Универсальный доступ разрешён")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
-                                    }
-                                } else {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .foregroundColor(.orange)
-                                        Text("Нужен Универсальный доступ")
-                                            .font(.system(size: 11))
-                                            .foregroundColor(textColor.opacity(0.6))
-                                    }
-                                }
-
-                                Spacer()
-
-                                Button(action: {
-                                    appState.requestAccessibility()
-                                }) {
-                                    Text("Настроить")
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(pinkColor)
-                                }
-                                .buttonStyle(.plain)
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .font(.system(size: 10))
+                                Text("Нужен Универсальный доступ — см. секцию «Разрешения»")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(textColor.opacity(0.5))
                             }
                         }
                     }
@@ -481,39 +536,19 @@ struct SettingsView: View {
                             .font(.system(size: 11))
                             .foregroundColor(textColor.opacity(0.5))
 
-                        // Screen Recording permission status
-                        Divider()
-                            .padding(.vertical, 2)
+                        // Screen Recording status (compact)
+                        if appState.permissionManager.screenRecordingStatus != .granted {
+                            Divider()
+                                .padding(.vertical, 2)
 
-                        HStack {
-                            if appState.hasScreenRecordingPermission {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(pinkColor)
-                                    Text("Запись экрана разрешена")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(textColor.opacity(0.6))
-                                }
-                            } else {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.orange)
-                                    Text("Нужен доступ к экрану")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(textColor.opacity(0.6))
-                                }
+                            HStack(spacing: 4) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .font(.system(size: 10))
+                                Text("Нужен доступ к экрану — см. секцию «Разрешения»")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(textColor.opacity(0.5))
                             }
-
-                            Spacer()
-
-                            Button(action: {
-                                appState.openScreenRecordingSettings()
-                            }) {
-                                Text("Настроить")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(pinkColor)
-                            }
-                            .buttonStyle(.plain)
                         }
 
                         if appState.proModeEnabled {
@@ -632,40 +667,18 @@ struct SettingsView: View {
                                 }
                             }
 
-                            // Show accessibility status for modes that need it
-                            if appState.hotkeyMode.needsEventMonitoring {
+                            // Show accessibility status for modes that need it (compact)
+                            if appState.hotkeyMode.needsEventMonitoring && appState.permissionManager.accessibilityStatus != .granted {
                                 Divider()
                                     .padding(.vertical, 2)
 
-                                HStack {
-                                    if appState.hasAccessibilityPermission {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundColor(pinkColor)
-                                            Text("Доступ разрешён")
-                                                .font(.system(size: 11))
-                                                .foregroundColor(textColor.opacity(0.6))
-                                        }
-                                    } else {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "exclamationmark.triangle.fill")
-                                                .foregroundColor(.orange)
-                                            Text("Нужен Универсальный доступ")
-                                                .font(.system(size: 11))
-                                                .foregroundColor(textColor.opacity(0.6))
-                                        }
-                                    }
-
-                                    Spacer()
-
-                                    Button(action: {
-                                        appState.requestAccessibility()
-                                    }) {
-                                        Text("Настроить")
-                                            .font(.system(size: 11, weight: .medium))
-                                            .foregroundColor(pinkColor)
-                                    }
-                                    .buttonStyle(.plain)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.orange)
+                                        .font(.system(size: 10))
+                                    Text("Нужен Универсальный доступ — см. «Разрешения»")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(textColor.opacity(0.5))
                                 }
                             }
                         }
@@ -713,8 +726,7 @@ struct SettingsView: View {
         .onAppear {
             apiKeyInput = appState.apiKey
             llmApiKeyInput = StorageService.shared.llmApiKey ?? ""
-            appState.refreshAccessibilityStatus()
-            appState.refreshScreenRecordingStatus()
+            appState.refreshPermissions()
             updateExportFolderName()
         }
     }
@@ -731,6 +743,23 @@ struct SettingsView: View {
             appState.saveExportFolder(url)
             updateExportFolderName()
         }
+    }
+
+    private func showTCCResetInstructions() {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = "Сброс разрешений"
+        alert.informativeText = """
+        Если разрешения работают некорректно, выполните в Терминале:
+
+        tccutil reset Microphone com.govorilka.app
+        tccutil reset Accessibility com.govorilka.app
+        tccutil reset ScreenCapture com.govorilka.app
+
+        После этого перезапустите Говорилку — система запросит разрешения заново.
+        """
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     private func updateExportFolderName() {

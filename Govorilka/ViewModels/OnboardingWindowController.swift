@@ -1,13 +1,11 @@
 import AppKit
 import SwiftUI
 
-/// Controller for managing the Accessibility onboarding window
+/// Controller for managing the Permissions onboarding window
 @MainActor
 final class OnboardingWindowController {
     private var window: NSWindow?
-    private var viewModel: OnboardingViewModel?
 
-    private let pasteService = PasteService.shared
     private let storage = StorageService.shared
 
     /// Show the onboarding window
@@ -17,27 +15,22 @@ final class OnboardingWindowController {
             return
         }
 
-        // If already has permission, don't show
-        if pasteService.hasAccessibilityPermission() {
+        // If all required permissions are granted, don't show
+        if PermissionManager.shared.allRequiredPermissionsGranted {
             return
         }
 
-        // Create view model
-        let viewModel = OnboardingViewModel()
-        viewModel.onOpenSettings = { [weak self] in
-            self?.openSettings()
-        }
-        viewModel.onSkip = { [weak self] in
-            self?.skip()
-        }
-        self.viewModel = viewModel
-
-        let contentView = AccessibilityOnboardingWrapperView(viewModel: viewModel)
+        let contentView = OnboardingPermissionsView(
+            permissionManager: PermissionManager.shared,
+            onComplete: { [weak self] in
+                self?.complete()
+            }
+        )
         let hostingView = NSHostingView(rootView: contentView)
 
         // Create window with modern borderless style
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 540),
+            contentRect: NSRect(x: 0, y: 0, width: 380, height: 640),
             styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -82,46 +75,12 @@ final class OnboardingWindowController {
         } completionHandler: { [weak self] in
             window.orderOut(nil)
             self?.window = nil
-            self?.viewModel = nil
         }
     }
 
-    /// Open System Settings > Accessibility
-    private func openSettings() {
-        pasteService.openAccessibilitySettings()
-    }
-
-    /// Skip onboarding
-    private func skip() {
-        if viewModel?.dontShowAgain == true {
-            storage.accessibilityOnboardingSkipped = true
-        }
+    /// Complete onboarding — mark as done and hide
+    private func complete() {
+        storage.permissionsOnboardingCompleted = true
         hide()
-    }
-}
-
-// MARK: - View Model
-
-/// Observable view model for the onboarding view
-@MainActor
-final class OnboardingViewModel: ObservableObject {
-    @Published var dontShowAgain = false
-
-    var onOpenSettings: (() -> Void)?
-    var onSkip: (() -> Void)?
-}
-
-// MARK: - Wrapper View
-
-/// Wrapper view that observes the view model
-struct AccessibilityOnboardingWrapperView: View {
-    @ObservedObject var viewModel: OnboardingViewModel
-
-    var body: some View {
-        AccessibilityOnboardingView(
-            dontShowAgain: $viewModel.dontShowAgain,
-            onOpenSettings: { viewModel.onOpenSettings?() },
-            onSkip: { viewModel.onSkip?() }
-        )
     }
 }

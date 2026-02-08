@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Govorilka — Voice Input for macOS</title>
-    <meta name="description" content="Free open-source app for macOS. Converts speech to text using Deepgram AI. Minimalist, fast, private.">
+    <meta name="description" content="The fastest voice input for macOS. Text ready in one second — while you speak. Free open-source app powered by Deepgram AI.">
     <meta name="keywords" content="voice input, speech to text, macOS, Deepgram, transcription, dictation">
     <meta property="og:title" content="Govorilka — Voice Input for macOS">
     <meta property="og:description" content="Free open-source app for speech-to-text transcription">
@@ -334,6 +334,21 @@
 
         .hotkey-recommended {
             border: 2px solid var(--pink);
+        }
+
+        .speed-claim {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 32px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .speed-claim {
+                font-size: 1.2rem;
+            }
         }
 
         .hotkey-badge {
@@ -829,7 +844,8 @@
         <header>
             <img src="../icon.png" alt="Govorilka" class="logo">
             <h1>Govorilka</h1>
-            <p class="tagline">Voice Input for macOS</p>
+            <p class="tagline">The Fastest Voice Input for macOS</p>
+            <p class="speed-claim">Text ready in one second. Not after recording — while you speak.</p>
             <a href="https://github.com/shakhruz/govorilka-app/releases/latest" class="cta-button">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -839,19 +855,18 @@
             <a href="https://github.com/shakhruz/govorilka-app" class="secondary-link">
                 Source Code on GitHub
             </a>
-            <span class="version-badge">v1.2.4</span>
+            <span class="version-badge">v1.4.0</span>
         </header>
 
         <!-- What's New -->
         <section class="whats-new">
             <div class="whats-new-card">
-                <h2>What's New in v1.2.4</h2>
+                <h2>What's New in v1.4.0</h2>
                 <ul class="whats-new-list">
-                    <li><strong>AI Touch</strong> — improve transcription with AI (Groq API)</li>
-                    <li><strong>Grammar & punctuation</strong> — fix errors with one click</li>
-                    <li><strong>Change history</strong> — undo improvements with "Back" button</li>
-                    <li><strong>Light theme</strong> — feedback window always in light mode</li>
-                    <li>Free Groq API: 30 requests/min</li>
+                    <li><strong>Stable permissions</strong> — sandbox disabled, no more access failures</li>
+                    <li><strong>New onboarding</strong> — 5-step wizard with auto-detection of permission status</li>
+                    <li><strong>Permissions in settings</strong> — Microphone, Accessibility and Screen Recording status with quick action buttons</li>
+                    <li><strong>Auto-refresh</strong> — permission statuses update when returning from System Settings</li>
                 </ul>
             </div>
         </section>
@@ -862,9 +877,7 @@
                 <h2>⚠️ First Launch</h2>
                 <ul class="whats-new-list">
                     <li><strong>Right-click → "Open"</strong> — macOS blocks apps not from the App Store</li>
-                    <li><strong>Allow Microphone</strong> — for voice recording</li>
-                    <li><strong>Allow Accessibility</strong> — for auto-paste (Settings → Auto-Paste → Configure)</li>
-                    <li><strong>Keychain: "Always Allow"</strong> — if macOS asks for access to com.govorilka.api (your API key)</li>
+                    <li><strong>Follow the onboarding</strong> — the app will guide you through all required permissions</li>
                 </ul>
             </div>
         </section>
@@ -874,13 +887,18 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🎤</div>
-                    <h3>Instant Transcription</h3>
-                    <p>Text appears in real-time powered by Deepgram Nova-2 AI</p>
+                    <h3>Real-Time Transcription</h3>
+                    <p>Text appears as you speak — no waiting for recording to end. Deepgram Nova-2 transcribes instantly.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⌨️</div>
-                    <h3>Auto-Paste</h3>
-                    <p>Text is instantly inserted where your cursor is</p>
+                    <h3>Auto-Paste in One Second</h3>
+                    <p>Stop speaking — one second later the text is already in your input field. No buttons, no waiting.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💪</div>
+                    <h3>Handles Anything</h3>
+                    <p>Rush, shout, mumble — Govorilka is gentle and friendly, she handles any pace and mood.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
@@ -917,12 +935,12 @@
                 <div class="step">
                     <div class="step-number">2</div>
                     <h4>Speak</h4>
-                    <p>Text appears in real-time</p>
+                    <p>Text and cleanup happen in real-time, while you're still talking</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h4>Done</h4>
-                    <p>Text is automatically inserted</p>
+                    <h4>One Second — Done</h4>
+                    <p>Text is automatically inserted into your input field</p>
                 </div>
             </div>
         </section>
@@ -946,6 +964,16 @@
                     <div class="why-icon">🌱</div>
                     <h3>Growing Software</h3>
                     <p>Fast feedback is key to growing software. The faster you respond to AI, the faster your product grows. Govorilka removes friction from this cycle.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">⚡</div>
+                    <h3>Faster Than Anything</h3>
+                    <p>Transcription and cleanup happen while you speak. Not: record → wait → get text. Instead: speak — and text is already ready.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">🤗</div>
+                    <h3>Gentle But Tough</h3>
+                    <p>Govorilka handles any pace and tone. Speak fast, quiet, loud — she's always there, always friendly.</p>
                 </div>
                 <div class="why-point">
                     <div class="why-icon">🔓</div>

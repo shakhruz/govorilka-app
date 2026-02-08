@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Говорилка — голосовой ввод для macOS</title>
-    <meta name="description" content="Бесплатное open-source приложение для macOS. Превращает речь в текст с помощью Deepgram AI. Минималистичное, быстрое, приватное.">
+    <meta name="description" content="Самый быстрый голосовой ввод для macOS. Текст готов через секунду — прямо во время речи. Бесплатное open-source приложение на базе Deepgram AI.">
     <meta name="keywords" content="голосовой ввод, speech to text, macOS, Deepgram, транскрибация, диктовка">
     <meta property="og:title" content="Говорилка — голосовой ввод для macOS">
     <meta property="og:description" content="Бесплатное open-source приложение для транскрибации речи в текст">
@@ -314,6 +314,21 @@
 
         .hotkey-recommended {
             border: 2px solid var(--pink);
+        }
+
+        .speed-claim {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 32px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .speed-claim {
+                font-size: 1.2rem;
+            }
         }
 
         .hotkey-badge {
@@ -842,7 +857,8 @@
         <header>
             <img src="icon.png" alt="Говорилка" class="logo">
             <h1>Говорилка</h1>
-            <p class="tagline">Голосовой ввод для macOS</p>
+            <p class="tagline">Самый быстрый голосовой ввод для macOS</p>
+            <p class="speed-claim">Текст готов через секунду. Не после записи — прямо во время речи.</p>
             <a href="https://github.com/shakhruz/govorilka-app/releases/latest" class="cta-button">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -884,13 +900,18 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🎤</div>
-                    <h3>Мгновенная транскрибация</h3>
-                    <p>Текст появляется в реальном времени благодаря Deepgram Nova-2 AI</p>
+                    <h3>В реальном времени</h3>
+                    <p>Текст появляется по мере речи — не нужно ждать конца записи. Deepgram Nova-2 транскрибирует мгновенно.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⌨️</div>
-                    <h3>Автовставка</h3>
-                    <p>Текст сразу вставляется туда, где стоит курсор</p>
+                    <h3>Автовставка за секунду</h3>
+                    <p>Остановились — через секунду текст уже в поле ввода. Никаких кнопок, никакого ожидания.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💪</div>
+                    <h3>Выдержит всё</h3>
+                    <p>Торопитесь, кричите, бубните — Говорилка мягкая и дружелюбная, она выдержит любой темп и настроение.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🔒</div>
@@ -927,12 +948,12 @@
                 <div class="step">
                     <div class="step-number">2</div>
                     <h4>Говорите</h4>
-                    <p>Текст появляется в реальном времени</p>
+                    <p>Текст и очистка идут в реальном времени, прямо пока вы говорите</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h4>Готово</h4>
-                    <p>Текст автоматически вставлен</p>
+                    <h4>Через секунду — готово</h4>
+                    <p>Текст автоматически вставлен в поле ввода</p>
                 </div>
             </div>
         </section>
@@ -956,6 +977,16 @@
                     <div class="why-icon">🌱</div>
                     <h3>Выращивание программ</h3>
                     <p>Быстрый фидбэк — ключ к выращиванию программ. Чем быстрее вы отвечаете AI, тем быстрее растёт ваш продукт. Говорилка убирает трение из этого цикла.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">⚡</div>
+                    <h3>Быстрее всех</h3>
+                    <p>Транскрибация и очистка прямо во время речи. Не записал → подождал → получил. А: говоришь — и текст уже готов.</p>
+                </div>
+                <div class="why-point">
+                    <div class="why-icon">🤗</div>
+                    <h3>Мягкая, но стойкая</h3>
+                    <p>Говорилка выдержит любой темп и тон. Говори быстро, тихо, громко — она всегда на связи, всегда дружелюбная.</p>
                 </div>
                 <div class="why-point">
                     <div class="why-icon">🔓</div>

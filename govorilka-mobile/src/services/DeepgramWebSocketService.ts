@@ -1,5 +1,12 @@
 import { DeepgramResponse, DeepgramConfig } from '../types/deepgram';
 
+// Тип для события закрытия WebSocket
+interface WebSocketCloseEvent {
+  code: number;
+  reason: string;
+  wasClean: boolean;
+}
+
 export type TranscriptCallback = (text: string, isFinal: boolean) => void;
 export type ErrorCallback = (error: string) => void;
 export type ConnectionCallback = () => void;
@@ -74,12 +81,33 @@ class DeepgramWebSocketServiceClass {
 
       this.ws.onerror = (event: Event) => {
         const wsEvent = event as unknown as { message?: string };
-        this.onError?.(wsEvent.message || 'WebSocket error');
+        const message = wsEvent.message || 'Ошибка подключения к Deepgram';
+        this.onError?.(message);
       };
 
-      this.ws.onclose = () => {
-        this.isConnected = false;
+      this.ws.onclose = (event: WebSocketCloseEvent) => {
         this.stopKeepAlive();
+        const wasConnected = this.isConnected;
+        this.isConnected = false;
+
+        // Обработка кодов ошибок Deepgram
+        if (event.code === 1008) {
+          // Policy Violation - обычно неверный API ключ
+          this.onError?.('Неверный API ключ. Проверьте ключ в настройках.');
+        } else if (event.code === 1006) {
+          // Abnormal Closure - проблемы с сетью
+          this.onError?.('Нет подключения к серверу. Проверьте интернет.');
+        } else if (event.code === 1011) {
+          // Internal Error
+          this.onError?.('Ошибка сервера Deepgram. Попробуйте позже.');
+        } else if (event.code === 1003) {
+          // Unsupported Data
+          this.onError?.('Неподдерживаемый формат данных.');
+        } else if (event.code !== 1000 && wasConnected) {
+          // Любой другой код ошибки (кроме нормального закрытия 1000)
+          this.onError?.(`Соединение закрыто (код ${event.code})`);
+        }
+
         this.onDisconnected?.();
       };
     } catch (error) {

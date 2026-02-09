@@ -33,6 +33,7 @@ export function useAudioRecording() {
   const addEntry = useHistoryStore((s) => s.addEntry);
   const settings = useSettingsStore();
   const startTimeRef = useRef<number>(0);
+  const connectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useTimer();
 
@@ -60,6 +61,16 @@ export function useAudioRecording() {
       interval: 100, // ms between audio chunks
     });
 
+    // Таймаут подключения (10 секунд)
+    connectionTimeoutRef.current = setTimeout(() => {
+      if (useRecordingStore.getState().isConnecting) {
+        DeepgramWebSocketService.disconnect();
+        setError('Таймаут подключения. Проверьте интернет-соединение.');
+        setConnecting(false);
+        SoundService.playError();
+      }
+    }, 10000);
+
     // Connect to Deepgram
     DeepgramWebSocketService.connect(apiKey, {
       onTranscript: (text, isFinal) => {
@@ -75,11 +86,21 @@ export function useAudioRecording() {
         }
       },
       onError: (err) => {
+        // Очищаем таймаут при ошибке
+        if (connectionTimeoutRef.current) {
+          clearTimeout(connectionTimeoutRef.current);
+          connectionTimeoutRef.current = null;
+        }
         setError(err);
         stopRecording();
         SoundService.playError();
       },
       onConnected: async () => {
+        // Очищаем таймаут при успешном подключении
+        if (connectionTimeoutRef.current) {
+          clearTimeout(connectionTimeoutRef.current);
+          connectionTimeoutRef.current = null;
+        }
         setConnecting(false);
         setRecording(true);
         startTimeRef.current = Date.now();
@@ -100,6 +121,11 @@ export function useAudioRecording() {
         );
       },
       onDisconnected: () => {
+        // Очищаем таймаут при отключении
+        if (connectionTimeoutRef.current) {
+          clearTimeout(connectionTimeoutRef.current);
+          connectionTimeoutRef.current = null;
+        }
         if (useRecordingStore.getState().isRecording) {
           stopRecording();
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SecureStorageService } from '../../services/SecureStorageService';
 import { colors } from '../../theme/colors';
 
@@ -21,11 +21,27 @@ export function ApiKeyInput() {
   }
 
   async function saveKey() {
-    if (apiKey.trim()) {
-      await SecureStorageService.setApiKey(apiKey.trim());
-      setIsSaved(true);
-      setIsEditing(false);
+    const cleanKey = apiKey.trim();
+
+    // Валидация формата ключа Deepgram
+    if (!cleanKey) {
+      Alert.alert('Ошибка', 'Введите API ключ');
+      return;
     }
+
+    if (cleanKey.length < 32) {
+      Alert.alert('Ошибка', 'API ключ слишком короткий. Проверьте, что скопировали полный ключ.');
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9]+$/.test(cleanKey)) {
+      Alert.alert('Ошибка', 'API ключ содержит недопустимые символы. Ключ должен содержать только буквы и цифры.');
+      return;
+    }
+
+    await SecureStorageService.setApiKey(cleanKey);
+    setIsSaved(true);
+    setIsEditing(false);
   }
 
   async function deleteKey() {

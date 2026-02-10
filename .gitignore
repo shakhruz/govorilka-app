@@ -65,3 +65,15 @@ mcp-servers/
 # Generated icons (keep originals in scripts/)
 AppIcon_*.png
 Govorilka-*.dmg
+.vercel
+
+# Auto Claude data directory
+.auto-claude/
+
+# Auto Claude generated files
+.auto-claude-security.json
+.auto-claude-status
+.claude_settings.json
+.worktrees/
+.security-key
+logs/security/

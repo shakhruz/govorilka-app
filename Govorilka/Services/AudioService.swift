@@ -8,6 +8,12 @@ protocol AudioServiceDelegate: AnyObject {
     func audioService(_ service: AudioService, didReceiveAudioData data: Data)
     func audioService(_ service: AudioService, didFailWithError error: Error)
     func audioService(_ service: AudioService, didUpdateAudioLevel level: Float)
+    func audioServiceDidReconfigureAudioDevice(_ service: AudioService)
+}
+
+/// Default implementation for optional delegate methods
+extension AudioServiceDelegate {
+    func audioServiceDidReconfigureAudioDevice(_ service: AudioService) {}
 }
 
 /// Error types for AudioService
@@ -15,6 +21,7 @@ enum AudioServiceError: LocalizedError {
     case microphonePermissionDenied
     case engineStartFailed
     case formatConversionFailed
+    case deviceReconfigurationFailed
 
     var errorDescription: String? {
         switch self {
@@ -24,6 +31,8 @@ enum AudioServiceError: LocalizedError {
             return "Не удалось запустить аудио-движок."
         case .formatConversionFailed:
             return "Ошибка конвертации аудио формата."
+        case .deviceReconfigurationFailed:
+            return "Не удалось переподключить аудио устройство."
         }
     }
 }
@@ -43,6 +52,18 @@ final class AudioService {
     // Audio level tracking
     private var audioLevelSmoother: Float = 0.0
     private let smoothingFactor: Float = 0.3
+
+    // Audio device change handling
+    private var configurationChangeObserver: NSObjectProtocol?
+    private let reconfigureLock = NSLock()
+    private var isReconfiguring = false
+
+    deinit {
+        if let observer = configurationChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+            configurationChangeObserver = nil
+        }
+    }
 
     // MARK: - Public Methods
 
@@ -101,12 +122,27 @@ final class AudioService {
             inputNode.removeTap(onBus: 0)
             throw AudioServiceError.engineStartFailed
         }
+
+        // Subscribe to audio device configuration changes
+        configurationChangeObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: audioEngine,
+            queue: nil
+        ) { [weak self] _ in
+            self?.handleConfigurationChange()
+        }
     }
 
     /// Stop recording and return duration
     @discardableResult
     func stopRecording() -> TimeInterval {
         guard isRecording else { return 0 }
+
+        // Remove configuration change observer
+        if let observer = configurationChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+            configurationChangeObserver = nil
+        }
 
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
@@ -128,6 +164,104 @@ final class AudioService {
         recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
     }
 
+    // MARK: - Audio Device Reconfiguration
+
+    /// Handle audio engine configuration change (device connected/disconnected)
+    private func handleConfigurationChange() {
+        reconfigureLock.lock()
+        guard !isReconfiguring else {
+            reconfigureLock.unlock()
+            return
+        }
+        isReconfiguring = true
+        reconfigureLock.unlock()
+
+        print("[AudioService] Audio device configuration changed, reconfiguring...")
+
+        // Stop engine and remove old tap
+        audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
+
+        // Small delay to let the system settle after device change
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.attemptReconfiguration(retryCount: 0)
+        }
+    }
+
+    /// Attempt to reconfigure audio engine with new device, with retries
+    private func attemptReconfiguration(retryCount: Int) {
+        let maxRetries = 3
+
+        // Get new input format from the (possibly new) device
+        let inputNode = audioEngine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+
+        // Validate format
+        guard inputFormat.sampleRate > 0, inputFormat.channelCount > 0 else {
+            if retryCount < maxRetries {
+                print("[AudioService] Invalid format (sampleRate=\(inputFormat.sampleRate), channels=\(inputFormat.channelCount)), retrying in 0.5s... (\(retryCount + 1)/\(maxRetries))")
+                DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.attemptReconfiguration(retryCount: retryCount + 1)
+                }
+                return
+            } else {
+                print("[AudioService] Failed to get valid format after \(maxRetries) retries")
+                finishReconfiguration(success: false)
+                return
+            }
+        }
+
+        // Create target format
+        guard let targetFormat = AVAudioFormat(
+            commonFormat: .pcmFormatInt16,
+            sampleRate: targetSampleRate,
+            channels: targetChannels,
+            interleaved: true
+        ) else {
+            print("[AudioService] Failed to create target format")
+            finishReconfiguration(success: false)
+            return
+        }
+
+        // Create new converter for the new input format
+        guard let converter = AVAudioConverter(from: inputFormat, to: targetFormat) else {
+            print("[AudioService] Failed to create converter for new format")
+            finishReconfiguration(success: false)
+            return
+        }
+
+        // Install new tap with the new format
+        let bufferSize: AVAudioFrameCount = 1024
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: inputFormat) { [weak self] buffer, _ in
+            self?.processAudioBuffer(buffer, converter: converter, targetFormat: targetFormat)
+        }
+
+        // Restart engine
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+            print("[AudioService] Audio engine reconfigured successfully (sampleRate=\(inputFormat.sampleRate), channels=\(inputFormat.channelCount))")
+            finishReconfiguration(success: true)
+        } catch {
+            print("[AudioService] Failed to restart audio engine: \(error)")
+            inputNode.removeTap(onBus: 0)
+            finishReconfiguration(success: false)
+        }
+    }
+
+    /// Complete reconfiguration and notify delegate
+    private func finishReconfiguration(success: Bool) {
+        reconfigureLock.lock()
+        isReconfiguring = false
+        reconfigureLock.unlock()
+
+        if success {
+            delegate?.audioServiceDidReconfigureAudioDevice(self)
+        } else {
+            delegate?.audioService(self, didFailWithError: AudioServiceError.deviceReconfigurationFailed)
+        }
+    }
+
     // MARK: - Private Methods
 
     private func processAudioBuffer(
@@ -135,6 +269,9 @@ final class AudioService {
         converter: AVAudioConverter,
         targetFormat: AVAudioFormat
     ) {
+        // Skip buffers during device reconfiguration
+        guard !isReconfiguring else { return }
+
         // Calculate audio level from input buffer
         let audioLevel = calculateAudioLevel(buffer)
         DispatchQueue.main.async { [weak self] in

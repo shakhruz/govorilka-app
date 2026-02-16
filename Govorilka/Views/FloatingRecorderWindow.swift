@@ -49,6 +49,33 @@ struct FloatingRecorderView: View {
             )
             .padding(.top, 4)
 
+            // Capture mode picker (Pro mode only)
+            if appState.isProRecording && appState.availableCaptureModes.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(appState.availableCaptureModes) { mode in
+                            let isSelected = appState.selectedCaptureMode == mode
+                            Button {
+                                appState.selectedCaptureMode = mode
+                            } label: {
+                                Text(appState.availableCaptureModes.displayName(for: mode))
+                                    .font(.system(size: 10, weight: isSelected ? .bold : .regular))
+                                    .foregroundColor(isSelected ? .white : textColor)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        Capsule()
+                                            .fill(isSelected ? pinkColor : pinkColor.opacity(0.1))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                }
+                .frame(height: 24)
+            }
+
             // Recording time and camera button
             HStack(spacing: 12) {
                 Text(formatDuration(recordingTime))
@@ -177,7 +204,7 @@ struct FloatingRecorderView: View {
             }
             .padding(.bottom, 16)
         }
-        .frame(width: 200, height: appState.capturedScreenshots.isEmpty ? 300 : 340)
+        .frame(width: 200, height: calculateWindowHeight())
         .background(PinkBackground())
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: pinkColor.opacity(0.2), radius: 20, x: 0, y: 10)
@@ -198,6 +225,20 @@ struct FloatingRecorderView: View {
     }
 
     // MARK: - Computed Properties
+
+    /// Calculate dynamic window height based on Pro mode state and screenshots
+    private func calculateWindowHeight() -> CGFloat {
+        var height: CGFloat = 300  // Base height
+        // Add space for capture mode picker in Pro mode
+        if appState.isProRecording && appState.availableCaptureModes.count > 1 {
+            height += 30
+        }
+        // Add space for screenshot thumbnails
+        if !appState.capturedScreenshots.isEmpty {
+            height += 40
+        }
+        return height
+    }
 
     private var transcriptPreview: String {
         let text = appState.interimTranscript.isEmpty

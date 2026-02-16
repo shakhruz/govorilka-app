@@ -28,23 +28,154 @@ final class ScreenshotService {
 
     // MARK: - Public Methods
 
-    /// Capture the entire screen
+    /// Capture the entire screen (primary display, backward compatibility)
     /// - Returns: NSImage of the screen, or nil if capture failed
     func captureScreen() async -> NSImage? {
-        // Use CGWindowListCreateImage to capture the screen
-        // Using CGWindowListOption to capture everything below the app
-        let displayID = CGMainDisplayID()
+        return captureDisplay(CGMainDisplayID())
+    }
 
+    /// List available capture modes: .window + one .display per active display
+    func availableCaptureModes() -> [ScreenshotCaptureMode] {
+        var modes: [ScreenshotCaptureMode] = [.window]
+
+        var displayIDs = [CGDirectDisplayID](repeating: 0, count: 16)
+        var displayCount: UInt32 = 0
+        let result = CGGetActiveDisplayList(UInt32(displayIDs.count), &displayIDs, &displayCount)
+
+        if result == .success && displayCount > 0 {
+            for i in 0..<Int(displayCount) {
+                modes.append(.display(displayIDs[i]))
+            }
+        } else {
+            // Fallback: at least the main display
+            modes.append(.display(CGMainDisplayID()))
+        }
+
+        return modes
+    }
+
+    /// Capture a specific display by its ID
+    /// - Parameter displayID: The CGDirectDisplayID to capture
+    /// - Returns: NSImage or nil if capture failed
+    func captureDisplay(_ displayID: CGDirectDisplayID) -> NSImage? {
         guard let cgImage = CGDisplayCreateImage(displayID) else {
-            print("[ScreenshotService] Failed to capture screen")
+            print("[ScreenshotService] Failed to capture display \(displayID)")
             return nil
         }
 
         let size = NSSize(width: cgImage.width, height: cgImage.height)
         let image = NSImage(cgImage: cgImage, size: size)
-
-        print("[ScreenshotService] Screen captured: \(Int(size.width))x\(Int(size.height))")
+        print("[ScreenshotService] Display \(displayID) captured: \(Int(size.width))x\(Int(size.height))")
         return image
+    }
+
+    /// Capture the frontmost window (excluding Govorilka itself)
+    /// - Returns: NSImage of the window, or nil if no suitable window found
+    func captureFrontmostWindow() -> NSImage? {
+        // Get the list of on-screen windows
+        guard let windowList = CGWindowListCopyWindowInfo(
+            [.optionOnScreenOnly, .excludeDesktopElements],
+            kCGNullWindowID
+        ) as? [[String: Any]] else {
+            print("[ScreenshotService] Failed to get window list")
+            return nil
+        }
+
+        let myPID = Int32(ProcessInfo.processInfo.processIdentifier)
+        // Try to find the frontmost window of the previously active app
+        let targetPID = findPreviousFrontmostAppPID() ?? myPID
+
+        // Find the topmost window that belongs to a non-Govorilka app
+        var bestWindow: (id: CGWindowID, bounds: CGRect)?
+
+        for windowInfo in windowList {
+            guard let ownerPID = windowInfo[kCGWindowOwnerPID as String] as? Int32,
+                  let windowID = windowInfo[kCGWindowNumber as String] as? CGWindowID,
+                  let boundsDict = windowInfo[kCGWindowBounds as String] as? [String: CGFloat],
+                  let layer = windowInfo[kCGWindowLayer as String] as? Int else {
+                continue
+            }
+
+            // Skip our own windows and non-normal-layer windows
+            guard ownerPID != myPID, layer == 0 else { continue }
+
+            let bounds = CGRect(
+                x: boundsDict["X"] ?? 0,
+                y: boundsDict["Y"] ?? 0,
+                width: boundsDict["Width"] ?? 0,
+                height: boundsDict["Height"] ?? 0
+            )
+
+            // Skip tiny windows (toolbars, status items, etc.)
+            guard bounds.width > 50 && bounds.height > 50 else { continue }
+
+            // Prefer windows from the target (previously frontmost) app
+            if ownerPID == targetPID {
+                bestWindow = (id: windowID, bounds: bounds)
+                break
+            }
+
+            // Otherwise take the first suitable window (highest in z-order)
+            if bestWindow == nil {
+                bestWindow = (id: windowID, bounds: bounds)
+            }
+        }
+
+        guard let target = bestWindow else {
+            print("[ScreenshotService] No suitable frontmost window found")
+            return nil
+        }
+
+        // Capture just that window
+        guard let cgImage = CGWindowListCreateImage(
+            .null,
+            .optionIncludingWindow,
+            target.id,
+            [.bestResolution, .boundsIgnoreFraming]
+        ) else {
+            print("[ScreenshotService] Failed to capture window \(target.id)")
+            return nil
+        }
+
+        let size = NSSize(width: cgImage.width, height: cgImage.height)
+        let image = NSImage(cgImage: cgImage, size: size)
+        print("[ScreenshotService] Window captured: \(Int(size.width))x\(Int(size.height))")
+        return image
+    }
+
+    /// Capture using the specified mode
+    /// - Parameter mode: The capture mode (.window or .display)
+    /// - Returns: NSImage or nil if capture failed
+    func capture(mode: ScreenshotCaptureMode) -> NSImage? {
+        switch mode {
+        case .window:
+            return captureFrontmostWindow()
+        case .display(let displayID):
+            return captureDisplay(displayID)
+        }
+    }
+
+    /// Find the PID of the previously frontmost application (not Govorilka)
+    private func findPreviousFrontmostAppPID() -> Int32? {
+        let myBundleID = Bundle.main.bundleIdentifier
+        // NSWorkspace.shared.runningApplications returns apps in activation order (most recent first)
+        // The frontmost is first; we want the one just after Govorilka if Govorilka is frontmost
+        let apps = NSWorkspace.shared.runningApplications
+        let frontmost = NSWorkspace.shared.frontmostApplication
+
+        if frontmost?.bundleIdentifier != myBundleID {
+            // Another app is frontmost — use it
+            return frontmost?.processIdentifier
+        }
+
+        // Govorilka is frontmost — find the next regular app
+        for app in apps where app.activationPolicy == .regular
+            && app.bundleIdentifier != myBundleID
+            && !app.isTerminated {
+            return app.processIdentifier
+        }
+
+        return nil
     }
 
     /// Save screenshot to the screenshots directory

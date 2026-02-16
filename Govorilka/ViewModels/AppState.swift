@@ -48,10 +48,16 @@ final class AppState: ObservableObject {
     // In-recording screenshots (captured via camera button)
     @Published var capturedScreenshots: [NSImage] = []
     let proReviewController = ProReviewWindowController()
-    private var pendingScreenshot: NSImage?
     private var pendingDuration: TimeInterval = 0
-    private var isProRecording = false  // Flag: current recording is Pro (with screenshot)
+    @Published private(set) var isProRecording = false
     private let screenshotService = ScreenshotService.shared
+
+    // Multi-display capture
+    @Published var selectedCaptureMode: ScreenshotCaptureMode = .window
+    @Published var availableCaptureModes: [ScreenshotCaptureMode] = []
+
+    // Transcript markers: character positions in currentTranscript at the moment each screenshot was taken
+    private var screenshotTranscriptMarkers: [Int] = []
 
     // Accessibility onboarding
     let onboardingWindowController = OnboardingWindowController()
@@ -136,6 +142,17 @@ final class AppState: ObservableObject {
         hotkeyService.proModeEnabled = proModeEnabled
         hotkeyService.startMonitoring()
 
+        // Listen for display configuration changes (monitor connect/disconnect)
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.refreshAvailableCaptureModes()
+            }
+        }
+
         // Show permissions onboarding if needed
         if !permissionManager.allRequiredPermissionsGranted && !storage.permissionsOnboardingCompleted {
             // Delay slightly to let the app finish launching
@@ -161,6 +178,7 @@ final class AppState: ObservableObject {
         } else {
             isProRecording = false
             capturedScreenshots = []  // Clear any previous screenshots
+            screenshotTranscriptMarkers = []
             startRecording(withScreenshot: false)
         }
     }
@@ -171,7 +189,19 @@ final class AppState: ObservableObject {
             stopRecording()
         } else {
             isProRecording = true
-            startRecording(withScreenshot: true)
+            refreshAvailableCaptureModes()
+            startRecording(withScreenshot: false)
+        }
+    }
+
+    /// Refresh the list of available capture modes (displays + window)
+    func refreshAvailableCaptureModes() {
+        let modes = screenshotService.availableCaptureModes()
+        availableCaptureModes = modes
+
+        // Keep current selection if still valid, otherwise fallback to .window
+        if !modes.contains(selectedCaptureMode) {
+            selectedCaptureMode = .window
         }
     }
 
@@ -197,23 +227,20 @@ final class AppState: ObservableObject {
                 return
             }
 
-            // Capture screenshot BEFORE recording if Pro mode
-            if withScreenshot {
-                // Try to capture - if it succeeds, permission is granted
-                if let screenshot = await screenshotService.captureScreen() {
-                    pendingScreenshot = screenshot
+            // In Pro mode, verify screen recording permission with a quick test capture
+            if isProRecording {
+                if let testImage = screenshotService.captureDisplay(CGMainDisplayID()) {
                     screenshotCaptureVerified = true
-                    print("[AppState] Pro recording: screenshot captured")
+                    // Discard the test image — user will capture manually via camera button
+                    _ = testImage
+                    print("[AppState] Pro recording: screen capture permission verified")
                 } else if !screenshotCaptureVerified {
-                    // Capture failed and we haven't verified permission before
-                    // Show permission alert (CGPreflightScreenCaptureAccess is unreliable)
                     await MainActor.run {
                         showScreenRecordingPermissionAlert()
                     }
                     return
                 } else {
-                    // Capture failed but we've had success before - just continue
-                    print("[AppState] Pro recording: screenshot capture failed, continuing without")
+                    print("[AppState] Pro recording: permission check failed but previously verified, continuing")
                 }
             }
 
@@ -224,7 +251,6 @@ final class AppState: ObservableObject {
                 try deepgramService.connect()
             } catch {
                 isConnecting = false
-                pendingScreenshot = nil
                 isProRecording = false
                 showError(message: error.localizedDescription)
             }
@@ -248,8 +274,8 @@ final class AppState: ObservableObject {
 
         // Capture current state for async processing
         let wasProRecording = isProRecording
-        let screenshot = pendingScreenshot
         let screenshots = capturedScreenshots
+        let markers = screenshotTranscriptMarkers
 
         // Reset UI state immediately
         currentAudioLevel = 0.0
@@ -275,8 +301,8 @@ final class AppState: ObservableObject {
                         finalizeStopRecording(
                             duration: duration,
                             wasProRecording: wasProRecording,
-                            screenshot: screenshot,
-                            screenshots: screenshots
+                            screenshots: screenshots,
+                            markers: markers
                         )
                     }
                 }
@@ -288,16 +314,11 @@ final class AppState: ObservableObject {
     private func finalizeStopRecording(
         duration: TimeInterval,
         wasProRecording: Bool,
-        screenshot: NSImage?,
-        screenshots: [NSImage]
+        screenshots: [NSImage],
+        markers: [Int] = []
     ) {
         // Save final transcript if we have one
-        var finalText = currentTranscript.isEmpty ? interimTranscript : currentTranscript
-
-        // Clean text from filler words if enabled
-        if textCleaningEnabled && !finalText.isEmpty {
-            finalText = textCleaner.clean(finalText)
-        }
+        let rawText = currentTranscript.isEmpty ? interimTranscript : currentTranscript
 
         // Disconnect (this will close the WebSocket)
         deepgramService.disconnect()
@@ -313,22 +334,39 @@ final class AppState: ObservableObject {
         currentTranscript = ""
         interimTranscript = ""
         recordingStartTime = nil
-        pendingScreenshot = nil
         isProRecording = false
         capturedScreenshots = []
+        screenshotTranscriptMarkers = []
         isStopping = false
 
-        // Combine Pro mode initial screenshot with camera button screenshots
-        var allScreenshots: [NSImage] = []
-        if let proScreenshot = screenshot {
-            allScreenshots.append(proScreenshot)
+        // All screenshots come from camera button captures only
+        let allScreenshots = screenshots
+        let allMarkers = markers
+
+        // Split raw transcript into segments by markers
+        let rawSegments = splitTranscript(rawText, markers: allMarkers)
+
+        // Apply text cleaning to each segment independently
+        var segments: [String]
+        if textCleaningEnabled {
+            segments = rawSegments.map { segment in
+                segment.isEmpty ? "" : textCleaner.clean(segment)
+            }
+        } else {
+            segments = rawSegments
         }
-        allScreenshots.append(contentsOf: screenshots)
+
+        // Combined cleaned text
+        var finalText = segments.filter { !$0.isEmpty }.joined(separator: " ")
+        if finalText.isEmpty {
+            // Fallback: clean the whole text
+            finalText = textCleaningEnabled ? textCleaner.clean(rawText) : rawText
+        }
 
         // Pro mode or camera button screenshots: show review dialog
         if !allScreenshots.isEmpty && !finalText.isEmpty {
             pendingDuration = duration
-            handleMultiScreenshotFeedback(screenshots: allScreenshots, text: finalText, duration: duration)
+            handleMultiScreenshotFeedback(screenshots: allScreenshots, text: finalText, segments: segments, duration: duration)
 
             // Reset disconnect flag after a delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -454,11 +492,12 @@ final class AppState: ObservableObject {
     }
 
     /// Handle multiple screenshots captured during recording (camera button)
-    private func handleMultiScreenshotFeedback(screenshots: [NSImage], text: String, duration: TimeInterval) {
-        // Show review dialog with all screenshots
+    private func handleMultiScreenshotFeedback(screenshots: [NSImage], text: String, segments: [String], duration: TimeInterval) {
+        // Show review dialog with all screenshots and per-screenshot segments
         proReviewController.show(
             screenshots: screenshots,
             transcript: text,
+            transcriptSegments: segments,
             duration: duration,
             onSave: { [weak self] data in
                 self?.handleMultiScreenshotSave(data: data)
@@ -506,13 +545,14 @@ final class AppState: ObservableObject {
                 text: data.transcript
             )
 
-            // Export each screenshot with numbered suffix
+            // Export each screenshot with its transcript segment
             for (index, screenshot) in data.screenshots.enumerated() {
                 let suffix = data.screenshots.count > 1 ? "_\(index + 1)" : ""
                 let filename = "\(baseFilename)\(suffix)"
+                let segmentText = index < data.transcriptSegments.count ? data.transcriptSegments[index] : ""
                 screenshotService.exportToFolder(
                     screenshot: screenshot,
-                    text: index == 0 ? data.transcript : "", // Only include text with first screenshot
+                    text: segmentText,
                     folderURL: folderURL,
                     baseFilename: filename
                 )
@@ -580,9 +620,9 @@ final class AppState: ObservableObject {
         interimTranscript = ""
         currentAudioLevel = 0.0
         recordingStartTime = nil
-        pendingScreenshot = nil
         isProRecording = false
         capturedScreenshots = []
+        screenshotTranscriptMarkers = []
 
         // Reset disconnect flag after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -680,19 +720,35 @@ final class AppState: ObservableObject {
             return
         }
 
-        // Temporarily hide floating window (don't destroy it)
-        floatingWindowController.temporaryHide()
+        let captureMode = selectedCaptureMode
+
+        // For display capture, hide floating window to avoid it appearing in the screenshot
+        // For window capture, CGWindowListCreateImage with .optionIncludingWindow ignores other windows
+        let needsHide: Bool
+        if case .display = captureMode {
+            needsHide = true
+        } else {
+            needsHide = false
+        }
+
+        if needsHide {
+            floatingWindowController.temporaryHide()
+        }
 
         Task {
-            // Small delay to ensure window is hidden
-            try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 sec
+            // Small delay to ensure window is hidden (only needed for display capture)
+            if needsHide {
+                try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 sec
+            }
 
-            // Capture screenshot
-            if let screenshot = await screenshotService.captureScreen() {
+            // Capture screenshot using selected mode
+            if let screenshot = screenshotService.capture(mode: captureMode) {
                 await MainActor.run {
                     screenshotCaptureVerified = true  // Mark as verified
                     capturedScreenshots.append(screenshot)
-                    print("[AppState] Screenshot captured during recording: \(capturedScreenshots.count) total")
+                    // Save transcript position marker for segmentation
+                    screenshotTranscriptMarkers.append(currentTranscript.count)
+                    print("[AppState] Screenshot captured during recording: \(capturedScreenshots.count) total, marker at position \(currentTranscript.count)")
 
                     // Play success sound
                     soundService.play(.success)
@@ -704,13 +760,14 @@ final class AppState: ObservableObject {
                 }
             }
 
-            // Small delay before showing window again
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 sec
+            // Show floating window again (only if we hid it)
+            if needsHide {
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 sec
 
-            // Show floating window again
-            await MainActor.run {
-                if isRecording {
-                    floatingWindowController.temporaryShow()
+                await MainActor.run {
+                    if isRecording {
+                        floatingWindowController.temporaryShow()
+                    }
                 }
             }
         }
@@ -792,6 +849,39 @@ final class AppState: ObservableObject {
         recordingStartTime.map { Date().timeIntervalSince($0) } ?? 0
     }
 
+    // MARK: - Transcript Segmentation
+
+    /// Split transcript text into segments based on character position markers.
+    /// Each marker represents the position in the transcript when a screenshot was taken.
+    /// Returns one segment per marker.
+    private func splitTranscript(_ text: String, markers: [Int]) -> [String] {
+        guard !markers.isEmpty else { return [text] }
+
+        // Single screenshot — return the whole text
+        if markers.count == 1 {
+            return [text]
+        }
+
+        var segments: [String] = []
+        let textLength = text.count
+
+        for i in 0..<markers.count {
+            let startPos = markers[i]
+            let endPos = (i + 1 < markers.count) ? markers[i + 1] : textLength
+
+            // Clamp positions to valid range
+            let clampedStart = min(max(startPos, 0), textLength)
+            let clampedEnd = min(max(endPos, clampedStart), textLength)
+
+            let startIndex = text.index(text.startIndex, offsetBy: clampedStart)
+            let endIndex = text.index(text.startIndex, offsetBy: clampedEnd)
+            let segment = String(text[startIndex..<endIndex]).trimmingCharacters(in: .whitespaces)
+            segments.append(segment)
+        }
+
+        return segments
+    }
+
     // MARK: - Private Methods
 
     private func showError(message: String) {
@@ -820,6 +910,12 @@ extension AppState: AudioServiceDelegate {
     nonisolated func audioService(_ service: AudioService, didUpdateAudioLevel level: Float) {
         Task { @MainActor in
             currentAudioLevel = level
+        }
+    }
+
+    nonisolated func audioServiceDidReconfigureAudioDevice(_ service: AudioService) {
+        Task { @MainActor in
+            print("[AppState] Audio device reconfigured successfully, recording continues")
         }
     }
 }

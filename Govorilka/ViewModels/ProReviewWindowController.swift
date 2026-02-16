@@ -5,6 +5,7 @@ import SwiftUI
 struct ProReviewData {
     let screenshots: [NSImage]  // Support multiple screenshots
     var transcript: String
+    var transcriptSegments: [String]  // Per-screenshot transcript segments
     let duration: TimeInterval
     let timestamp: Date
 
@@ -17,14 +18,25 @@ struct ProReviewData {
     init(screenshot: NSImage, transcript: String, duration: TimeInterval, timestamp: Date) {
         self.screenshots = [screenshot]
         self.transcript = transcript
+        self.transcriptSegments = [transcript]
         self.duration = duration
         self.timestamp = timestamp
     }
 
-    /// Multiple screenshots initializer
+    /// Multiple screenshots initializer (backward compatibility — single transcript)
     init(screenshots: [NSImage], transcript: String, duration: TimeInterval, timestamp: Date) {
         self.screenshots = screenshots
         self.transcript = transcript
+        self.transcriptSegments = [transcript]
+        self.duration = duration
+        self.timestamp = timestamp
+    }
+
+    /// Multiple screenshots with per-screenshot segments
+    init(screenshots: [NSImage], transcript: String, transcriptSegments: [String], duration: TimeInterval, timestamp: Date) {
+        self.screenshots = screenshots
+        self.transcript = transcript
+        self.transcriptSegments = transcriptSegments
         self.duration = duration
         self.timestamp = timestamp
     }
@@ -63,6 +75,7 @@ final class ProReviewWindowController: NSObject, ObservableObject {
     func show(
         screenshots: [NSImage],
         transcript: String,
+        transcriptSegments: [String]? = nil,
         duration: TimeInterval,
         onSave: @escaping (ProReviewData) -> Void,
         onCancel: @escaping () -> Void
@@ -72,9 +85,11 @@ final class ProReviewWindowController: NSObject, ObservableObject {
         self.onSave = onSave
         self.onCancel = onCancel
 
+        let segments = transcriptSegments ?? [transcript]
         let data = ProReviewData(
             screenshots: screenshots,
             transcript: transcript,
+            transcriptSegments: segments,
             duration: duration,
             timestamp: Date()
         )
@@ -88,9 +103,10 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] editedTranscript in
+            onSave: { [weak self] editedSegments in
                 var updatedData = data
-                updatedData.transcript = editedTranscript
+                updatedData.transcriptSegments = editedSegments
+                updatedData.transcript = editedSegments.filter { !$0.isEmpty }.joined(separator: " ")
                 self?.handleSave(data: updatedData)
             },
             onCancel: { [weak self] in
@@ -166,9 +182,10 @@ final class ProReviewWindowController: NSObject, ObservableObject {
 
         let contentView = ProReviewView(
             data: data,
-            onSave: { [weak self] editedTranscript in
+            onSave: { [weak self] editedSegments in
                 var updatedData = data
-                updatedData.transcript = editedTranscript
+                updatedData.transcriptSegments = editedSegments
+                updatedData.transcript = editedSegments.filter { !$0.isEmpty }.joined(separator: " ")
                 self?.handleSave(data: updatedData)
             },
             onCancel: { [weak self] in

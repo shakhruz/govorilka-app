@@ -30,7 +30,7 @@ final class FloatingWindowController: ObservableObject {
 
         // Create window
         let window = FloatingPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 200, height: 280),
+            contentRect: NSRect(x: 0, y: 0, width: 200, height: 320),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false

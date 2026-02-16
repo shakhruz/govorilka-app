@@ -40,6 +40,7 @@
 		919BDBCD41D1C6A76295E086 /* HotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0B213263B0769790A7A80 /* HotkeyService.swift */; };
 		921017EB69FD8284E73413A9 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = BCD0628DC262D66E4E15B377 /* KeyboardShortcuts */; };
 		ACF80595EF70D115747F4247 /* OnboardingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52763627CA9B5D060D1BF1DA /* OnboardingWindowController.swift */; };
+		AF720225A39BAE5782898206 /* ScreenshotCaptureMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E280449CE1D146E9919F4A76 /* ScreenshotCaptureMode.swift */; };
 		B0888BC53FCDC53F1E409469 /* TranscriptEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */; };
 		BD5EBA497B55211A9DFD7203 /* CompactCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C569D22B5B2C70C2FE5E1B81 /* CompactCloudView.swift */; };
 		C9BF027C49BDF0F7D03DE29A /* ProReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08B3C26940F3453FBC8ABE6 /* ProReviewView.swift */; };
@@ -104,6 +105,7 @@
 		CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptEntry.swift; sourceTree = "<group>"; };
 		D7588F7A7CA27E8B1A6686EC /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
 		D8D44FDC7493465230B5E331 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		E280449CE1D146E9919F4A76 /* ScreenshotCaptureMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCaptureMode.swift; sourceTree = "<group>"; };
 		E52DC75818BA678D8333FA45 /* Govorilka.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Govorilka.entitlements; sourceTree = "<group>"; };
 		E61F3CE536009E7801CFB596 /* HistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryDetailView.swift; sourceTree = "<group>"; };
 		E662FC4D7E614147AD0693EF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		428C60242AAD6D9D1B0E0C77 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				E280449CE1D146E9919F4A76 /* ScreenshotCaptureMode.swift */,
 				CBF11E7CDFA332065549B2C5 /* TranscriptEntry.swift */,
 			);
 			path = Models;
@@ -386,6 +389,7 @@
 				8A5BA1689CD6524F3D271A49 /* ProReviewWindowController.swift in Sources */,
 				893B30637E6FFE59A8523849 /* PurchaseService.swift in Sources */,
 				61848C67C3253DDF381D7F4C /* RecordingView.swift in Sources */,
+				AF720225A39BAE5782898206 /* ScreenshotCaptureMode.swift in Sources */,
 				650003D70B00F5325544B772 /* ScreenshotService.swift in Sources */,
 				850BB48DDFE317851084640E /* SettingsView.swift in Sources */,
 				299FAB5A8080DF81FE1EB746 /* SmilingCloudView.swift in Sources */,

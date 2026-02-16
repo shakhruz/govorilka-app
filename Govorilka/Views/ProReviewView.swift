@@ -3,7 +3,7 @@ import SwiftUI
 /// Pro mode review dialog view
 struct ProReviewView: View {
     let data: ProReviewData
-    let onSave: (String) -> Void
+    let onSave: ([String]) -> Void  // Now passes segments array
     let onCancel: () -> Void
 
     @State private var copiedScreenshot = false
@@ -11,11 +11,19 @@ struct ProReviewView: View {
     @State private var exportFolderName: String = ""
     @State private var currentScreenshotIndex = 0
 
-    // AI Touch state
-    @State private var currentTranscript: String = ""
-    @State private var transcriptHistory: [String] = []
+    // AI Touch state — per-segment
+    @State private var currentSegments: [String] = []
+    @State private var segmentHistories: [[String]] = []  // Undo history per segment
     @State private var isProcessingAI = false
     @State private var aiError: String?
+
+    /// Current segment text for the active screenshot
+    private var currentTranscript: String {
+        guard currentScreenshotIndex < currentSegments.count else {
+            return currentSegments.joined(separator: " ")
+        }
+        return currentSegments[currentScreenshotIndex]
+    }
 
     private let llmService = LLMService.shared
 
@@ -192,7 +200,7 @@ struct ProReviewView: View {
                         // AI Touch controls
                         HStack(spacing: 8) {
                             // Undo button (if history exists)
-                            if !transcriptHistory.isEmpty {
+                            if canUndo {
                                 Button(action: undoAITouch) {
                                     HStack(spacing: 4) {
                                         Image(systemName: "arrow.uturn.backward")
@@ -297,7 +305,7 @@ struct ProReviewView: View {
 
                 Spacer()
 
-                Button(action: { onSave(currentTranscript) }) {
+                Button(action: { onSave(currentSegments) }) {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark")
                             .font(.system(size: 11, weight: .bold))
@@ -327,7 +335,16 @@ struct ProReviewView: View {
         .background(softPink.opacity(0.3))
         .preferredColorScheme(.light)
         .onAppear {
-            currentTranscript = data.transcript
+            // Initialize segments from data
+            if data.transcriptSegments.count == data.screenshots.count {
+                currentSegments = data.transcriptSegments
+            } else {
+                // Fallback: put all text in first segment, empty for rest
+                currentSegments = (0..<data.screenshots.count).map { i in
+                    i == 0 ? data.transcript : ""
+                }
+            }
+            segmentHistories = Array(repeating: [], count: currentSegments.count)
             checkExportFolder()
         }
     }
@@ -336,25 +353,34 @@ struct ProReviewView: View {
 
     private func performAITouch() {
         guard !isProcessingAI else { return }
+        guard currentScreenshotIndex < currentSegments.count else { return }
 
         isProcessingAI = true
         aiError = nil
 
+        let segmentIndex = currentScreenshotIndex
+        let textToImprove = currentSegments[segmentIndex]
+
         // Save current text to history before modification
-        transcriptHistory.append(currentTranscript)
+        if segmentIndex < segmentHistories.count {
+            segmentHistories[segmentIndex].append(textToImprove)
+        }
 
         Task {
             do {
-                let improvedText = try await llmService.improveText(currentTranscript)
+                let improvedText = try await llmService.improveText(textToImprove)
                 await MainActor.run {
-                    currentTranscript = improvedText
+                    if segmentIndex < currentSegments.count {
+                        currentSegments[segmentIndex] = improvedText
+                    }
                     isProcessingAI = false
                 }
             } catch {
                 await MainActor.run {
                     // Restore from history on error
-                    if let lastText = transcriptHistory.popLast() {
-                        currentTranscript = lastText
+                    if segmentIndex < segmentHistories.count,
+                       let lastText = segmentHistories[segmentIndex].popLast() {
+                        currentSegments[segmentIndex] = lastText
                     }
                     aiError = error.localizedDescription
                     isProcessingAI = false
@@ -364,9 +390,17 @@ struct ProReviewView: View {
     }
 
     private func undoAITouch() {
-        guard let previousText = transcriptHistory.popLast() else { return }
-        currentTranscript = previousText
+        let segmentIndex = currentScreenshotIndex
+        guard segmentIndex < segmentHistories.count,
+              let previousText = segmentHistories[segmentIndex].popLast() else { return }
+        currentSegments[segmentIndex] = previousText
         aiError = nil
+    }
+
+    /// Whether undo is available for the current segment
+    private var canUndo: Bool {
+        guard currentScreenshotIndex < segmentHistories.count else { return false }
+        return !segmentHistories[currentScreenshotIndex].isEmpty
     }
 
     private var formattedDuration: String {
